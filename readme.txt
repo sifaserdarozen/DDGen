@@ -30,11 +30,6 @@ To clear cached files and restore to head by which git corrects line endings.
         git rm --cached -r .
         git reset --hard
 
-To compile in Visual Studio
-- install visual studio 2010 express and cuda tools
-- in project directory type
-        make
-
 Compiled and tested in Debian Jessie. Probably will work in other Linux flavours with minor modifications.
 - install make, g++ and cuda tools
         make clean : to clean old data
