@@ -1,0 +1,18 @@
+# set the default behaviour in case people don't have core.autocrlf set
+* text=auto
+
+# explicitly declare text files you want allways normalized and converted to nativeline endings at checkout
+*.c text
+*.cpp text
+*.h text
+*.bat text
+makefile text
+
+# declare files that'll allways have CRLF on checkout
+# *.bat text eol=crlf
+
+# declare files that'll allways have LF on checkout
+# makefile text eol=lf
+
+# declare files that'll allways be as it is
+# *.png binary

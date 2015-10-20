@@ -1,0 +1,7 @@
+lib/
+bin/
+tmp/
+!/3rdParty/**
+doc/html
+doc/*.db
+
