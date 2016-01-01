@@ -1,0 +1,3 @@
+run ddgen in callgrind virtual machine
+>sudo valgrind --tool=callgrind ./ddgen --nc 25 --dc 120 --drlink 192.168.10.101 28008 192.168.10.101 28009
+the output will be written to callgrind.out.somepid. It is better to interpret results using kcachegrind

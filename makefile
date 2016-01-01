@@ -9,6 +9,11 @@ MAKE_DIR= ./tmp
 INCLUDE= -I$(INCLUDE_DIR)
 
 CPP_OPTIONS= -Wall -g -std=c++11
+
+ifdef gprof
+CPP_OPTIONS+= -pg
+endif
+
 NVCC_OPTIONS= -g
 
 OPERATING_SYSTEM= $(shell uname -o)

@@ -34,3 +34,9 @@ Compiled and tested in Debian Jessie. Probably will work in other Linux flavours
 - install make, g++ and cuda tools
         make clean : to clean old data
         make
+
+Small documentation about possible profiling ddgen may be seen through https://sifaserdarozen.wordpress.com/2016/01/01/a-small-survey-for-profiling-a-c-application/
+        poor mans profiler : see /profilers/pmp.sh.readme
+        gprof              : see /prifilers/gprof.readme, code should be compiled with "make gprof=yes" to enable -pg flag
+        perf               : see /profilers/perf.readme
+        callgrind          : see /profilers/callgrind.readme

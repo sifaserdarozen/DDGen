@@ -1,0 +1,3 @@
+To use poor mans profiler;
+start ddgen, and in another terminal run pmp.sh script. At regular times (configurable in pmp.sh), it will take stack trace of pmp using gdb
+> basch pmp.sh

@@ -1,6 +1,9 @@
 lib/
 bin/
 tmp/
+**gmon.out
+**perf.data*
+**callgrind.out*
 !/3rdParty/**
 doc/html
 doc/*.db

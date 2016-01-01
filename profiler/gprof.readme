@@ -1,0 +1,4 @@
+To enable gprof, compile with option -pg,
+> make gprof=yes
+then see the output through 
+> gprof ddgen gmon.out 

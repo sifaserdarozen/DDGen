@@ -1,0 +1,6 @@
+to use linux perf profiler for ddgen for duration of 60 seconds.
+> sudo perf record -p pidofddegen sleep 60
+or whole system for all cpus and stack trace will be
+> sudo perf -a -g sleep 60
+outputs may be interpreted through
+> perf report
