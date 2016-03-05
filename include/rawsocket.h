@@ -77,7 +77,16 @@ struct RtpHeaderType
      * @return success or failure due to buffer write
      * @see ReadFromBuffer()
      */
-    bool WriteToBuffer(unsigned char* buffer_ptr);
+    bool WriteToBuffer(unsigned char* buffer_ptr) const;
+    
+    /**
+     * @brief overloading equivalence operator
+     *
+     * Since there is not a dynamic allocated data, std::memcmp is used in comparison
+     * @param rhs other RtpHeaderType to compare with
+     * @return boolean result of equivalence check
+     */
+    bool operator ==(const RtpHeaderType& rhs) const;
     
     /**
      * @brief Display contents of Rtp header
@@ -179,6 +188,15 @@ struct Ipv4HeaderType
     bool WriteToBuffer(unsigned char* buffer_ptr);
     
     /**
+     * @brief overloading equivalence operator
+     *
+     * Since there is not a dynamic allocated data, std::memcmp is used in comparison
+     * @param rhs other Ipv4HeaderType to compare with
+     * @return boolean result of equivalence check
+     */
+    bool operator ==(const Ipv4HeaderType& rhs) const;
+    
+    /**
      * @brief Display contents of Ipv4 header
      */
     void Display() const;
@@ -245,6 +263,15 @@ struct UdpHeaderType
      * @see ReadFromBuffer()
      */
     bool WriteToBuffer(unsigned char* buffer_ptr);
+    
+    /**
+     * @brief overloading equivalence operator
+     *
+     * Since there is not a dynamic allocated data, std::memcmp is used in comparison
+     * @param rhs other UdpHeaderType to compare with
+     * @return boolean result of equivalence check
+     */
+    bool operator ==(const UdpHeaderType& rhs) const;
     
     /**
      * @brief Display contents of Udp header

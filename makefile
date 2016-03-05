@@ -1,12 +1,13 @@
 #makefile of capturer
 
-NAME= dbgen
+NAME= ddgen
 BIN_DIR= ./bin
 SRC_DIR= ./src
+UTEST_DIR= /tests
 LIB_DIR= ./lib
 INCLUDE_DIR= ./include
 MAKE_DIR= ./tmp
-INCLUDE= -I$(INCLUDE_DIR)
+INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch
 
 CPP_OPTIONS= -Wall -g -std=c++11
 
@@ -29,7 +30,7 @@ CPP_COMPILER= g++
 NVCC_COMPILER= nvcc
 endif
 
-EXECUTABLES= ddgen
+EXECUTABLES= $(NAME) $(NAME)_utests
 
 TARGETS= $(EXECUTABLES)
 

@@ -1,5 +1,7 @@
 #include <iostream>
 #include <netinet/in.h>    // htonl, ntohl, htons, ntohs
+#include "cstring"    // for std::memcmp
+
 #include "rawsocket.h"
 
 unsigned short int OnesComplementShortSummation(const unsigned char* data_ptr, unsigned short int data_size)
@@ -40,7 +42,7 @@ bool RtpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
     return true;
 }
 
-bool RtpHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
+bool RtpHeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
 {
     // check if buffer_ptr points to somewhere (hopefully) to 12 byte rtp header
     if (NULL == buffer_ptr)
@@ -56,6 +58,14 @@ bool RtpHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     *((RtpHeaderType*)buffer_ptr) = dummy_rtp_header;
 
     return true;
+}
+
+bool RtpHeaderType::operator ==(const RtpHeaderType& rhs) const
+{
+    if (0 == std::memcmp(this, &rhs, sizeof(RtpHeaderType)))
+        return true;
+    else 
+        return false;
 }
 
 void RtpHeaderType::Display() const
@@ -186,6 +196,14 @@ bool Ipv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     return true;
 }
 
+bool Ipv4HeaderType::operator ==(const Ipv4HeaderType& rhs) const
+{
+    if (0 == std::memcmp(this, &rhs, sizeof(Ipv4HeaderType)))
+        return true;
+    else 
+        return false;
+}
+
 void Ipv4HeaderType::Display() const
 {
     std::cout << "------------------ Ipv4 Header ---------------------" << std::endl;
@@ -280,6 +298,14 @@ bool UdpHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
 
     return true;
+}
+
+bool UdpHeaderType::operator ==(const UdpHeaderType& rhs) const
+{
+    if (0 == std::memcmp(this, &rhs, sizeof(UdpHeaderType)))
+        return true;
+    else 
+        return false;
 }
 
 void UdpHeaderType::Display() const

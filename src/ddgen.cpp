@@ -241,63 +241,6 @@ int main(int argc, char*argv[])
             return -1;
         }
     }
-
-/*
-    std::cout << "what the bleep do we know?" << std::endl;
-    
-    RtpHeaderType rtp_header;
-    rtp_header.Display();
-    rtp_header.ReadFromBuffer(sample_line_rtp_header);
-    rtp_header.Display();
-    
-    unsigned char line_rtp[rtp_header_size];
-    rtp_header.WriteToBuffer(line_rtp);
-    
-    std::cout << std::hex;
-    for (int k = 0; k < rtp_header_size; ++k)
-        std::cout << (unsigned int) line_rtp[k] << " ";
-    std::cout << std::dec << std::endl << std::endl;
-    
-    Ipv4HeaderType ipv4_header;
-    ipv4_header.Display();
-    ipv4_header.ReadFromBuffer(sample_line_ipv4_header);
-    ipv4_header.Display();
-    
-    ipv4_header.checksum = 0;
-    
-    unsigned char line_ipv4[ipv4_header_size];
-    ipv4_header.UpdateChecksumWriteToBuffer(line_ipv4);
-    
-    std::cout << std::hex;
-    for (int k = 0; k < ipv4_header_size; ++k)
-        std::cout << (unsigned int) line_ipv4[k] << " ";
-    std::cout << std::dec << std::endl << std::endl;
-    
-    UdpHeaderType udp_header;
-    udp_header.Display();
-    udp_header.ReadFromBuffer(sample_line_udp_header);
-    udp_header.Display();
-    
-    udp_header.checksum = 0;
-    
-    PseudoIpv4HeaderType pseudo_ipv4_header;
-    pseudo_ipv4_header.src_addr = ipv4_header.src_addr;
-    pseudo_ipv4_header.dst_addr = ipv4_header.dst_addr;
-    pseudo_ipv4_header.protocol = ipv4_header.protocol;
-    pseudo_ipv4_header.data_len = udp_header.tot_len;
-    
-    unsigned char line_udp[udp_header_size];
-    udp_header.UpdateChecksumWriteToBuffer(line_udp, sample_line_rtp_packet, pseudo_ipv4_header);
-    
-    std::cout << std::hex;
-    for (int k = 0; k < udp_header_size; ++k)
-        std::cout << (unsigned int) line_udp[k] << " ";
-    std::cout << std::dec << std::endl << std::endl;
-    
-    */
-    
-
-    
     
     /*
     unsigned int src_addr = 0xac186536;
