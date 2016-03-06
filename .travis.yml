@@ -1,0 +1,23 @@
+sudo: required
+
+# choose trusty for nvidia-cuda-toolkit
+dist: trusty
+
+language: cpp
+
+compiler: gcc
+
+before_install:
+  # update before start
+  - sudo apt-get update -qq
+
+install:
+  # install nvcc
+  - sudo apt-get install -qq -y nvidia-cuda-toolkit
+
+script:
+  # make ddgen and corresponding unit tests ddgen_utests
+  - make
+  
+  # run catch unit tests
+  - ./bin/ddgen_utests
