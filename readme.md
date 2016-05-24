@@ -1,52 +1,63 @@
 # DDGen [![Build Status](https://travis-ci.org/sifaserdarozen/DDGen.png)](https://travis-ci.org/sifaserdarozen/DDGen)
 Pseudo rtp packet generator
 
-#### Purpose
+### What is it?
+DDGen may be used to generate pseuto rtp packets to test VoIP systems. It can geneate traffic in two modes;
+* Active mode (generated VoIP trafic is destined to a specific IP)
+* Passive mode (generated VoIP traffic is mirrored)
 
-Tool for active (drlink) or passive (mirrored traffic) pseudo rtp packet generator to test VoIP systems.
-Uses  row sockets which requires root privileges. 
-By default drlink traffic is send to configured ip/port pairs, and mirrored traffic is written to a pcap file. However, these may be overridden though.
+### How to build
+In a Linux flavor, be sure to install *make*, *g++* and *nvidia-cuda-toolkit* package. Then clone or dowload code.
+```
+make ddgen
+```
+will do the job. Unit tests may be fired by
+```
+./bin/ddgen_utests
+```
 
-#### Active Mode (drlink traffic generator)
-- ddgen --nc 10 [-i ip_of_capturer -p port_of_capturer ... ]
+### How to run
+As DDGen uses Linux row sockets, it will need root privileges.
+```
+sudo ./bin/ddgen --mirror
+```
+This will lead an execution with default parameters in passive mode. In this mode generated traffic is written to a pcap file. See following sections for detailed usage.
 
+### Active mode (DDGen as drlink traffic generator)
 In order to generate 10 simultaneous calls each having random duration (uniform %10) of 60s and send to drlink media address 192.168.126.1:28008 and 192.168.126.1:28009
+```
+sudo ./bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009
+```
+Default values of ip and port are: 127.0.0.1 and 29000 29001
 
-- ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009
+Active traffic is send to a target ip & ports by default. If you want to save active traffic as pcap, use `--pcap` flag
 
-(if omitted) default values are: 127.0.0.1 and 29000 29001
-drlink data is send to drlink socket by default. If want to save as pcap, use --pcap flag
+```
+./sudo ./bin/ddgen --nc 10 --dc 60 --pcap --drlink 192.168.126.1 28008 192.168.126.1 28009
+```
 
-- ddgen --nc 10 --dc 60 --pcap --drlink 192.168.126.1 28008 192.168.126.1 28009
+### Passive Mode (mirror traffic generator)
+Usual case in passive mode is saving generated traffic as pcap file.
+```
+sudo ./bin/ddgen --nc 10 --dc 60 --mirror
+```
 
-#### Passive Mode (mirror traffic generator)
-- ddgen --nc 10 --dc 60 --mirror
+If somehow you want to send generated traffic to a socket (for example 192.168.126.1:28008) use;
+```
+sudo ./bin/ddgen --nc 10 --dc 60 --socket 192.168.126.1 28008 --mirror
+```
 
-In order to save pair traffic as pcap file, which should be operating in non functional mirror mode.
-If somehow want to send generated pair data to a socket (for example 192.168.126.1:28008) use;
-
-- ddgen --nc 10 --dc 60 --socket 192.168.126.1 28008 --mirror
-
-
-#### Build and Test
-Compiled and tested in Debian Jessie. Probably will work in other Linux flavours with minor modifications.
-
-- install make, g++ and nvidia-cuda-toolkit
-
-        make
-        
-- unit tests may be fired by
-
-        ./bin/ddgen_utests
-
-
-#### Profiling
+### Profiling
 Small documentation about possible profiling options for ddgen may be seen through https://sifaserdarozen.wordpress.com/2016/01/01/a-small-survey-for-profiling-a-c-application/
-- poor mans profiler : see /profilers/pmp.sh.readme     
-- gprof              : see /prifilers/gprof.readme, code should be compiled with "make gprof=yes" to enable -pg flag   
-- perf               : see /profilers/perf.readme   
-- callgrind          : see /profilers/callgrind.readme
-        
-#### Thanks to used 3rd Parties
+* poor mans profiler : see /profilers/pmp.sh.readme     
+* gprof              : see /prifilers/gprof.readme, code should be compiled with "make gprof=yes" to enable -pg flag   
+* perf               : see /profilers/perf.readme   
+* callgrind          : see /profilers/callgrind.readme
+
+### Thanks to used 3rd Parties
 Catch for unit tests https://github.com/philsquared/Catch
+
+### License
+Please check individual licanse information of used 3rd parties. Besides, there is a great deal of g722 taken from IETF reference implementation that should be trated as IEFT wishes.
+All remaining part is MIT.
 
