@@ -17,6 +17,22 @@ install:
   # install nvcc
   - sudo apt-get install -qq -y nvidia-cuda-toolkit
 
+env:
+  global:
+   # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
+   #   via the "travis encrypt" command using the project repo's public key
+   - secure: "clPM1FrTi04ZwGIbvSa1WSz/Q7vD1QnjVLjj1mMraOP6kVIrlbWnaVKuapIvbtByOGt/UuWqsMPkVOqFqKvHFEDX7RGxuhvt9wX6O2o1w+KVsiIlcPui8zIsBnPSDf5/g0d/d9APtrIrkdYXz3eGuyZbx2caZCEZC7rBdTVgQYtH/w5djDCLixT0umRY3cox6KdY4iIi+aqW7cNdClfr63fkNLB+rxcPNOmzjfWPJEsaRrWYX5Yk4SjGYb7ro0ZqqQaF76o1KL2vThgeS9HMNTIJ2dDhcUVcxo0nDzMgYY6MfQnY8G/knbycbdtJeSPpD1C6gM7J2W2bXUF0JeWAekAYndhrVuwlWvQCaijabXp8s2tvu407EvvpRRW/uqfbxZsIi1d9SMDJhx4IteqYF/uSOJMYsqx02p+tT29Ra451zwRfYeB1ktFcys+vqbomLWtICkzkozx9KRIT5oVB8jC93sEvHZ3HmNu9yInrJPf4UiJxsxcLGvjuRtXpI/+t/l8RbAYuM5HHM3YdtXlFcmpVSZi2I47JLq2Z2uxwis4gjeZuUi2ytVPBJAqeQyuys10F7wEUtWItjlvyaAbKKwYeOWuo+IiAja02ZibvDLzTuxHGbxJ141OedNOFFMuszWa4IKzvjOTBKkbVFo/+hG6Y9X/6daK97zdj0zC18ZU="
+
+addons:
+  coverity_scan:
+    project:
+      name: "sifaserdarozen/DDGen"
+      description: "Build submitted via Travis CI"
+    notification_email: sifa.serdar.ozen@gmail.com
+    build_command_prepend: "make clean"
+    build_command: "make"
+    branch_pattern: coverity_scan
+
 script:
   # make ddgen and corresponding unit tests ddgen_utests
   - make
