@@ -1,6 +1,7 @@
 lib/
 bin/
 tmp/
+cov-int/
 **gmon.out
 **perf.data*
 **callgrind.out*
