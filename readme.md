@@ -1,4 +1,4 @@
-# DDGen [![Build Status](https://travis-ci.org/sifaserdarozen/DDGen.png)](https://travis-ci.org/sifaserdarozen/DDGen)
+# DDGen [![Build Status](https://travis-ci.org/sifaserdarozen/DDGen.png)](https://travis-ci.org/sifaserdarozen/DDGen) [![Coverity Status](https://img.shields.io/coverity/scan/8972.svg)](https://scan.coverity.com/projects/sifaserdarozen-ddgen)
 Pseudo rtp packet generator
 
 ### What is it?
