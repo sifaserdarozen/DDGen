@@ -111,7 +111,7 @@ struct PseudoIpv4HeaderType
     unsigned char protocol;           /**< layer 4 protocol */
     unsigned short int data_len;      /**< data length (layer4 packet length) */
     
-    PseudoIpv4HeaderType() : zero_pad (0) {}
+    PseudoIpv4HeaderType() : src_addr(0), dst_addr(0), zero_pad(0), protocol(0), data_len(0) {}
     
     /**
      * @brief Write contents to raw line buffer

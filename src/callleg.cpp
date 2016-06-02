@@ -18,6 +18,7 @@ CallLegType::CallLegType(unsigned int src_addr,
                         ConsumerType* consumer_ptr)
 {
     m_accumulated_step_time = 0;
+    m_remaining_time = 0;
     m_encoder_ptr = encoder_factory_ptr->CreateEncoder();
     m_generator_ptr = generator_factory_ptr->CreateGenerator();
     m_consumer_ptr = consumer_ptr;

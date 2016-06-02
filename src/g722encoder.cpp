@@ -128,7 +128,9 @@ short int G722EncoderType::Quantl(short int el, short int detl) const
 	}
 
 	sil = SaturateAddShort(sil, 1);
-
+        // protect array index from being negative
+        if (sil < 0)
+                sil = 0;
 	return misil[sil][mil];
 }
 
@@ -146,6 +148,9 @@ short int G722EncoderType::Quanth(short int eh, short int deth) const
 		mih = 2;
 
 	sih = SaturateAddShort(sih, 1);
+        // protect array index from being negative
+        if (sih < 0)
+                sih = 0;
 
 	return misih[sih][mih];
 }
@@ -207,6 +212,9 @@ short int G722EncoderType::Scalel(short int nbpl) const
 {
 	short int wd1 = ShiftRightShort(nbpl, 6) & 511;
 	short int wd2 = SaturateAddShort(wd1, 64);
+        // protect array index from being negative
+        if (wd2 < 0)
+                wd2 = 0;
 	return (ShiftLeftShort(SaturateAddShort(ila[wd2], 1), 2));
 }
 
@@ -331,8 +339,8 @@ void G722EncoderType::QmfTx(short int xin0, short int xin1, short int& xl, short
 	band.qmf_tx_delayx[1] = xin1;
 	band.qmf_tx_delayx[0] = xin0;
 
-	accuma = (int)*pcoef++, (int)*pdelayx++;
-	accumb = (int)*pcoef++, (int)*pdelayx++;
+	accuma = ((int)*pcoef++)*((int)*pdelayx++);
+	accumb = ((int)*pcoef++)*((int)*pdelayx++);
 
 	for(short int i = 1; i < 12; i++)
 	{

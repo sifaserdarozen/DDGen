@@ -43,6 +43,12 @@ SocketConsumerType::SocketConsumerType(std::vector<IpPort> & dst_ipport)
         int my_socket = -1;
   
         my_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+
+        if (-1 == my_socket)
+        {
+            std::cerr << __FILE__ << " " << __LINE__ << " socket initialisation error: " << errno << " " << strerror(errno) << std::endl;
+            return;
+        }
         
         int on = 1;
 
