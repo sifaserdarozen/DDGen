@@ -39,11 +39,11 @@ SingleToneGeneratorType::SingleToneGeneratorType(float amplitude, float frequenc
     {
         // generate frequency between 0.2PI to 0.8PI
         std::uniform_real_distribution<float> frequency_distribution(0.2*PI, 0.8*PI);
-        m_phase = frequency_distribution(generator);
+        m_frequency = frequency_distribution(generator);
     }
     
     // check phase to be between -PI to PI
-    if ((-PI < phase) && (phase > PI))
+    if ((-PI < phase) && (phase < PI))
         m_phase = phase;
     else
     {

@@ -50,6 +50,7 @@ SocketConsumerType::SocketConsumerType(std::vector<IpPort> & dst_ipport)
         {
             std::cerr << __FILE__ << " " << __LINE__ << " socket options error: "  << errno << " " << strerror(errno) << std::endl;
             std::cerr << "Must have root privileges!" << std::endl;
+            close(my_socket);
         }
         else
         {
