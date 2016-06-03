@@ -39,6 +39,7 @@ CallLegType::CallLegType(unsigned int src_addr,
     m_udp_header.src_port = src_port;
     m_udp_header.dst_port = dst_port;
     m_udp_header.tot_len = m_line_data.m_rtp_data_size + rtp_header_size + udp_header_size;
+    m_udp_header.checksum =0;    // set to zero, willbe updated when writing to buffer
     
     // form ipv4 header
     m_ipv4_header.hdr_len = 0x5;
@@ -51,6 +52,7 @@ CallLegType::CallLegType(unsigned int src_addr,
     m_ipv4_header.tot_len = m_udp_header.tot_len + ipv4_header_size;
     m_ipv4_header.protocol = 17;
     m_ipv4_header.id = id;
+    m_ipv4_header.checksum = 0;    // set to zero, will be updated when writing to buffer
 
     // form pseudo ipv4 header
     m_pseudo_ipv4_header.src_addr = m_ipv4_header.src_addr;

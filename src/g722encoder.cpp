@@ -123,6 +123,9 @@ short int G722EncoderType::Quantl(short int el, short int detl) const
 		else
 		{
 			mil = SaturateAddShort(mil, 1);
+                        // protect array index frombeing negative
+                        if (mil < 0)
+                                mil = 0;
 			val = ScaledMult(ShiftLeftShort(q6[mil], 3), detl);
 		}
 	}
