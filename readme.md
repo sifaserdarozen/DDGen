@@ -58,6 +58,6 @@ Small documentation about possible profiling options for ddgen may be seen throu
 Catch for unit tests https://github.com/philsquared/Catch
 
 ### License
-Please check individual licanse information of used 3rd parties. Besides, there is a great deal of g722 taken from IETF reference implementation that should be trated as IEFT wishes.
+Please check individual licanse information of used 3rd parties. Besides, there is a great deal of g722 taken from ITU reference implementation that should be trated as ITU wishes.
 All remaining part is MIT.
 
