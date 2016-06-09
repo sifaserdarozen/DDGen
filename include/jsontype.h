@@ -11,8 +11,30 @@
 #include <string>
 #include <vector>
 
-// function that will find the very first json key value pair delimeter
+/** @brief Find delimeter location between json elements
+ *
+ *  Function returns first delimeter between json elements, starting from given position.
+ *  As an example input of with default start postion of 0
+ *  {"a":"b","c":{...}} 
+ *  will return location of ","
+ *
+ *  @pram data json string
+ *  @param start start position of search
+ *  @return location of delimeter
+ */
 std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start = 0);
+
+/** @brief Function that removes whitespace chracters from json string
+ *
+ *  This function normalizes json string to make delimeter search and element cast easier
+ *  A json string of
+ *  {"a": "Ali" , "b":  "c"}
+ *  should be normalized as
+ *  {"a":"Ali","b":"c"}
+ *
+ *  @param message json string to be normalized
+ *  @param normalized_message normalized string of message
+ */  
 void NormalizeString(const std::string& message, std::string& normalized_message);
 
 class JsonValueType;
