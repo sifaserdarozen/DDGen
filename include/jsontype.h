@@ -40,6 +40,16 @@ void NormalizeString(const std::string& message, std::string& normalized_message
 class JsonValueType;
 class JsonType;
 
+/** @brief Json Element data type
+ *
+ *  Class for json element data type. Only string is supported for Key
+ *  and for value, string, json object and array types are possible
+ *  
+ *  @see JsonValueType
+ *  @see JsonJsonValueType
+ *  @see StringJsonValueType
+ *  @see ArrayJsonValueType
+ */
 class JsonElementType
 {
 private:
