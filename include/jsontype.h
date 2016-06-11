@@ -71,6 +71,18 @@ public:
     virtual ~JsonElementType();
 };
 
+/** @brief Class to hold Json data
+ *
+ *  Basic Json type implementation. This restricted form
+ *  will have 0 to n json elements having string key and 
+ *  one of {string, vector, json} as values
+ *
+ *  @see JsonElementType
+ *  @see JsonValuetype
+ *  @see JsonJsonvalueType
+ *  @see ArrayJsonValueType
+ *  @see StringJsonValueType
+ */
 class JsonType
 {
 private:
