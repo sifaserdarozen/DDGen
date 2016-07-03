@@ -10,6 +10,8 @@ MAKE_DIR= ./tmp
 INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch
 
 CPP_OPTIONS= -Wall -g -std=c++11
+# to elimanete catch warning
+CPP_OPTIONS+= -Wno-unknown-pragmas
 
 ifdef gprof
 CPP_OPTIONS+= -pg
