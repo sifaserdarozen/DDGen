@@ -1,4 +1,4 @@
-# DDGen [![Build Status](https://travis-ci.org/sifaserdarozen/DDGen.png)](https://travis-ci.org/sifaserdarozen/DDGen) [![Coverity Status](https://img.shields.io/coverity/scan/8972.svg)](https://scan.coverity.com/projects/sifaserdarozen-ddgen)
+# DDGen [![Build Status](https://travis-ci.org/sifaserdarozen/DDGen.png)](https://travis-ci.org/sifaserdarozen/DDGen) [![Coverity Status](https://img.shields.io/coverity/scan/8972.svg)](https://scan.coverity.com/projects/sifaserdarozen-ddgen) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/ce80d5adf8dd406eaa83e7ba32eb2cc7)](https://www.codacy.com/app/sifa-serdar-ozen/DDGen?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=sifaserdarozen/DDGen&amp;utm_campaign=Badge_Grade)
 Pseudo rtp packet generator
 
 ### What is it?
