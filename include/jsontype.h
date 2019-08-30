@@ -5,8 +5,8 @@
     @date 2016.03.10
     @version 1.0.0
  */
-#ifndef JSON_SIS_
-#define JSON_SIS_
+
+#pragma once
 
 #include <string>
 #include <vector>
@@ -15,7 +15,7 @@
  *
  *  Function returns first delimeter between json elements, starting from given position.
  *  As an example input of with default start postion of 0
- *  {"a":"b","c":{...}} 
+ *  {"a":"b","c":{...}}
  *  will return location of ","
  *
  *  @pram data json string
@@ -34,7 +34,7 @@ std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start 
  *
  *  @param message json string to be normalized
  *  @param normalized_message normalized string of message
- */  
+ */
 void NormalizeString(const std::string& message, std::string& normalized_message);
 
 class JsonValueType;
@@ -44,7 +44,7 @@ class JsonType;
  *
  *  Class for json element data type. Only string is supported for Key
  *  and for value, string, json object and array types are possible
- *  
+ *
  *  @see JsonValueType
  *  @see JsonJsonValueType
  *  @see StringJsonValueType
@@ -56,7 +56,7 @@ private:
     std::string m_key;
     JsonValueType* m_value_ptr;
 
-public:  
+public:
     JsonElementType();
     JsonElementType(std::string element_in_line);
     JsonElementType(std::string key, int value);
@@ -74,7 +74,7 @@ public:
 /** @brief Class to hold Json data
  *
  *  Basic Json type implementation. This restricted form
- *  will have 0 to n json elements having string key and 
+ *  will have 0 to n json elements having string key and
  *  one of {string, vector, json} as values
  *
  *  @see JsonElementType
@@ -176,5 +176,3 @@ public:
     virtual std::vector<std::string> GetStrArr() const;
     virtual ~VectorJsonValueType();
 };
-
-#endif

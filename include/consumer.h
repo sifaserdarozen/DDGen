@@ -5,8 +5,7 @@
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
 
-#ifndef CONSUMER_DDGEN_H
-#define CONSUMER_DDGEN_H
+#pragma once
 
 #include <vector>
 #include <netinet/in.h>    // for sockaddr
@@ -22,7 +21,7 @@ void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec);
 /**
  * @brief Abstract packet consumer interface
  *
- * Consumer interface 
+ * Consumer interface
  * @see SocketConsumerType()
  * @see PcapConsumerType()
  */
@@ -35,12 +34,12 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     ConsumerType() {}
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~ConsumerType() {}
-    
+
     /**
      * @brief Pure virtual interface for consuming packets
      *
@@ -68,15 +67,15 @@ public:
     /**
      * @brief Constructor for initializing socket
      *
-     * 
+     *
      */
     SocketConsumerType(std::vector<IpPort> & dst_ipport);
-    
+
     /**
      * @brief destructor, does close socket
      */
     ~SocketConsumerType();
-    
+
      /**
      * @brief Socket consumer for generated packets
      *
@@ -108,7 +107,7 @@ private:
         unsigned short int version_minor;    /**< minor version number */
         unsigned int thiszone;
         unsigned int sigfigs;    /**< flags */
-        unsigned int snaplen;    
+        unsigned int snaplen;
         unsigned int network;
     };
 
@@ -123,13 +122,13 @@ private:
         unsigned int incl_len;    /**< packet capture length */
         unsigned int orig_len;    /**< original packet length */
     };
-    
+
 private:
     std::string m_file_name;    /**< file name for pcap file */
     std::fstream m_file_stream;    /**< file stream for pcap file */
     unsigned int m_file_size;    /**< An integer that shows size of pcap file. */
     const PcapHdrType m_pcap_file_header = {0xa1b2c3d4, 2, 4, 0, 0, 65535, 1};    /**< pcap file haader for .pcap */
-    
+
     /** @brief Generates file name
 		@return Returns 1 if file is generated successfully.
 	*/
@@ -142,12 +141,12 @@ public:
      * @param file_name INPUT desired filename of pcap file. If already present, overriden
      */
     PcapConsumerType(std::string file_name = "");
-    
+
     /**
      * @brief destructor, does close pcap file
      */
     ~PcapConsumerType();
-    
+
      /**
      * @brief Pcap file consumer for generated packets
      *
@@ -157,5 +156,3 @@ public:
      */
     virtual bool Consume(const unsigned char* data_ptr, unsigned short int data_size);
 };
-
-#endif

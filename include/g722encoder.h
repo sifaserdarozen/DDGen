@@ -4,9 +4,8 @@
  *
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
- 
-#ifndef G722ENCODER_DDGEN_H
-#define G722ENCODER_DDGEN_H
+
+#pragma once
 
 #include "encoder.h"
 
@@ -233,7 +232,7 @@ struct FullBandType
 /**
  * @brief G711aEncoder realization
  *
- * Encoder interface 
+ * Encoder interface
  * @see EncoderType()
  * @see G711uEncoderType()
  */
@@ -254,7 +253,7 @@ private:
 	int Clamp15ToBits(int op) const;
 	short int Saturate(int op) const;
 	short int ScaledMult(short int op1, short int op2) const;
-	
+
 	short int Quantl(short int el, short int detl) const;
 	short int Quanth(short int eh, short int deth) const;
 	short int Invqal(short int il, short int detl) const;
@@ -277,15 +276,15 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     G722EncoderType();
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~G722EncoderType();
-    
+
     /**
      * @brief g722 encoding implementation
-     * 
+     *
      * 16kHz g722 type A encoder implementation
      * @param pcm_data_ptr INPUT pointer to input pcm data that will be encoded, should contain GetPacaketSize() of data
      * @param encoded_data_ptr OUTPUT pointer to hold encoded output, should point to GetPacketSize() of data
@@ -293,7 +292,7 @@ public:
      * @see GetPacketSize()
      */
     virtual bool Encode(const short int* pcm_data_ptr, unsigned char* encoded_data_ptr);
-    
+
     /**
      * @brief Reset band memory of encoder. Either used before first packer of after a silence period.
      */
@@ -305,11 +304,11 @@ public:
      * @return rtp payload type of encoder
      */
     virtual unsigned char GetRtpPayload() const { return G722_RTP_PAYLOAD_TYPE; }
-    
+
     /**
      * @brief Implementation for obtaining packet size
      *
-     * Default packet size of G722EncoderType is G722_PACKET_SIZE samples. 
+     * Default packet size of G722EncoderType is G722_PACKET_SIZE samples.
      * @return packet size of encoder
      */
     virtual unsigned short int GetPacketSize() const { return G722_PACKET_SIZE; }
@@ -324,7 +323,7 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     G722EncoderFactoryType() { }
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
@@ -336,8 +335,6 @@ public:
      * @return G722EncoderType is created and returned to calling object
      * @see EncoderType()
      * @see G722EncoderType()
-     */    
+     */
     virtual EncoderType* CreateEncoder() const { return new G722EncoderType(); }
 };
-
-#endif

@@ -5,8 +5,7 @@
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
 
-#ifndef CALLLEG_DDGEN_H
-#define CALLLEG_DDGEN_H
+#pragma once
 
 #include <vector>
 #include "rawsocket.h"
@@ -28,17 +27,17 @@ private:
     Ipv4HeaderType m_ipv4_header;    /**< ipv4 header */
     EthHeaderType m_eth_header;    /**< ethernet header */
     PseudoIpv4HeaderType m_pseudo_ipv4_header;    /**< pseudo ipv4 header that will be used in header checksum */
-    
+
     unsigned int m_remaining_time;    /**< remaining time in ms in this call leg */
     unsigned int m_accumulated_step_time;    /**< accumulated step time that is not handled yet */
-    
+
     EncoderType* m_encoder_ptr;    /**< encoder that will be used in waveform encoding */
     GeneratorType* m_generator_ptr;    /**< waveform generator */
     ConsumerType* m_consumer_ptr;    /**< consumer that will be used to handle packets */
-    
+
     short int m_pcm_data_ptr[MAX_PCM_DATA_SIZE];    /**< maximum rtp data size */
     LineDataType m_line_data;    /**< line array that will hold raw data to be processed */
-    
+
 public:
     /**
      * @brief Class that will encapsulate call leg information.
@@ -63,11 +62,11 @@ public:
                 unsigned short int id,
                 unsigned int timestamp,
                 unsigned int ssrc,
-                unsigned short int seq_num, 
+                unsigned short int seq_num,
                 EncoderFactoryType* encoder_factory_ptr,
                 GeneratorFactoryType* generator_factory_ptr,
                 ConsumerType* consumer_ptr);
-                
+
     /**
      * @brief Destructor method
      *
@@ -76,7 +75,7 @@ public:
      * @see m_generator_ptr
      */
     ~CallLegType();
-    
+
     void Step(unsigned short int step_durtion);    /**< Make a step in simulation */
 };
 
@@ -100,12 +99,12 @@ public:
      * In destructor dynamically created variables will be freed.
      */
     virtual ~CallType() {}
-    
+
     /**
      * @brief Abstract function to step simulation
      *
      * @param step_duration INPUT duration to simulate a call
-     * @return success of operation 
+     * @return success of operation
      */
     virtual bool Step(unsigned int step_duration) = 0;
 };
@@ -135,7 +134,7 @@ public:
      * In destructor dynamically created variables will be freed.
      */
     ~DRLinkCallType();
-    
+
     bool Step(unsigned int step_duration);
 };
 
@@ -164,7 +163,7 @@ public:
      * In destructor dynamically created variables will be freed.
      */
     ~MirrorCallType();
-    
+
     bool Step(unsigned int step_duration);
 };
 
@@ -172,7 +171,7 @@ public:
 /**
  * @brief Abstract call factory interface
  *
- * Call factory interface 
+ * Call factory interface
  * @see DrLinkCallFactoryType()
  * @see MirrorCallFactoryType()
  */
@@ -185,12 +184,12 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     CallFactoryType() {}
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~CallFactoryType() {}
-    
+
     /**
      * @brief pure virtual interface for call creating
      *
@@ -201,7 +200,7 @@ public:
                     GeneratorFactoryType* generator_factory_ptr,
                     ConsumerType* consumer_ptr) = 0;
 };
- 
+
 class DRLinkCallFactoryType : public CallFactoryType
 {
 private:
@@ -217,7 +216,7 @@ public:
         m_dst_inf = dst_inf;
         m_src_ip = 0xac186536;
     }
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
@@ -230,12 +229,12 @@ public:
      * @see CallType()
      * @see DrLinkCallType()
      * @see MirrorCallType()
-     */    
+     */
     virtual CallType* CreateCall(unsigned int duration,
                     EncoderFactoryType* encoder_factory_ptr,
                     GeneratorFactoryType* generator_factory_ptr,
                     ConsumerType* consumer_ptr)
-    { 
+    {
         CallType* call_ptr = new DRLinkCallType(m_dst_inf, m_src_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
         m_src_ip ++;
         return  call_ptr;
@@ -251,11 +250,11 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     MirrorCallFactoryType()
-    { 
+    {
         std::cout << __FILE__ << " " << __LINE__ << "in constructor of mirror call factory" << std::endl;
         m_ip_pool = 0xac186536;
     }
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
@@ -268,11 +267,9 @@ public:
      * @see GeneratorType()
      * @see ZeroGeneratorType()
      * @see SingleToneGeneratorType()
-     */    
+     */
     virtual CallType* CreateCall(unsigned int duration,
                     EncoderFactoryType* encoder_factory_ptr,
                     GeneratorFactoryType* generator_factory_ptr,
                     ConsumerType* consumer_ptr);
 };
- 
-#endif
