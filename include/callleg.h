@@ -13,6 +13,8 @@
 
 #include <vector>
 
+namespace ddgen
+{
 #define MAX_PCM_DATA_SIZE 8000
 
 /**
@@ -271,3 +273,4 @@ public:
                     GeneratorFactoryType* generator_factory_ptr,
                     ConsumerType* consumer_ptr);
 };
+}

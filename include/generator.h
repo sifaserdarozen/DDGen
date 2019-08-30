@@ -7,6 +7,9 @@
 
 #pragma once
 
+namespace ddgen
+{
+
 #define PI 3.1416    /**< value of pi in radians */
 
 
@@ -272,3 +275,4 @@ public:
      */
     virtual GeneratorType* CreateGenerator() const { return new SinusoidalGeneratorType(); }
 };
+}

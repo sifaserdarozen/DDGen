@@ -9,6 +9,9 @@
 
 #include "encoder.h"
 
+namespace ddgen
+{
+
 #define G722_PACKET_SIZE 320    /**< G722 packet size is 320 sapmles, 20ms data at 16kHz sampling */
 #define G722_RTP_PAYLOAD_TYPE 0x9    /**< G722 rtp payload type */
 
@@ -338,3 +341,4 @@ public:
      */
     virtual EncoderType* CreateEncoder() const { return new G722EncoderType(); }
 };
+}

@@ -5,6 +5,9 @@
 #include <limits.h>
 #include <random>
 
+namespace ddgen
+{
+
 CallLegType::CallLegType(unsigned int src_addr,
                         unsigned short int src_port,
                         unsigned int dst_addr,
@@ -295,4 +298,5 @@ CallType* MirrorCallFactoryType::CreateCall(unsigned int duration,
     unsigned int src_ip = m_ip_pool++;
     unsigned int dst_ip = m_ip_pool++;
     return new MirrorCallType(src_ip, dst_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+}
 }

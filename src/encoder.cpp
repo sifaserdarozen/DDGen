@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+namespace ddgen
+{
+
 bool G711aEncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* encoded_data_ptr)
 {
 	if (!encoded_data_ptr)
@@ -94,4 +97,5 @@ bool G711uEncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* en
 	}
 
 	return true;
+}
 }

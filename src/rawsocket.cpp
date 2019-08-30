@@ -4,6 +4,9 @@
 #include <iostream>
 #include <netinet/in.h>
 
+namespace ddgen
+{
+
 unsigned short int OnesComplementShortSummation(const unsigned char* data_ptr, unsigned short int data_size)
 {
     unsigned int sum = 0;
@@ -371,4 +374,5 @@ void EthHeaderType::Display() const
     std::cout << "Destination max    : " << (unsigned int)dst_mac[0] << ":" << (unsigned int)dst_mac[1] << ":" << (unsigned int)dst_mac[2] << ":" << (unsigned int)dst_mac[3] << ":" << (unsigned int)dst_mac[4] << ":" << (unsigned int)dst_mac[5] << std::endl;
     std::cout << "Protocol           : " << eth_type << std::endl;
     std::cout << std::dec;
+}
 }

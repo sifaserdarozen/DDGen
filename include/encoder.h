@@ -7,6 +7,9 @@
 
 #pragma once
 
+namespace ddgen
+{
+
 #define G711_PACKET_SIZE 160    /**< G711 packet size is 160 samples, 20ms data at 8kHz sampling */
 #define G722_PACKET_SIZE 320    /**< G722 packet size is 320 sapmles, 20ms data at 16kHz sampling */
 #define PACKET_DURATION 20    /**< Default packet duration is 20ms */
@@ -252,3 +255,4 @@ public:
      */
     virtual EncoderType* CreateEncoder() const { return new G711uEncoderType(); }
 };
+}

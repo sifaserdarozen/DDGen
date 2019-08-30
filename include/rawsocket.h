@@ -7,6 +7,9 @@
 
 #pragma once
 
+namespace ddgen
+{
+
 /**
  * @brief ip port combination
  *
@@ -373,3 +376,4 @@ struct LineDataType
         return (eth_header_size + ipv4_header_size + udp_header_size + rtp_header_size + m_rtp_data_size);
     }
 };
+}

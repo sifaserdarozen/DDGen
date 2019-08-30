@@ -13,6 +13,9 @@
 #include <netinet/in.h>
 #include <vector>
 
+namespace ddgen
+{
+
 /** @brief Gets current time in sec and usec.
     @param sec OUTPUT system time seconds part
     @param usec OUTPUT system time in micro seconds part
@@ -158,3 +161,4 @@ public:
      */
     virtual bool Consume(const unsigned char* data_ptr, unsigned short int data_size);
 };
+}

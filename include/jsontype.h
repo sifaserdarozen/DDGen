@@ -11,6 +11,9 @@
 #include <string>
 #include <vector>
 
+namespace ddgen
+{
+
 /** @brief Find delimeter location between json elements
  *
  *  Function returns first delimeter between json elements, starting from given position.
@@ -176,3 +179,4 @@ public:
     virtual std::vector<std::string> GetStrArr() const;
     virtual ~VectorJsonValueType();
 };
+}

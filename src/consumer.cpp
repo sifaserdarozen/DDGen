@@ -8,6 +8,9 @@
 #include <sys/time.h>
 #include <unistd.h>
 
+namespace ddgen
+{
+
 void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec)
 {
     timeval tv;
@@ -198,4 +201,5 @@ bool PcapConsumerType::Consume(const unsigned char* data_ptr, unsigned short int
     m_file_stream.flush();
 
     return true;
+}
 }

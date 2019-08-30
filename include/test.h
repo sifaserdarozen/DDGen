@@ -30,7 +30,7 @@ const unsigned char sample_line_rtp_header[] = {0x80, 0x00, 0x0b, 0x05, 0x00, 0x
  * Source identifier  : 0x3705a01b
  * @see line_rtp_header
  */
-const RtpHeaderType sample_rtp_header = {0, 0, 0, 2, 0, 0, 2821, 2286760, 0x3705a01b};
+const ddgen::RtpHeaderType sample_rtp_header = {0, 0, 0, 2, 0, 0, 2821, 2286760, 0x3705a01b};
 
 const unsigned char sample_line_rtp_data[] = {0xff, 0xf9, 0x7f, 0x7e, 0xfc, 0xfe, 0xfd, 0x7f, 0xfd, 0x7c, 0x7e, 0xfe, 0x7d, 0xff, 0x7d, 0xfe,
                                               0xff, 0x7e, 0xfd, 0xff, 0x7e, 0x7f, 0xfe, 0xfe, 0x7f, 0xfe, 0xfe, 0x7e, 0x7e, 0xff, 0x7f, 0xfe,
@@ -71,7 +71,7 @@ const unsigned char sample_line_udp_header[] = {0xe3, 0xa2, 0x58, 0xaa, 0x00, 0x
  * Checksum           : 0xa7f5
  * @see line_udp_header
  */
-const UdpHeaderType sample_udp_header = {58274, 22698, 180, 0xa7f5};
+const ddgen::UdpHeaderType sample_udp_header = {58274, 22698, 180, 0xa7f5};
 
 /**
  * @brief Sample ipv4 line data
@@ -96,4 +96,4 @@ unsigned char sample_line_ipv4_header[] = {0x45, 0xb8, 0x00, 0xc8, 0xd9, 0x62, 0
  * Destination address  : 0xac1b1e69 (172.27.30.105)
  * @see line_ipv4_header
  */
-const Ipv4HeaderType sample_ipv4_header = {5, 4, 0xb8, 200, 0xd962, 0, 128, 17, 0x8437, 0xac186536, 0xac1b1e69};
+const ddgen::Ipv4HeaderType sample_ipv4_header = {5, 4, 0xb8, 200, 0xd962, 0, 128, 17, 0x8437, 0xac186536, 0xac1b1e69};

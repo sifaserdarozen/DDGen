@@ -3,6 +3,9 @@
 #include <cctype>
 #include <iostream>
 
+namespace ddgen
+{
+
 std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start)
 {
     const char* targets = "{}[],";
@@ -575,4 +578,5 @@ void JsonType::Add(const std::string& key, const std::string& value)
 JsonType::~JsonType()
 {
 
+}
 }

@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+namespace ddgen
+{
+
 int G722EncoderType::SaturateAdd(int op1, int op2) const
 {
 	int out = op1 + op2;
@@ -498,4 +501,5 @@ bool G722EncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* enc
 	}
 
 	return true;
+}
 }

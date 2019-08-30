@@ -6,6 +6,9 @@
 #include <math.h>
 #include <random>
 
+namespace ddgen
+{
+
 bool ZeroGeneratorType::Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration)
 {
     for ( ;size ; --size)
@@ -108,4 +111,5 @@ bool SinusoidalGeneratorType::Generate(short int* pcm_data_ptr, unsigned short i
         *pcm_data_ptr++ = 0;
 
     return true;
+}
 }

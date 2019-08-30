@@ -70,14 +70,14 @@ int main(int argc, char*argv[])
 
     unsigned int dst_ip = 0x691e1bac;
     unsigned short int dst_port = 29000;
-    std::vector<IpPort> dst_ipport_vector;
-    std::vector<IpPort> drlink_ipport_vector;
+    std::vector<ddgen::IpPort> dst_ipport_vector;
+    std::vector<ddgen::IpPort> drlink_ipport_vector;
 
-    G711aEncoderFactoryType g711a_encoder_factory;
-    SingleToneGeneratorFactoryType single_tone_generator_factory;
+    ddgen::G711aEncoderFactoryType g711a_encoder_factory;
+    ddgen::SingleToneGeneratorFactoryType single_tone_generator_factory;
 
-    CallFactoryType* call_factory_ptr = NULL;
-    ConsumerType* consumer_ptr = NULL;
+    ddgen::CallFactoryType* call_factory_ptr = NULL;
+    ddgen::ConsumerType* consumer_ptr = NULL;
 
     for (int argv_index = 1; argv_index < argc; ++argv_index)
     {
@@ -100,7 +100,7 @@ int main(int argc, char*argv[])
             }
 
             dst_port = std::atoi(argv[argv_index + 2]);
-            IpPort dst_ipport(dst_ip, dst_port);
+            ddgen::IpPort dst_ipport(dst_ip, dst_port);
 
             drlink_ipport_vector.push_back(dst_ipport);
 
@@ -110,7 +110,7 @@ int main(int argc, char*argv[])
             }
 
             dst_port = std::atoi(argv[argv_index + 4]);
-            IpPort dst_ipport2(dst_ip, dst_port);
+            ddgen::IpPort dst_ipport2(dst_ip, dst_port);
 
             drlink_ipport_vector.push_back(dst_ipport2);
             argv_index += 4;
@@ -118,7 +118,7 @@ int main(int argc, char*argv[])
             // if consumer is has not set already, default to socket
             if (!consumer_ptr)
             {
-                consumer_ptr = new SocketConsumerType(drlink_ipport_vector);
+                consumer_ptr = new ddgen::SocketConsumerType(drlink_ipport_vector);
                 if (!consumer_ptr)
                 {
                     std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -126,7 +126,7 @@ int main(int argc, char*argv[])
                 }
             }
 
-            call_factory_ptr = new DRLinkCallFactoryType(drlink_ipport_vector);
+            call_factory_ptr = new ddgen::DRLinkCallFactoryType(drlink_ipport_vector);
             if (!call_factory_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << " call factory is not able to be generated" << std::endl;
@@ -140,7 +140,7 @@ int main(int argc, char*argv[])
             // if consumer is has not set already, default to socket
             if (!consumer_ptr)
             {
-                consumer_ptr = new PcapConsumerType();
+                consumer_ptr = new ddgen::PcapConsumerType();
                 if (NULL == consumer_ptr)
                 {
                     std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -148,7 +148,7 @@ int main(int argc, char*argv[])
                 }
             }
 
-            call_factory_ptr = new MirrorCallFactoryType();
+            call_factory_ptr = new ddgen::MirrorCallFactoryType();
             if (!call_factory_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << " call factory is not able to be generated" << std::endl;
@@ -163,7 +163,7 @@ int main(int argc, char*argv[])
                 consumer_ptr = NULL;
             }
 
-            consumer_ptr = new PcapConsumerType();
+            consumer_ptr = new ddgen::PcapConsumerType();
             if (!consumer_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -179,7 +179,7 @@ int main(int argc, char*argv[])
             }
 
             dst_port = std::atoi(argv[argv_index + 2]);
-            IpPort dst_ipport(dst_ip, dst_port);
+            ddgen::IpPort dst_ipport(dst_ip, dst_port);
 
             dst_ipport_vector.push_back(dst_ipport);
 
@@ -191,7 +191,7 @@ int main(int argc, char*argv[])
                 consumer_ptr = NULL;
             }
 
-            consumer_ptr = new SocketConsumerType(dst_ipport_vector);
+            consumer_ptr = new ddgen::SocketConsumerType(dst_ipport_vector);
             if (!consumer_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -206,14 +206,14 @@ int main(int argc, char*argv[])
         }
     }
 
-    std::vector<CallType*> call_ptr_vector;
+    std::vector<ddgen::CallType*> call_ptr_vector;
 
     unsigned int last_epoch_sec = 0;
     unsigned int last_epoch_usec = 0;
     unsigned int current_sec = 0;
     unsigned int current_usec = 0;
 
-    GetCurrentTimeInTv(last_epoch_sec, last_epoch_usec);
+    ddgen::GetCurrentTimeInTv(last_epoch_sec, last_epoch_usec);
     std::clog << "last epoch sec: " << last_epoch_sec << " usec: " << last_epoch_usec << std::endl;
 
     // form a seed
@@ -240,7 +240,7 @@ int main(int argc, char*argv[])
                 return -1;
             }
 
-            CallType* call_ptr = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
+            ddgen::CallType* call_ptr = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
             if (!call_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << "unable to create call_ptr" << std::endl;
@@ -251,7 +251,7 @@ int main(int argc, char*argv[])
             std::cout << " a call is created with duration " << call_duration << std::endl;
         }
 
-        GetCurrentTimeInTv(current_sec, current_usec);
+        ddgen::GetCurrentTimeInTv(current_sec, current_usec);
         unsigned int ellapsed_time = ((current_sec - last_epoch_sec)*1000000 + (current_usec - last_epoch_usec));
 
         if (ellapsed_time > 40000)
@@ -261,7 +261,7 @@ int main(int argc, char*argv[])
 
         if (ellapsed_time > 20000)
         {
-            for (std::vector<CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
+            for (std::vector<ddgen::CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
             {
                 if (*it)
                 {
@@ -291,7 +291,7 @@ int main(int argc, char*argv[])
         }
     }
 
-    for (std::vector<CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
+    for (std::vector<ddgen::CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
     {
         if (*it)
         {
