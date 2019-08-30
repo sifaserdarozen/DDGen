@@ -8,8 +8,6 @@ language: cpp
 compiler: gcc
 
 before_install:
-  # cuda libraries will be in multiverse
-  - sudo apt-add-repository multiverse
   # update before start
   - sudo apt-get update -qq
 
