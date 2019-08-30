@@ -133,7 +133,6 @@ TEST_CASE( "Json test", "[JsonType]" )
         REQUIRE( "{\"title\": \"Eternal Sunshine Of The Spotless Mind\", \"cast\": [{\"name\": \"Jim\"}, {\"name\": \"Kate\"}]}" == message_in_json_test6.ToString() );
 
         std::string adaptor = "{\"adaptors\": [{\"name\": \"\\Device\\NPF_{A3A00374-6E04-4A3D-8383-752A280E3B81}\", \"description\": \"Microsoft\", \"ip\": \"0.0.0.0\", \"stat\": \"0\"}, {\"name\": \"\\Device\\NPF_{3B50F57D-2855-4B0D-A67C-5223C29458C3}\", \"description\": \"Microsoft\", \"ip\": \"192.168.1.7\", \"stat\": \"0\"}]}";
-        //std::cout << adaptor << std::endl;
         JsonType message_in_json_test7;
         message_in_json_test7.Add("message", "ListAdaptorsAck");
         message_in_json_test7.Add(adaptor);

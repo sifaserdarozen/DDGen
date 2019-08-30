@@ -198,12 +198,4 @@ bool PcapConsumerType::Consume(const unsigned char* data_ptr, unsigned short int
     m_file_stream.flush();
 
     return true;
-
-    /*
-    // check size of the file, is size exceeded maximum value, close the file
-    if (m_file_size > MAXIMUM_PCAP_FILE_SIZE)
-    {
-        CloseFile();
-    }
-    */
 }

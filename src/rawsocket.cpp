@@ -255,10 +255,8 @@ bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const
     pseudo_ipv4_header.WriteToBuffer(line_pseudo_ipv4_ptr);
 
     unsigned int sum = OnesComplementShortSummation(line_pseudo_ipv4_ptr, pseudo_ipv4_header_size);
-    // std::cout << std::hex << sum << " ";
 
     sum += OnesComplementShortSummation(udp_data_ptr, (tot_len - udp_header_size));
-    // std::cout << sum << " ";
 
     UdpHeaderType dummy_udp_header;
     // correct seq_num, time stamp from host byte order to network byte order
@@ -272,7 +270,6 @@ bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const
 
     // calculate checksum
     sum  += OnesComplementShortSummation(buffer_ptr, udp_header_size);
-    // std::cout << sum << " " << std::dec << std::endl;
     checksum = ~(((sum >> 16) + (sum & 0x0000ffff)));
 
     // write it also into buffer_ptr

@@ -43,36 +43,6 @@ bool SleepSystemUsec(unsigned long long int sleep_usec)
     }
 }
 
-/*
-void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec)
-{
-#if defined __linux__ || defined __FreeBSD__
-    timeval tv;
-    if (0 == gettimeofday(&tv, NULL))
-    {
-        sec = (unsigned int)tv.tv_sec;
-        usec = (unsigned int)tv.tv_usec;
-    }
-    else
-        std::cerr << __FILE__ << " " << __LINE__ << " unable to obtain time info" << std::endl;
-#elif defined _WIN32
-    static const unsigned long long int EPOCH = ((unsigned long long int) 116444736000000000ULL);
-
-    SYSTEMTIME system_time;
-    FILETIME file_time;
-    unsigned long long int time;
-
-    GetSystemTime(&system_time);
-    SystemTimeToFileTime(&system_time, &file_time);
-    time = ((unsigned long long int)file_time.dwLowDateTime );
-    time += ((unsigned long long int)file_time.dwHighDateTime) << 32;
-
-    sec  = (unsigned int) ((time - EPOCH) / 10000000L);
-    usec = (unsigned int) (system_time.wMilliseconds * 1000);
-#endif
-}
-*/
-
 void DisplayUsage()
 {
     std::cout << " --- drlink --- " << std::endl;
@@ -236,28 +206,6 @@ int main(int argc, char*argv[])
         }
     }
 
-    /*
-    unsigned int src_addr = 0xac186536;
-    unsigned short int src_port = 58274;
-    unsigned int dst_addr = 0xac1b1e69;
-    unsigned short int dst_port = 22698;
-    unsigned short int id = 0xd962;
-    unsigned int timestamp = 2286760;
-    unsigned int ssrc = 0x3705a01b;
-    unsigned short int seq_num = 2821;
-
-    CallLegType call_leg(src_addr, src_port, dst_addr, dst_port, id, timestamp, ssrc, seq_num, &g711a_encoder_factory, &single_tone_generator_factory);
-    call_leg.Step(20);
-    call_leg.Step(20);
-
-    */
-
-    // std::vector<IpPort> drlink_ipport_vector;
-    // drlink_ipport_vector.push_back(IpPort(0xac1b1e69, 22698));
-    // drlink_ipport_vector.push_back(IpPort(0xac1b1e7a, 22799));
-    // unsigned int src_ip = 0xac186536;
-
-    // std::vector<DRLinkCallType*> drlink_call_ptr_vector;
     std::vector<CallType*> call_ptr_vector;
 
     unsigned int last_epoch_sec = 0;
@@ -279,18 +227,10 @@ int main(int argc, char*argv[])
     {
         if (kbhit())
         {
-            /*
-            char in_ch = std::cin.getchar();
-            if (('Q' == in_ch) || ('q' == in_ch))
-            {
-                std::cout << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " terminating ddgen..." << std::endl;
-                break;
-            }
-            */
+            std::cout << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " terminating ddgen..." << std::endl;
             break;
         }
 
-        //std::cout << "a loop" << std::endl;
         if (call_ptr_vector.size() < number_of_calls)
         {
             unsigned short int call_duration = usint_distribution(generator);
@@ -309,27 +249,10 @@ int main(int argc, char*argv[])
 
             call_ptr_vector.push_back(call_ptr);
             std::cout << " a call is created with duration " << call_duration << std::endl;
-
-            /*
-            DRLinkCallType* drlink_call_ptr = new DRLinkCallType(drlink_ipport_vector, src_ip, call_duration, &g711a_encoder_factory,
-                                      &single_tone_generator_factory, consumer_ptr);
-            if (!drlink_call_ptr)
-            {
-                std::cerr << __FILE__ << " " << __LINE__ << "unable to create drlink_call_ptr" << std::endl;
-                return -1;
-            }
-
-            drlink_call_ptr_vector.push_back(drlink_call_ptr);
-            std::cout << " a call is created with duration " << call_duration << std::endl;
-            src_ip ++;
-
-            */
         }
 
         GetCurrentTimeInTv(current_sec, current_usec);
         unsigned int ellapsed_time = ((current_sec - last_epoch_sec)*1000000 + (current_usec - last_epoch_usec));
-
-        // std::clog << "current sec: " << current_sec << " usec: " << current_usec << " ellapsed time " << ellapsed_time << " ms " << std::endl;
 
         if (ellapsed_time > 40000)
         {
@@ -338,33 +261,8 @@ int main(int argc, char*argv[])
 
         if (ellapsed_time > 20000)
         {
-            // std::clog << "......time for step " << std::endl;
-            /*
-            for (std::vector<DRLinkCallType*>::iterator it = drlink_call_ptr_vector.begin(); it != drlink_call_ptr_vector.end(); ++it)
-            {
-                // std::clog << "......iterating" << std::endl;
-                if (*it)
-                {
-                    bool step_result = (*it) -> Step(20);
-                    if (false == step_result)
-                    {
-                        std::clog << "a calltimed out " << std::endl;
-                        delete (*it);
-                        it = drlink_call_ptr_vector.erase(it);
-                        --it;
-                    }
-                }
-                else
-                {
-                    std::cerr << __FILE__ << " " << __LINE__ << "iteratoris null " << std::endl;
-                    return -1;
-                }
-            }
-            */
-
             for (std::vector<CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
             {
-                // std::clog << "......iterating" << std::endl;
                 if (*it)
                 {
                     bool step_result = (*it) -> Step(20);
@@ -389,23 +287,9 @@ int main(int argc, char*argv[])
         }
         else
         {
-            // std::clog << "..starting to sleep" << (20000 -ellapsed_time) << std::endl;
             SleepSystemUsec(20000 - ellapsed_time);
-            // std::clog << "..awake" << std::endl;
         }
     }
-
-    // free all iterators
-    /*
-    for (std::vector<DRLinkCallType*>::iterator it = drlink_call_ptr_vector.begin(); it != drlink_call_ptr_vector.end(); ++it)
-    {
-        if (*it)
-        {
-            delete (*it);
-            *it = NULL;
-        }
-    }
-    */
 
     for (std::vector<CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
     {

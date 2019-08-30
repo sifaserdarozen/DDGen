@@ -5,21 +5,16 @@
 
 std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start)
 {
-    //std::cout << "-----------FindJsonElementDelimeter(const std::string& data, std::size_t start)-------------" << std::endl;
-    //std::cout << data << std::endl;
-    //std::cout << "start: " << start << std::endl;
     const char* targets = "{}[],";
 
     int no_of_lp = 0;
     int no_of_lb = 0;
 
     std::size_t delimeter_pos = data.find_first_of(targets, start);
-    //std::cout <<"del_pos : " << delimeter_pos << std::endl;
 
     while (std::string::npos != delimeter_pos)
     {
         char curr_char = data[delimeter_pos];
-        //std::cout << "current character " << curr_char << std::endl;
         switch (curr_char)
         {
             case '{' :
@@ -28,7 +23,6 @@ std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start)
             case '}' :
                 if (no_of_lp <= 0)    // do a sanity check
                 {
-                    //std::cout <<"return 1 " << std::endl;
                     return std::string::npos;
                 }
                 no_of_lp --;
@@ -39,7 +33,6 @@ std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start)
             case ']' :
                 if (no_of_lb <= 0)    // do a sanity check
                 {
-                    //std::cout <<"return 2 " << std::endl;
                     return std::string::npos;
                 }
                 no_of_lb --;
@@ -47,12 +40,10 @@ std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start)
             case ',':
                 if ((0 == no_of_lp) && (0 == no_of_lb))
                 {
-                    //std::cout <<"return 3 " << delimeter_pos << std::endl;
                     return delimeter_pos;
                 }
                 break;
             default:
-                //std::cout <<"return 4 " << std::endl;
                 return std::string::npos;
             break;
         }
@@ -61,17 +52,14 @@ std::size_t FindJsonElementDelimeter(const std::string& data, std::size_t start)
         {
             start = delimeter_pos + 1;
             delimeter_pos = data.find_first_of(targets, start);
-            //std::cout <<"del_pos : " << delimeter_pos << std::endl;
         }
         else
         {
-            //std::cout <<"return 5 " << std::endl;
             return std::string::npos;
         }
 
     }
 
-    //std::cout <<"return 6 " << std::endl;
     return std::string::npos;
 }
 
@@ -134,7 +122,6 @@ JsonElementType::JsonElementType(std::string element_in_line)
     m_key = "";
     m_value_ptr = NULL;
 
-    //std::cout << normalized_element << std::endl;
     // find key and value
     std::size_t pos = normalized_element.find(':');
     if (std::string::npos == pos)
@@ -142,9 +129,6 @@ JsonElementType::JsonElementType(std::string element_in_line)
 
     std::string key = normalized_element.substr(0, pos);
     std::string value = normalized_element.substr(pos + 1, normalized_element.size() - key.size() -1);
-
-    //std::cout << "key : " << key <<" value: " << value << std::endl;
-    //std::cout << (char) value[0] << " " << value[value.size() - 1] << std::endl;
 
     if (('"' == key[0] ) && ('"' == key[key.size() - 1]))
         key = key.substr(1, key.size() - 2);
@@ -180,7 +164,6 @@ JsonElementType::JsonElementType(std::string element_in_line)
         while (std::string::npos != pos)
         {
             std::string json_element = value.substr(start, pos - start);
-            //std::cout << "**[]**json element in string" << json_element << std::endl;
 
             if (('"' == json_element[0]) && ('"' == json_element[json_element.size()-1]))
                 json_vector.push_back(new StringJsonValueType(json_element.substr(1, json_element.size()-2)));
@@ -194,7 +177,6 @@ JsonElementType::JsonElementType(std::string element_in_line)
         if (start < value.size())
         {
             std::string json_element = value.substr(start, pos - start);
-            //std::cout << "*[]**json element in string" << json_element << std::endl;
             if (('"' == json_element[0]) && ('"' == json_element[json_element.size()-1]))
                 json_vector.push_back(new StringJsonValueType(json_element.substr(1, json_element.size()-2)));
             else if (('{' == json_element[0]) && ('}' == json_element[json_element.size()-1]))
@@ -234,16 +216,11 @@ JsonElementType::JsonElementType(std::string key, JsonType& value)
 
 JsonElementType::JsonElementType(const JsonElementType& org)
 {
-    //std::cout << "***JsonElementType::JsonElementType(const JsonElementType& org)***" << std::endl;
     m_key = org.m_key;
     if (org.m_value_ptr)
         m_value_ptr = org.m_value_ptr -> Clone();
     else
         m_value_ptr = NULL;
-
-    //std::cout << "original: " << org.ToString() << std::endl;
-    //std::cout << "me      : " << ToString() << std::endl;
-    //std::cout << "---JsonElementType::JsonElementType(const JsonElementType& org)---" << std::endl;
 }
 
 std::string JsonElementType::Key() const
@@ -437,13 +414,10 @@ StringJsonValueType::~StringJsonValueType()
 
 VectorJsonValueType::VectorJsonValueType(const std::vector<JsonValueType*>& value)
 {
-    //std::cout << "******VectorJsonValueType::VectorJsonValueType(const std::vector<JsonValueType*>& value)*******" << std::endl;
     for (std::vector<JsonValueType*>::const_iterator itr = value.begin(); itr != value.end(); ++itr)
     {
         m_value.push_back((*itr)->Clone());
-        //std::cout << (*itr)->ToString() << std::endl;
     }
-    //std::cout << "-------VectorJsonValueType::VectorJsonValueType(const std::vector<JsonValueType*>& value)-------" << std::endl;
 }
 
 VectorJsonValueType* VectorJsonValueType::Clone() const
@@ -485,7 +459,6 @@ std::vector<std::string> VectorJsonValueType::GetStrArr() const
 
 VectorJsonValueType::~VectorJsonValueType()
 {
-    //std::cout << "******VectorJsonValueType::~VectorJsonValueType()*******" << std::endl;
     for (std::vector<JsonValueType*>::const_iterator itr = m_value.begin(); itr != m_value.end(); ++itr)
     {
         delete (*itr);
@@ -497,28 +470,23 @@ VectorJsonValueType::~VectorJsonValueType()
 
 JsonType::JsonType()
 {
-    //std::cout << "----------------------JsonType::JsonType()------------------" << std::endl;
-    //std::cout << "----------------------------------------" << std::endl;
 }
 
 JsonType::JsonType(const std::string& data)
 {
-    //std::cout << "-------------------JsonType::JsonType(const std::string& data)---------------------" << std::endl;
     FromString(data);
-    //std::cout << "----------------------------------------" << std::endl;
 }
 
 std::string JsonType::operator[] (const std::string& key) const
 {
     std::string value;
-    //std::cout << "-----------------------std::string JsonType::operator[] (const std::string& key) const-----------------" << std::endl;
 
     for (std::vector<JsonElementType>::const_iterator it = m_data.begin(); it != m_data.end(); ++it)
     {
         if (key == it -> Key())
             return it -> Value();
     }
-    //std::cout << "----------------------------------------" << std::endl;
+
     return value;
 }
 
@@ -536,15 +504,12 @@ std::vector<std::string> JsonType::GetStrArrValue (const std::string& key) const
 
 void JsonType::FromString(const std::string& data)
 {
-    //std::cout << "------------------------void JsonType::FromString(const std::string& data)----------------" << std::endl;
     m_data.clear();
     Add(data);
-    //std::cout << "----------------------------------------" << std::endl;
 }
 
 std::string JsonType::ToString() const
 {
-    //std::cout << "--------------------void JsonType::FromString(const std::string& data)--------------------" << std::endl;
     std::string value_in_str = "{";
 
     for (std::vector<JsonElementType>::const_iterator itr = m_data.begin(); itr != m_data.end(); ++itr)
@@ -556,7 +521,6 @@ std::string JsonType::ToString() const
     }
 
     value_in_str.append("}");
-    //std::cout << "----------------------------------------" << std::endl;
 
     return value_in_str;
 }
@@ -564,9 +528,7 @@ std::string JsonType::ToString() const
 
 void JsonType::Add(const JsonElementType& data)
 {
-    //std::cout << "--------------------JsonType::Add(const JsonElementType& data)--------------------" << std::endl;
     m_data.push_back(data);
-    //std::cout << "----------------------------------------" << std::endl;
 }
 
 
@@ -578,15 +540,11 @@ void JsonType::Add(const std::string& data)
     // group messages to , and append to json element vector
     std::size_t start = 0;
 
-    // std::cout << __LINE__ << data << std::endl;
-    // std::cout << __LINE__ << stripped_data << std::endl;
     std::size_t pos = FindJsonElementDelimeter( stripped_data );
 
-    //std::cout << "-----------------JsonType::Add(const std::string& data)--------------------" << std::endl;
     while (std::string::npos != pos)
     {
         std::string json_element = stripped_data.substr(start, pos - start);
-        //std::cout << "**ADD**json element in string" << json_element << std::endl;
         m_data.push_back(JsonElementType(json_element));
         start = pos + 1;
 
@@ -596,29 +554,22 @@ void JsonType::Add(const std::string& data)
     if (start < stripped_data.size())
     {
         std::string json_element = stripped_data.substr(start, pos - start);
-        //std::cout << "*ADD**json element in string" << json_element << std::endl;
         m_data.push_back(JsonElementType(json_element));
     }
-    //std::cout << "data " << ToString() << std::endl;
-    //std::cout << "----------------------------------------" << std::endl;
 }
 
 void JsonType::Add(const std::string& key, const std::string& value)
 {
-    //std::cout << "-----------------JsonType::Add(const std::string& key, const std::string& value)--------------------" << std::endl;
     for (std::vector<JsonElementType>::iterator it = m_data.begin(); it != m_data.end(); ++it)
     {
         if (key == it -> Key())
         {
             it -> SetValue(value);
-            //std::cout << "----------------------------------------" << std::endl;
             return;
         }
     }
 
     m_data.push_back(JsonElementType(key, value));
-
-    //std::cout << "----------------------------------------" << std::endl;
 }
 
 JsonType::~JsonType()

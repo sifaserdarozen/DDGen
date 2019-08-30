@@ -125,11 +125,6 @@ void CallLegType::Step(unsigned short int step_duration)
             return;
         }
 
-        //m_rtp_header.Display();
-        //m_udp_header.Display();
-        //m_ipv4_header.Display();
-        //m_eth_header.Display();
-
         m_consumer_ptr->Consume(m_line_data.m_line_data, m_line_data.LineDataSize());
 
         // update necessary fields for the next iteration / step
