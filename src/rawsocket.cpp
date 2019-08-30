@@ -1,22 +1,22 @@
-#include <iostream>
-#include <netinet/in.h>    // htonl, ntohl, htons, ntohs
-#include "cstring"    // for std::memcmp
-
 #include "rawsocket.h"
+
+#include <cstring>
+#include <iostream>
+#include <netinet/in.h>
 
 unsigned short int OnesComplementShortSummation(const unsigned char* data_ptr, unsigned short int data_size)
 {
     unsigned int sum = 0;
-    
+
     for (unsigned short int i = 0; i < data_size/2; i++)
     {
         sum += ntohs(*((unsigned short int*)data_ptr));
         data_ptr += 2;
     }
-        
+
     if (data_size % 2)
         sum += *data_ptr;
-       
+
     // sum carry
     sum = (sum >> 16) + (sum & 0x0000ffff);
 
@@ -30,15 +30,15 @@ bool RtpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 12 byte rtp header
     if (NULL == buffer_ptr)
         return false;
-    
+
     // read whole bunch
     *this = *((const RtpHeaderType*)buffer_ptr);
-    
+
     // correct seq_num, time stamp and ssrc from network byte order to host byte order
     seq_num = ntohs(seq_num);
     timestamp = ntohl(timestamp);
     ssrc = ntohl(ssrc);
-    
+
     return true;
 }
 
@@ -47,13 +47,13 @@ bool RtpHeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
     // check if buffer_ptr points to somewhere (hopefully) to 12 byte rtp header
     if (NULL == buffer_ptr)
         return false;
-        
+
     RtpHeaderType dummy_rtp_header = *this;
-    // correct seq_num, time stamp and ssrc from host byte order to network byte order   
+    // correct seq_num, time stamp and ssrc from host byte order to network byte order
     dummy_rtp_header.seq_num = htons(dummy_rtp_header.seq_num);
     dummy_rtp_header.timestamp = htonl(dummy_rtp_header.timestamp);
-    dummy_rtp_header.ssrc = htonl(dummy_rtp_header.ssrc);   
-    
+    dummy_rtp_header.ssrc = htonl(dummy_rtp_header.ssrc);
+
     // write whole bunch
     *((RtpHeaderType*)buffer_ptr) = dummy_rtp_header;
 
@@ -64,7 +64,7 @@ bool RtpHeaderType::operator ==(const RtpHeaderType& rhs) const
 {
     if (0 == std::memcmp(this, &rhs, sizeof(RtpHeaderType)))
         return true;
-    else 
+    else
         return false;
 }
 
@@ -80,34 +80,34 @@ void RtpHeaderType::Display() const
     std::cout << "Sequence number       : " << seq_num << std::endl;
     std::cout << "Time stamp            : " << timestamp << std::endl;
     std::cout << "Source identification : " << (std::hex) << ssrc << (std::dec) << std::endl;
- 
+
 }
 
 // *************************************** PseudoIpv4HeaderType *********************************************
 
 bool PseudoIpv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
 {
-    
+
     // check if buffer_ptr points to somewhere (hopefully) to 12 byte pseudo ipv4 header
     if (NULL == buffer_ptr)
         return false;
-        
+
     PseudoIpv4HeaderType dummy_pseudo_ipv4_header;
-    
-    // correct seq_num, time stamp from host byte order to network byte order 
+
+    // correct seq_num, time stamp from host byte order to network byte order
     dummy_pseudo_ipv4_header.data_len = htons(data_len);
     dummy_pseudo_ipv4_header.protocol = protocol;
     dummy_pseudo_ipv4_header.src_addr = htonl(src_addr);
     dummy_pseudo_ipv4_header.dst_addr = htonl(dst_addr);
-    
+
     // write whole bunch
     *((PseudoIpv4HeaderType*)buffer_ptr) = dummy_pseudo_ipv4_header;
-    
+
     return true;
 }
 
 void PseudoIpv4HeaderType::Display() const
-{ 
+{
     std::cout << "------------------ Pseudo Ipv4 Header ---------------------" << std::endl;
     std::cout << "Source address         : " << std::hex << src_addr << std::dec << std::endl;
     std::cout << "Destination address    : " << std::hex << dst_addr << std::dec << std::endl;
@@ -122,7 +122,7 @@ bool Ipv4HeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 20 byte ipv4 header
     if (NULL == buffer_ptr)
         return false;
-    
+
     // read whole bunch
     *this = *((const Ipv4HeaderType*)buffer_ptr);
 
@@ -141,10 +141,10 @@ bool Ipv4HeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 20 byte ipv4 header
     if (NULL == buffer_ptr)
         return false;
-        
+
     Ipv4HeaderType dummy_ipv4_header;
-    
-    // correct seq_num, time stamp from host byte order to network byte order 
+
+    // correct seq_num, time stamp from host byte order to network byte order
     dummy_ipv4_header.hdr_len = hdr_len;
     dummy_ipv4_header.version = version;
     dummy_ipv4_header.service_type = service_type;
@@ -156,16 +156,16 @@ bool Ipv4HeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr)
     dummy_ipv4_header.checksum = htons(0);
     dummy_ipv4_header.src_addr = htonl(src_addr);
     dummy_ipv4_header.dst_addr = htonl(dst_addr);
-    
+
     // write whole bunch
     *((Ipv4HeaderType*)buffer_ptr) = dummy_ipv4_header;
-    
+
     // calculate checksum
     checksum = ~(OnesComplementShortSummation(buffer_ptr, ipv4_header_size));
 
     // modify checksum in buffer_ptr
     *((unsigned short int*)(buffer_ptr + 10)) = htons(checksum);
-    
+
     return true;
 }
 
@@ -174,10 +174,10 @@ bool Ipv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 20 byte ipv4 header
     if (NULL == buffer_ptr)
         return false;
-        
+
     Ipv4HeaderType dummy_ipv4_header;
-    
-    // correct seq_num, time stamp from host byte order to network byte order 
+
+    // correct seq_num, time stamp from host byte order to network byte order
     dummy_ipv4_header.hdr_len = hdr_len;
     dummy_ipv4_header.version = version;
     dummy_ipv4_header.service_type = service_type;
@@ -189,10 +189,10 @@ bool Ipv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_ipv4_header.checksum = htons(checksum);
     dummy_ipv4_header.src_addr = htonl(src_addr);
     dummy_ipv4_header.dst_addr = htonl(dst_addr);
-    
+
     // write whole bunch
     *((Ipv4HeaderType*)buffer_ptr) = dummy_ipv4_header;
-    
+
     return true;
 }
 
@@ -200,7 +200,7 @@ bool Ipv4HeaderType::operator ==(const Ipv4HeaderType& rhs) const
 {
     if (0 == std::memcmp(this, &rhs, sizeof(Ipv4HeaderType)))
         return true;
-    else 
+    else
         return false;
 }
 
@@ -232,10 +232,10 @@ bool UdpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 8 byte udp header
     if (NULL == buffer_ptr)
         return false;
-    
+
     // read whole bunch
     *this = *((const UdpHeaderType*)buffer_ptr);
-    
+
     // correct seq_num, time stamp from network byte order to host byte order
     src_port = ntohs(src_port);
     dst_port = ntohs(dst_port);
@@ -250,34 +250,34 @@ bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const
     // check if buffer_ptr points to somewhere (hopefully) to 8 byte udp header
     if (NULL == buffer_ptr)
         return false;
-        
+
     unsigned char line_pseudo_ipv4_ptr[pseudo_ipv4_header_size];
     pseudo_ipv4_header.WriteToBuffer(line_pseudo_ipv4_ptr);
-    
+
     unsigned int sum = OnesComplementShortSummation(line_pseudo_ipv4_ptr, pseudo_ipv4_header_size);
     // std::cout << std::hex << sum << " ";
-    
+
     sum += OnesComplementShortSummation(udp_data_ptr, (tot_len - udp_header_size));
     // std::cout << sum << " ";
-    
+
     UdpHeaderType dummy_udp_header;
-    // correct seq_num, time stamp from host byte order to network byte order   
+    // correct seq_num, time stamp from host byte order to network byte order
     dummy_udp_header.src_port = htons(src_port);
-    dummy_udp_header.dst_port = htons(dst_port);  
+    dummy_udp_header.dst_port = htons(dst_port);
     dummy_udp_header.tot_len = htons(tot_len);
     dummy_udp_header.checksum = htons(0);
-    
+
     // write whole bunch
     *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
-    
+
     // calculate checksum
     sum  += OnesComplementShortSummation(buffer_ptr, udp_header_size);
     // std::cout << sum << " " << std::dec << std::endl;
     checksum = ~(((sum >> 16) + (sum & 0x0000ffff)));
-    
+
     // write it also into buffer_ptr
     *((unsigned short int*)(buffer_ptr + 6)) = htons(checksum);
-    
+
     return true;
 }
 
@@ -286,14 +286,14 @@ bool UdpHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 8 byte udp header
     if (NULL == buffer_ptr)
         return false;
-        
+
     UdpHeaderType dummy_udp_header;
-    // correct seq_num, time stamp from host byte order to network byte order   
+    // correct seq_num, time stamp from host byte order to network byte order
     dummy_udp_header.src_port = htons(src_port);
     dummy_udp_header.dst_port = htons(dst_port);
     dummy_udp_header.tot_len = htons(tot_len);
     dummy_udp_header.checksum = htons(checksum);
-    
+
     // write whole bunch
     *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
 
@@ -304,7 +304,7 @@ bool UdpHeaderType::operator ==(const UdpHeaderType& rhs) const
 {
     if (0 == std::memcmp(this, &rhs, sizeof(UdpHeaderType)))
         return true;
-    else 
+    else
         return false;
 }
 
@@ -322,14 +322,14 @@ bool CheckUdpChecksum(const unsigned char* line_udp_packet_ptr, const PseudoIpv4
     // check if line_udp_packet_ptr points to somewhere (hopefully) at least 8 byte of udp packet
     if (NULL == line_udp_packet_ptr)
         return false;
-        
+
     unsigned char line_pseudo_ipv4_ptr[pseudo_ipv4_header_size];
     pseudo_ipv4_header.WriteToBuffer(line_pseudo_ipv4_ptr);
-    
+
     unsigned int sum = OnesComplementShortSummation(line_pseudo_ipv4_ptr, pseudo_ipv4_header_size);
-    
+
     sum += OnesComplementShortSummation(line_udp_packet_ptr,  ntohs(*((unsigned short int*)(line_udp_packet_ptr + 4))));
-    
+
     return ((unsigned short int)((sum >> 16) + (sum & 0x0000ffff)) == 0xffff);
 }
 
@@ -340,10 +340,10 @@ bool EthHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 14 byte ethernet header
     if (NULL == buffer_ptr)
         return false;
-    
+
     // read whole bunch
     *this = *((const EthHeaderType*)buffer_ptr);
-    
+
     // correct ether type to host byte order
     eth_type = ntohs(eth_type);
 
@@ -355,11 +355,11 @@ bool EthHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     // check if buffer_ptr points to somewhere (hopefully) to 14 byte ethernet header
     if (NULL == buffer_ptr)
         return false;
-        
+
     EthHeaderType dummy_eth_header = *this;
     // correct ether type to network byte order
     dummy_eth_header.eth_type = htons(eth_type);
-    
+
     // write whole bunch
     *((EthHeaderType*)buffer_ptr) = dummy_eth_header;
 

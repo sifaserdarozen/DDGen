@@ -7,9 +7,11 @@
 
 #pragma once
 
+#include "rawsocket.h"
+
+#include <fstream>
+#include <netinet/in.h>
 #include <vector>
-#include <netinet/in.h>    // for sockaddr
-#include <fstream>    // for file stream
 
 /** @brief Gets current time in sec and usec.
     @param sec OUTPUT system time seconds part

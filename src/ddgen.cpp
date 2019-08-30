@@ -1,18 +1,12 @@
-#include <iostream>
-#include <cstring>
-#include <limits.h>    // for SHRT_MAX
-#include <chrono>    // for time
-#include <random>    // for generator and distribution 
-#include <string>    // for string()
-#include <vector>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <stdio.h>    // for getchar()
-#include "sys/time.h"    // for gettimeofday()
-#include "rawsocket.h"
-#include "test.h"
 #include "callleg.h"
-#include "consumer.h"
+
+#include <arpa/inet.h>
+#include <chrono>
+#include <cstring>
+#include <iostream>
+#include <random>
+#include <string>
+#include <vector>
 
 int kbhit()
 {
@@ -100,21 +94,21 @@ void DisplayUsage()
 int main(int argc, char*argv[])
 {
     std::cout << std::endl << "Must have root privileges !" << std::endl << "Press a key to stop operation" << std::endl << std::endl;
- 
+
     unsigned int number_of_calls = 10;
     unsigned int duration_of_calls = 60;
-    
+
     unsigned int dst_ip = 0x691e1bac;
     unsigned short int dst_port = 29000;
     std::vector<IpPort> dst_ipport_vector;
     std::vector<IpPort> drlink_ipport_vector;
-    
+
     G711aEncoderFactoryType g711a_encoder_factory;
     SingleToneGeneratorFactoryType single_tone_generator_factory;
-    
+
     CallFactoryType* call_factory_ptr = NULL;
     ConsumerType* consumer_ptr = NULL;
-    
+
     for (int argv_index = 1; argv_index < argc; ++argv_index)
     {
         if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc))
@@ -134,23 +128,23 @@ int main(int argc, char*argv[])
             {
                 dst_ip = ntohl(d_inaddr.s_addr);
             }
-       
+
             dst_port = std::atoi(argv[argv_index + 2]);
             IpPort dst_ipport(dst_ip, dst_port);
 
             drlink_ipport_vector.push_back(dst_ipport);
-            
+
             if (1 == inet_aton(argv[argv_index + 3], &d_inaddr))
             {
                 dst_ip = ntohl(d_inaddr.s_addr);
             }
-       
+
             dst_port = std::atoi(argv[argv_index + 4]);
             IpPort dst_ipport2(dst_ip, dst_port);
 
             drlink_ipport_vector.push_back(dst_ipport2);
             argv_index += 4;
-            
+
             // if consumer is has not set already, default to socket
             if (!consumer_ptr)
             {
@@ -161,7 +155,7 @@ int main(int argc, char*argv[])
                     return -1;
                 }
             }
-            
+
             call_factory_ptr = new DRLinkCallFactoryType(drlink_ipport_vector);
             if (!call_factory_ptr)
             {
@@ -172,7 +166,7 @@ int main(int argc, char*argv[])
         else if (0 == strcmp("--mirror", argv[argv_index]))
         {
             // set call generator to mirror mode
-            
+
             // if consumer is has not set already, default to socket
             if (!consumer_ptr)
             {
@@ -183,7 +177,7 @@ int main(int argc, char*argv[])
                     return -1;
                 }
             }
-            
+
             call_factory_ptr = new MirrorCallFactoryType();
             if (!call_factory_ptr)
             {
@@ -198,7 +192,7 @@ int main(int argc, char*argv[])
                 delete consumer_ptr;
                 consumer_ptr = NULL;
             }
-            
+
             consumer_ptr = new PcapConsumerType();
             if (!consumer_ptr)
             {
@@ -213,20 +207,20 @@ int main(int argc, char*argv[])
             {
                 dst_ip = ntohl(d_inaddr.s_addr);
             }
-       
+
             dst_port = std::atoi(argv[argv_index + 2]);
             IpPort dst_ipport(dst_ip, dst_port);
 
             dst_ipport_vector.push_back(dst_ipport);
-            
+
             argv_index += 2;
-        
+
             if (consumer_ptr)
             {
                 delete consumer_ptr;
                 consumer_ptr = NULL;
             }
-            
+
             consumer_ptr = new SocketConsumerType(dst_ipport_vector);
             if (!consumer_ptr)
             {
@@ -241,46 +235,46 @@ int main(int argc, char*argv[])
             return -1;
         }
     }
-    
+
     /*
     unsigned int src_addr = 0xac186536;
     unsigned short int src_port = 58274;
     unsigned int dst_addr = 0xac1b1e69;
     unsigned short int dst_port = 22698;
     unsigned short int id = 0xd962;
-    unsigned int timestamp = 2286760; 
+    unsigned int timestamp = 2286760;
     unsigned int ssrc = 0x3705a01b;
     unsigned short int seq_num = 2821;
-    
+
     CallLegType call_leg(src_addr, src_port, dst_addr, dst_port, id, timestamp, ssrc, seq_num, &g711a_encoder_factory, &single_tone_generator_factory);
     call_leg.Step(20);
     call_leg.Step(20);
-    
+
     */
-    
+
     // std::vector<IpPort> drlink_ipport_vector;
     // drlink_ipport_vector.push_back(IpPort(0xac1b1e69, 22698));
     // drlink_ipport_vector.push_back(IpPort(0xac1b1e7a, 22799));
     // unsigned int src_ip = 0xac186536;
-    
+
     // std::vector<DRLinkCallType*> drlink_call_ptr_vector;
     std::vector<CallType*> call_ptr_vector;
-    
+
     unsigned int last_epoch_sec = 0;
     unsigned int last_epoch_usec = 0;
     unsigned int current_sec = 0;
     unsigned int current_usec = 0;
-    
+
     GetCurrentTimeInTv(last_epoch_sec, last_epoch_usec);
     std::clog << "last epoch sec: " << last_epoch_sec << " usec: " << last_epoch_usec << std::endl;
-    
+
     // form a seed
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    
+
     // introduce generator
     std::minstd_rand generator(seed);
     std::uniform_int_distribution<unsigned short int> usint_distribution(duration_of_calls*0.75, duration_of_calls*1.25);
-     
+
     while(true)
     {
         if (kbhit())
@@ -295,7 +289,7 @@ int main(int argc, char*argv[])
             */
             break;
         }
-    
+
         //std::cout << "a loop" << std::endl;
         if (call_ptr_vector.size() < number_of_calls)
         {
@@ -305,43 +299,43 @@ int main(int argc, char*argv[])
                 std::cout << __FILE__ << " " << __LINE__ << " call factory ptr is null " << std::endl;
                 return -1;
             }
-            
+
             CallType* call_ptr = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
             if (!call_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << "unable to create call_ptr" << std::endl;
                 return -1;
             }
-            
+
             call_ptr_vector.push_back(call_ptr);
             std::cout << " a call is created with duration " << call_duration << std::endl;
-            
+
             /*
-            DRLinkCallType* drlink_call_ptr = new DRLinkCallType(drlink_ipport_vector, src_ip, call_duration, &g711a_encoder_factory, 
+            DRLinkCallType* drlink_call_ptr = new DRLinkCallType(drlink_ipport_vector, src_ip, call_duration, &g711a_encoder_factory,
                                       &single_tone_generator_factory, consumer_ptr);
             if (!drlink_call_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << "unable to create drlink_call_ptr" << std::endl;
                 return -1;
             }
-            
+
             drlink_call_ptr_vector.push_back(drlink_call_ptr);
             std::cout << " a call is created with duration " << call_duration << std::endl;
             src_ip ++;
-            
+
             */
         }
-    
+
         GetCurrentTimeInTv(current_sec, current_usec);
         unsigned int ellapsed_time = ((current_sec - last_epoch_sec)*1000000 + (current_usec - last_epoch_usec));
-        
+
         // std::clog << "current sec: " << current_sec << " usec: " << current_usec << " ellapsed time " << ellapsed_time << " ms " << std::endl;
-        
+
         if (ellapsed_time > 40000)
         {
             std::clog << __FILE__ << " " << __LINE__ << "... too much lag: " << ellapsed_time / 1000 << " ms " << std::endl;
         }
-        
+
         if (ellapsed_time > 20000)
         {
             // std::clog << "......time for step " << std::endl;
@@ -367,7 +361,7 @@ int main(int argc, char*argv[])
                 }
             }
             */
-            
+
             for (std::vector<CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
             {
                 // std::clog << "......iterating" << std::endl;
@@ -388,7 +382,7 @@ int main(int argc, char*argv[])
                     return -1;
                 }
             }
-            
+
             last_epoch_usec += 20000;
             last_epoch_sec += (last_epoch_usec / 1000000);
             last_epoch_usec = last_epoch_usec % 1000000;
@@ -398,9 +392,9 @@ int main(int argc, char*argv[])
             // std::clog << "..starting to sleep" << (20000 -ellapsed_time) << std::endl;
             SleepSystemUsec(20000 - ellapsed_time);
             // std::clog << "..awake" << std::endl;
-        }   
+        }
     }
-    
+
     // free all iterators
     /*
     for (std::vector<DRLinkCallType*>::iterator it = drlink_call_ptr_vector.begin(); it != drlink_call_ptr_vector.end(); ++it)
@@ -412,7 +406,7 @@ int main(int argc, char*argv[])
         }
     }
     */
-    
+
     for (std::vector<CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
     {
         if (*it)
@@ -421,14 +415,14 @@ int main(int argc, char*argv[])
             *it = NULL;
         }
     }
-    
+
     // free consumer block
     if (consumer_ptr)
     {
         delete consumer_ptr;
         consumer_ptr = NULL;
     }
-    
+
     if (call_factory_ptr)
     {
         delete call_factory_ptr;

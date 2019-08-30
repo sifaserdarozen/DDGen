@@ -7,12 +7,11 @@
 
 #pragma once
 
-#include <vector>
-#include "rawsocket.h"
 #include "encoder.h"
-#include "g722encoder.h"
 #include "generator.h"
 #include "consumer.h"
+
+#include <vector>
 
 #define MAX_PCM_DATA_SIZE 8000
 
@@ -251,7 +250,6 @@ public:
      */
     MirrorCallFactoryType()
     {
-        std::cout << __FILE__ << " " << __LINE__ << "in constructor of mirror call factory" << std::endl;
         m_ip_pool = 0xac186536;
     }
 

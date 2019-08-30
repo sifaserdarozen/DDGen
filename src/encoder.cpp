@@ -1,6 +1,6 @@
-#include <iostream>
-
 #include "encoder.h"
+
+#include <iostream>
 
 bool G711aEncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* encoded_data_ptr)
 {
@@ -27,7 +27,7 @@ bool G711aEncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* en
 		encoded_data = 0;
 		pcm_data = *pcm_data_ptr++;
 		quantization_value = (pcm_data < 0) ? ((~pcm_data) >> 4) : (pcm_data >> 4);
-		
+
 		if(quantization_value>15)
 		{
 			quantization_segment=1;
