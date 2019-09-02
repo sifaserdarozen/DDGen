@@ -88,14 +88,13 @@ bool SocketConsumer::Consume(const unsigned char* data_ptr, unsigned short int d
     {
         if ((it->sin_port == dst_port) && (it->sin_addr.s_addr == dst_ip))
         {
-            if (sendto(*sock_it, (const char *)(data_ptr + eth_header_size), (data_size - eth_header_size), 0, (struct sockaddr *)(&(*it)), (socklen_t)sizeof(*it)) < 0)
-            {
+            const auto sended_data_size = sendto(*sock_it, (const char *)(data_ptr + eth_header_size), (data_size - eth_header_size), 0, (struct sockaddr *)(&(*it)), (socklen_t)sizeof(*it));
+            if (-1 == sended_data_size) {
 		        std::cerr << __FILE__ << " " << __LINE__ << " unable to send data of size : " << data_size << " to socket : " << *sock_it << std::endl;
                 return false;
-	        }
-
-            // std::clog << __FILE__ << " " << __LINE__ << " data send to socket " << std::endl;
-            return true;
+	        } else {
+                return true;
+            }
         }
     }
 
@@ -103,12 +102,16 @@ bool SocketConsumer::Consume(const unsigned char* data_ptr, unsigned short int d
     std::vector<sockaddr_in>::iterator net_it = m_dst_sockaddr_vector.begin();
     sock_it = m_dst_sock_vector.begin();
 
-    if ((net_it != m_dst_sockaddr_vector.end()) && (sock_it != m_dst_sock_vector.end()))
-        if (sendto(*sock_it, (const char *)(data_ptr + eth_header_size), (data_size - eth_header_size), 0, (struct sockaddr *)(&(*net_it)), (socklen_t)sizeof(*net_it)) < 0)
+    if ((net_it != m_dst_sockaddr_vector.end()) && (sock_it != m_dst_sock_vector.end())) {
+        const auto sended_data_size = sendto(*sock_it, (const char *) (data_ptr + eth_header_size), (data_size - eth_header_size), 0, (struct sockaddr *) (&(*net_it)), (socklen_t)sizeof(*net_it));
+        if (-1 == sended_data_size)
         {
-		    std::cerr << __FILE__ << " " << __LINE__ << " unable to send data of size : " << data_size << " to socket : " << *sock_it << std::endl;
+            std::cerr << __FILE__ << " " << __LINE__ << " unable to send data of size : " << data_size << " to socket : " << *sock_it << std::endl;
             return false;
-	    }
+        } else {
+            return true;
+        }
+    }
 
     std::cerr << __FILE__ << " " << __LINE__ << " unable to find socket to send for destination: " << std::hex << dst_ip << std::dec << ":" << dst_port << std::endl;
     return false;
