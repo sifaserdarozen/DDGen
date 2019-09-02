@@ -199,13 +199,10 @@ int main(int argc, char*argv[])
 
     std::vector<ddgen::Call*> call_ptr_vector;
 
-    unsigned int last_epoch_sec = 0;
-    unsigned int last_epoch_usec = 0;
-    unsigned int current_sec = 0;
-    unsigned int current_usec = 0;
+    const auto desired_run_time = duration_of_calls * 10 * 1000;
 
-    ddgen::GetCurrentTimeInTv(last_epoch_sec, last_epoch_usec);
-    std::clog << "last epoch sec: " << last_epoch_sec << " usec: " << last_epoch_usec << std::endl;
+    const auto start_time = std::chrono::steady_clock::now();
+    auto last_time = start_time;
 
     // form a seed
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -243,8 +240,8 @@ int main(int argc, char*argv[])
             std::cout << " a call is created with duration " << call_duration << std::endl;
         }
 
-        ddgen::GetCurrentTimeInTv(current_sec, current_usec);
-        unsigned int ellapsed_time = ((current_sec - last_epoch_sec)*1000000 + (current_usec - last_epoch_usec));
+        const auto current_time = std::chrono::steady_clock::now();
+        const auto ellapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_time).count();
 
         if (ellapsed_time > 40000)
         {
@@ -273,13 +270,18 @@ int main(int argc, char*argv[])
                 }
             }
 
-            last_epoch_usec += 20000;
-            last_epoch_sec += (last_epoch_usec / 1000000);
-            last_epoch_usec = last_epoch_usec % 1000000;
+            last_time = current_time;
         }
         else
         {
-            SleepSystemUsec(20000 - ellapsed_time);
+            const auto sleep_time = 20000 - ellapsed_time;
+            SleepSystemUsec(sleep_time);
+        }
+
+        const auto ellapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
+        if (ellapsed_time_in_ms > desired_run_time) {
+            std::cout << "Simulation time " << desired_run_time << " is over" << std::endl;
+            break;
         }
     }
 
