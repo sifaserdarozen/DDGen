@@ -1,7 +1,7 @@
 sudo: required
 
-# choose trusty for nvidia-cuda-toolkit
-dist: trusty
+# choose xenial for nvidia-cuda-toolkit and c++14
+dist: xenial
 
 language: cpp
 
