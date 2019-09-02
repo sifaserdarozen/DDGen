@@ -4,6 +4,7 @@
 #include <chrono>
 #include <cstring>
 #include <iostream>
+#include <memory>
 #include <random>
 #include <string>
 #include <vector>
@@ -73,11 +74,11 @@ int main(int argc, char*argv[])
     std::vector<ddgen::IpPort> dst_ipport_vector;
     std::vector<ddgen::IpPort> drlink_ipport_vector;
 
-    ddgen::G711aEncoderFactoryType g711a_encoder_factory;
-    ddgen::SingleToneGeneratorFactoryType single_tone_generator_factory;
+    ddgen::G711aEncoderFactory g711a_encoder_factory;
+    ddgen::SingleToneGeneratorFactory single_tone_generator_factory;
 
-    ddgen::CallFactoryType* call_factory_ptr = NULL;
-    ddgen::ConsumerType* consumer_ptr = NULL;
+    std::unique_ptr<ddgen::CallFactory> call_factory_ptr;
+    ddgen::Consumer* consumer_ptr = NULL;
 
     for (int argv_index = 1; argv_index < argc; ++argv_index)
     {
@@ -118,20 +119,15 @@ int main(int argc, char*argv[])
             // if consumer is has not set already, default to socket
             if (!consumer_ptr)
             {
-                consumer_ptr = new ddgen::SocketConsumerType(drlink_ipport_vector);
-                if (!consumer_ptr)
+                consumer_ptr = new ddgen::SocketConsumer(drlink_ipport_vector);
+                if (nullptr == consumer_ptr)
                 {
                     std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
                     return -1;
                 }
             }
 
-            call_factory_ptr = new ddgen::DRLinkCallFactoryType(drlink_ipport_vector);
-            if (!call_factory_ptr)
-            {
-                std::cerr << __FILE__ << " " << __LINE__ << " call factory is not able to be generated" << std::endl;
-                return -1;
-            }
+            call_factory_ptr = std::make_unique<ddgen::DRLinkCallFactory>(drlink_ipport_vector);
         }
         else if (0 == strcmp("--mirror", argv[argv_index]))
         {
@@ -140,7 +136,7 @@ int main(int argc, char*argv[])
             // if consumer is has not set already, default to socket
             if (!consumer_ptr)
             {
-                consumer_ptr = new ddgen::PcapConsumerType();
+                consumer_ptr = new ddgen::PcapConsumer();
                 if (NULL == consumer_ptr)
                 {
                     std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -148,12 +144,7 @@ int main(int argc, char*argv[])
                 }
             }
 
-            call_factory_ptr = new ddgen::MirrorCallFactoryType();
-            if (!call_factory_ptr)
-            {
-                std::cerr << __FILE__ << " " << __LINE__ << " call factory is not able to be generated" << std::endl;
-                return -1;
-            }
+            call_factory_ptr = std::make_unique<ddgen::MirrorCallFactory>();
         }
         else if (0 == strcmp("--pcap", argv[argv_index]))
         {
@@ -163,7 +154,7 @@ int main(int argc, char*argv[])
                 consumer_ptr = NULL;
             }
 
-            consumer_ptr = new ddgen::PcapConsumerType();
+            consumer_ptr = new ddgen::PcapConsumer();
             if (!consumer_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -191,7 +182,7 @@ int main(int argc, char*argv[])
                 consumer_ptr = NULL;
             }
 
-            consumer_ptr = new ddgen::SocketConsumerType(dst_ipport_vector);
+            consumer_ptr = new ddgen::SocketConsumer(dst_ipport_vector);
             if (!consumer_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
@@ -206,7 +197,7 @@ int main(int argc, char*argv[])
         }
     }
 
-    std::vector<ddgen::CallType*> call_ptr_vector;
+    std::vector<ddgen::Call*> call_ptr_vector;
 
     unsigned int last_epoch_sec = 0;
     unsigned int last_epoch_usec = 0;
@@ -223,6 +214,12 @@ int main(int argc, char*argv[])
     std::minstd_rand generator(seed);
     std::uniform_int_distribution<unsigned short int> usint_distribution(duration_of_calls*0.75, duration_of_calls*1.25);
 
+    if (!call_factory_ptr)
+    {
+        std::cout << __FILE__ << " " << __LINE__ << " call factory ptr is null " << std::endl;
+        return -1;
+    }
+
     while(true)
     {
         if (kbhit())
@@ -234,13 +231,8 @@ int main(int argc, char*argv[])
         if (call_ptr_vector.size() < number_of_calls)
         {
             unsigned short int call_duration = usint_distribution(generator);
-            if (!call_factory_ptr)
-            {
-                std::cout << __FILE__ << " " << __LINE__ << " call factory ptr is null " << std::endl;
-                return -1;
-            }
 
-            ddgen::CallType* call_ptr = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
+            ddgen::Call* call_ptr = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
             if (!call_ptr)
             {
                 std::cerr << __FILE__ << " " << __LINE__ << "unable to create call_ptr" << std::endl;
@@ -261,7 +253,7 @@ int main(int argc, char*argv[])
 
         if (ellapsed_time > 20000)
         {
-            for (std::vector<ddgen::CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
+            for (std::vector<ddgen::Call*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
             {
                 if (*it)
                 {
@@ -291,7 +283,7 @@ int main(int argc, char*argv[])
         }
     }
 
-    for (std::vector<ddgen::CallType*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
+    for (std::vector<ddgen::Call*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
     {
         if (*it)
         {
@@ -305,12 +297,6 @@ int main(int argc, char*argv[])
     {
         delete consumer_ptr;
         consumer_ptr = NULL;
-    }
-
-    if (call_factory_ptr)
-    {
-        delete call_factory_ptr;
-        call_factory_ptr = NULL;
     }
 
     return 0;

@@ -9,7 +9,7 @@ INCLUDE_DIR= ./include
 MAKE_DIR= ./tmp
 INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch
 
-CPP_OPTIONS= -Wall -g -std=c++11
+CPP_OPTIONS= -Wall -g -std=c++14
 
 # to elimanete catch warning
 CPP_OPTIONS+= -Wno-unknown-pragmas
@@ -65,14 +65,14 @@ compile: $(CPP_OBJS) $(CPP_MAKE_TARGETS)
 
 $(LIB_DIR)/%.o: $(SRC_DIR)/%.cpp | $(LIB_DIR)
 	@echo "Compiling... $@"
-	$(CPP_COMPILER) $(CPP_OPTIONS) -c $< $(INCLUDE) -o $@ 
+	$(CPP_COMPILER) $(CPP_OPTIONS) -c $< $(INCLUDE) -o $@
 
 $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
-    
+
 $(TARGETS): $(TARGET_LIB) | $(BIN_DIR)
 	$(CPP_COMPILER) $(CPP_OPTIONS) ./src/$@.cpp $^ $(INCLUDE) -o ./bin/$@ -lpthread
-    
+
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
@@ -83,7 +83,7 @@ makegen: $(CPP_MAKE_TARGETS)
 	@echo "Making ended for ..." $(CPP_MAKE_TARGETS)
 
 $(MAKE_DIR)/%.d: $(SRC_DIR)/%.cpp | $(MAKE_DIR)
-	@echo "Making..... $@" 
+	@echo "Making..... $@"
 	@set -e;\
 	rm -f $@;\
 	$(CPP_COMPILER) $(CPP_OPTIONS) -MM $(INCLUDE) $< >$@.$$$$;\

@@ -23,7 +23,7 @@ void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec)
         std::cerr << __FILE__ << " " << __LINE__ << " unable to obtain time info" << std::endl;
 }
 
-SocketConsumerType::SocketConsumerType(std::vector<IpPort> & dst_ipport)
+SocketConsumer::SocketConsumer(std::vector<IpPort> & dst_ipport)
 {
     for (std::vector<IpPort>::iterator it = dst_ipport.begin(); it != dst_ipport.end(); ++it)
     {
@@ -67,7 +67,7 @@ SocketConsumerType::SocketConsumerType(std::vector<IpPort> & dst_ipport)
     }
 }
 
-SocketConsumerType::~SocketConsumerType()
+SocketConsumer::~SocketConsumer()
 {
     for (std::vector<int>::iterator it = m_dst_sock_vector.begin(); it != m_dst_sock_vector.end(); ++it)
     {
@@ -76,7 +76,7 @@ SocketConsumerType::~SocketConsumerType()
     }
 }
 
-bool SocketConsumerType::Consume(const unsigned char* data_ptr, unsigned short int data_size)
+bool SocketConsumer::Consume(const unsigned char* data_ptr, unsigned short int data_size)
 {
     // first determine the socket
     unsigned int dst_ip = *((unsigned int *)(data_ptr + eth_header_size + 16));
@@ -115,7 +115,7 @@ bool SocketConsumerType::Consume(const unsigned char* data_ptr, unsigned short i
 }
 
 
-PcapConsumerType::PcapConsumerType(std::string file_name)
+PcapConsumer::PcapConsumer(std::string file_name)
 {
     m_file_size=0;
 
@@ -136,7 +136,7 @@ PcapConsumerType::PcapConsumerType(std::string file_name)
     m_file_size = pcap_file_hdr_size;
 }
 
-PcapConsumerType::~PcapConsumerType()
+PcapConsumer::~PcapConsumer()
 {
     if (m_file_stream.is_open())
         m_file_stream.close();
@@ -146,7 +146,7 @@ PcapConsumerType::~PcapConsumerType()
     m_file_size=0;
 }
 
-void PcapConsumerType::GenerateFileName()
+void PcapConsumer::GenerateFileName()
 {
     time_t call_start_sec_tt;
     time(&call_start_sec_tt);
@@ -171,7 +171,7 @@ void PcapConsumerType::GenerateFileName()
     m_file_name = std::string(time_part) + ".pcap";
 }
 
-bool PcapConsumerType::Consume(const unsigned char* data_ptr, unsigned short int data_size)
+bool PcapConsumer::Consume(const unsigned char* data_ptr, unsigned short int data_size)
 {
     PcapPacHdrType pcap_packet_header;
 

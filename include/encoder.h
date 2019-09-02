@@ -180,10 +180,10 @@ public:
  * @brief Abstract encoder factory interface
  *
  * Encoder factory interface
- * @see G711aEncoderFactoryType()
- * @see G711uEncoderFactoryType()
+ * @see G711aEncoderFactory()
+ * @see G711uEncoderFactory()
  */
-class EncoderFactoryType
+class EncoderFactory
 {
 private:
 
@@ -191,12 +191,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    EncoderFactoryType() {}
+    EncoderFactory() {}
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~EncoderFactoryType() {}
+    virtual ~EncoderFactory() {}
 
     /**
      * @brief pure virtual interface for encoder generation
@@ -206,7 +206,7 @@ public:
     virtual EncoderType* CreateEncoder() const = 0;
 };
 
-class G711aEncoderFactoryType : public EncoderFactoryType
+class G711aEncoderFactory : public EncoderFactory
 {
 private:
 
@@ -214,12 +214,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G711aEncoderFactoryType() { }
+    G711aEncoderFactory() { }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G711aEncoderFactoryType() {}
+    virtual ~G711aEncoderFactory() {}
 
     /**
      * @brief Implementation of encoder generation
@@ -231,7 +231,7 @@ public:
     virtual EncoderType* CreateEncoder() const { return new G711aEncoderType(); }
 };
 
-class G711uEncoderFactoryType : public EncoderFactoryType
+class G711uEncoderFactory : public EncoderFactory
 {
 private:
 
@@ -239,12 +239,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G711uEncoderFactoryType() {}
+    G711uEncoderFactory() {}
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G711uEncoderFactoryType() {}
+    virtual ~G711uEncoderFactory() {}
 
     /**
      * @brief Implementation of encoder generation

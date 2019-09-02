@@ -171,11 +171,11 @@ public:
  * @brief Abstract generator factory interface
  *
  * Generator factory interface
- * @see ZeroGeneratorFactoryType()
- * @see SingleToneGeneratorFactoryType()
- * @see SinusoidalGeneratorFactoryType()
+ * @see ZeroGeneratorFactory()
+ * @see SingleToneGeneratorFactory()
+ * @see SinusoidalGeneratorFactory()
  */
-class GeneratorFactoryType
+class GeneratorFactory
 {
 private:
 
@@ -183,12 +183,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    GeneratorFactoryType() {}
+    GeneratorFactory() {}
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~GeneratorFactoryType() {}
+    virtual ~GeneratorFactory() {}
 
     /**
      * @brief pure virtual interface for generator creating
@@ -198,7 +198,7 @@ public:
     virtual GeneratorType* CreateGenerator() const = 0;
 };
 
-class ZeroGeneratorFactoryType : public GeneratorFactoryType
+class ZeroGeneratorFactory : public GeneratorFactory
 {
 private:
 
@@ -206,12 +206,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    ZeroGeneratorFactoryType() { }
+    ZeroGeneratorFactory() { }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~ZeroGeneratorFactoryType() {}
+    virtual ~ZeroGeneratorFactory() {}
 
     /**
      * @brief Implementation of zero generator creation
@@ -224,7 +224,7 @@ public:
     virtual GeneratorType* CreateGenerator() const { return new ZeroGeneratorType(); }
 };
 
-class SingleToneGeneratorFactoryType : public GeneratorFactoryType
+class SingleToneGeneratorFactory : public GeneratorFactory
 {
 private:
 
@@ -232,12 +232,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    SingleToneGeneratorFactoryType() { }
+    SingleToneGeneratorFactory() { }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SingleToneGeneratorFactoryType() {}
+    virtual ~SingleToneGeneratorFactory() {}
 
     /**
      * @brief Implementation of single tone generator creation
@@ -250,7 +250,7 @@ public:
     virtual GeneratorType* CreateGenerator() const { return new SingleToneGeneratorType(); }
 };
 
-class SinusoidalGeneratorFactoryType : public GeneratorFactoryType
+class SinusoidalGeneratorFactory : public GeneratorFactory
 {
 private:
 
@@ -258,12 +258,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    SinusoidalGeneratorFactoryType() { }
+    SinusoidalGeneratorFactory() { }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SinusoidalGeneratorFactoryType() {}
+    virtual ~SinusoidalGeneratorFactory() {}
 
     /**
      * @brief Implementation of sinusoidal generator creation

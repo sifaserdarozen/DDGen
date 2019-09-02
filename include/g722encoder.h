@@ -317,7 +317,7 @@ public:
     virtual unsigned short int GetPacketSize() const { return G722_PACKET_SIZE; }
 };
 
-class G722EncoderFactoryType : public EncoderFactoryType
+class G722EncoderFactory : public EncoderFactory
 {
 private:
 
@@ -325,12 +325,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G722EncoderFactoryType() { }
+    G722EncoderFactory() { }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G722EncoderFactoryType() {}
+    virtual ~G722EncoderFactory() {}
 
     /**
      * @brief Implementation of encoder generation

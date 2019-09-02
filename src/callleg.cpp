@@ -8,7 +8,7 @@
 namespace ddgen
 {
 
-CallLegType::CallLegType(unsigned int src_addr,
+CallLeg::CallLeg(unsigned int src_addr,
                         unsigned short int src_port,
                         unsigned int dst_addr,
                         unsigned short int dst_port,
@@ -16,9 +16,9 @@ CallLegType::CallLegType(unsigned int src_addr,
                         unsigned int timestamp,
                         unsigned int ssrc,
                         unsigned short int seq_num,
-                        EncoderFactoryType* encoder_factory_ptr,
-                        GeneratorFactoryType* generator_factory_ptr,
-                        ConsumerType* consumer_ptr)
+                        EncoderFactory* encoder_factory_ptr,
+                        GeneratorFactory* generator_factory_ptr,
+                        Consumer* consumer_ptr)
 {
     m_accumulated_step_time = 0;
     m_remaining_time = 0;
@@ -69,7 +69,7 @@ CallLegType::CallLegType(unsigned int src_addr,
     m_eth_header.eth_type = 0x0800;
 }
 
-CallLegType::~CallLegType()
+CallLeg::~CallLeg()
 {
     if (m_encoder_ptr)
     {
@@ -84,7 +84,7 @@ CallLegType::~CallLegType()
     }
 }
 
-void CallLegType::Step(unsigned short int step_duration)
+void CallLeg::Step(unsigned short int step_duration)
 {
     m_accumulated_step_time += step_duration;
 
@@ -140,10 +140,10 @@ void CallLegType::Step(unsigned short int step_duration)
     }
 }
 
-DRLinkCallType::DRLinkCallType(std::vector<IpPort>& dst_inf, unsigned int src_ip, unsigned int duration,
-                    EncoderFactoryType* encoder_factory_ptr,
-                    GeneratorFactoryType* generator_factory_ptr,
-                    ConsumerType* consumer_ptr)
+DRLinkCall::DRLinkCall(std::vector<IpPort>& dst_inf, unsigned int src_ip, unsigned int duration,
+                    EncoderFactory* encoder_factory_ptr,
+                    GeneratorFactory* generator_factory_ptr,
+                    Consumer* consumer_ptr)
 {
     m_duration = duration * 1000;
 
@@ -170,7 +170,7 @@ DRLinkCallType::DRLinkCallType(std::vector<IpPort>& dst_inf, unsigned int src_ip
         unsigned int ssrc = uint_distribution(generator);
         unsigned short int seq_num = usint_distribution(generator);
 
-        CallLegType* call_leg_ptr = new CallLegType(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+        CallLeg* call_leg_ptr = new CallLeg(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
         if (call_leg_ptr)
         {
             std::clog << "-------------------------------- CALL LEG CREATION -------------------------------------" << std::endl;
@@ -184,16 +184,16 @@ DRLinkCallType::DRLinkCallType(std::vector<IpPort>& dst_inf, unsigned int src_ip
     }
 }
 
-DRLinkCallType::~DRLinkCallType()
+DRLinkCall::~DRLinkCall()
 {
-    for (std::vector<CallLegType*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
+    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
     {
         delete *it;
         *it = NULL;
     }
 }
 
-bool DRLinkCallType::Step(unsigned int step_duration)
+bool DRLinkCall::Step(unsigned int step_duration)
 {
     bool still_has_time = true;
     if (m_duration < step_duration)
@@ -203,7 +203,7 @@ bool DRLinkCallType::Step(unsigned int step_duration)
         still_has_time = false;
     }
 
-    for (std::vector<CallLegType*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
+    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
     {
         (*it)-> Step(step_duration);
     }
@@ -212,10 +212,10 @@ bool DRLinkCallType::Step(unsigned int step_duration)
     return still_has_time;
 }
 
-MirrorCallType::MirrorCallType(unsigned int src_ip, unsigned int dst_ip, unsigned int duration,
-                    EncoderFactoryType* encoder_factory_ptr,
-                    GeneratorFactoryType* generator_factory_ptr,
-                    ConsumerType* consumer_ptr)
+MirrorCall::MirrorCall(unsigned int src_ip, unsigned int dst_ip, unsigned int duration,
+                    EncoderFactory* encoder_factory_ptr,
+                    GeneratorFactory* generator_factory_ptr,
+                    Consumer* consumer_ptr)
 {
     m_duration = duration * 1000;
 
@@ -240,7 +240,7 @@ MirrorCallType::MirrorCallType(unsigned int src_ip, unsigned int dst_ip, unsigne
     unsigned int ssrc = uint_distribution(generator);
     unsigned short int seq_num = usint_distribution(generator);
 
-    CallLegType* src_call_leg_ptr = new CallLegType(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+    CallLeg* src_call_leg_ptr = new CallLeg(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
     if (src_call_leg_ptr)
     {
         m_call_leg_ptr_vector.push_back(src_call_leg_ptr);
@@ -251,7 +251,7 @@ MirrorCallType::MirrorCallType(unsigned int src_ip, unsigned int dst_ip, unsigne
     ssrc = uint_distribution(generator);
     seq_num = usint_distribution(generator);
 
-    CallLegType* dst_call_leg_ptr = new CallLegType(dst_ip, dst_port, src_ip, src_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+    CallLeg* dst_call_leg_ptr = new CallLeg(dst_ip, dst_port, src_ip, src_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
     if (dst_call_leg_ptr)
     {
         m_call_leg_ptr_vector.push_back(dst_call_leg_ptr);
@@ -262,16 +262,16 @@ MirrorCallType::MirrorCallType(unsigned int src_ip, unsigned int dst_ip, unsigne
     std::clog << "NET  : " << std::hex << htonl(src_ip) <<std::dec << ":" << htons(src_port) << " <--> " << std::hex << htonl(dst_ip) << std::dec << ":" << htons(dst_port) << std::endl;
 }
 
-MirrorCallType::~MirrorCallType()
+MirrorCall::~MirrorCall()
 {
-    for (std::vector<CallLegType*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
+    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
     {
         delete *it;
         *it = NULL;
     }
 }
 
-bool MirrorCallType::Step(unsigned int step_duration)
+bool MirrorCall::Step(unsigned int step_duration)
 {
     bool still_has_time = true;
     if (m_duration < step_duration)
@@ -281,7 +281,7 @@ bool MirrorCallType::Step(unsigned int step_duration)
         still_has_time = false;
     }
 
-    for (std::vector<CallLegType*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
+    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
     {
         (*it)-> Step(step_duration);
     }
@@ -290,13 +290,13 @@ bool MirrorCallType::Step(unsigned int step_duration)
     return still_has_time;
 }
 
-CallType* MirrorCallFactoryType::CreateCall(unsigned int duration,
-                    EncoderFactoryType* encoder_factory_ptr,
-                    GeneratorFactoryType* generator_factory_ptr,
-                    ConsumerType* consumer_ptr)
+Call* MirrorCallFactory::CreateCall(unsigned int duration,
+                    EncoderFactory* encoder_factory_ptr,
+                    GeneratorFactory* generator_factory_ptr,
+                    Consumer* consumer_ptr)
 {
     unsigned int src_ip = m_ip_pool++;
     unsigned int dst_ip = m_ip_pool++;
-    return new MirrorCallType(src_ip, dst_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+    return new MirrorCall(src_ip, dst_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
 }
 }
