@@ -7,6 +7,7 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <sys/time.h>
 #include <vector>
 
 int kbhit()
@@ -64,8 +65,6 @@ void DisplayUsage()
 
 int main(int argc, char*argv[])
 {
-    std::cout << std::endl << "Must have root privileges !" << std::endl << "Press a key to stop operation" << std::endl << std::endl;
-
     unsigned int number_of_calls = 10;
     unsigned int duration_of_calls = 60;
 
@@ -217,14 +216,10 @@ int main(int argc, char*argv[])
         return -1;
     }
 
+    std::cout << std::endl << "Should have root privileges !" << "Simulation will end in " << desired_run_time / 1000.0 << " seconds" << std::endl;
+
     while(true)
     {
-        if (kbhit())
-        {
-            std::cout << __FILE__ << " " << __FUNCTION__ << " " << __LINE__ << " terminating ddgen..." << std::endl;
-            break;
-        }
-
         if (call_ptr_vector.size() < number_of_calls)
         {
             unsigned short int call_duration = usint_distribution(generator);
