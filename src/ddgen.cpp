@@ -10,17 +10,6 @@
 #include <sys/time.h>
 #include <vector>
 
-int kbhit()
-{
-    timeval tv;
-    fd_set readfd;
-    tv.tv_sec = 0;
-    tv.tv_usec = 0;
-    FD_ZERO(&readfd);
-    FD_SET(0, &readfd);
-    return select(1, &readfd, NULL, NULL, &tv);
-}
-
 bool SleepSystemUsec(unsigned long long int sleep_usec)
 {
     timespec sleep_timespec = {((time_t) sleep_usec/1000000), ((long int)((sleep_usec % 1000000) * 1000))};
