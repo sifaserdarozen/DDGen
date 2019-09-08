@@ -209,19 +209,11 @@ private:
     unsigned int m_src_ip;
 
 public:
-    /**
-     * @brief Default constructor, does not perform any specific operation
-     */
-    DRLinkCallFactory(std::vector<IpPort>& dst_inf)
+    DRLinkCallFactory(std::vector<IpPort>& dst_inf, unsigned int start_ip) : m_dst_inf(dst_inf), m_src_ip(start_ip)
     {
-        m_dst_inf = dst_inf;
-        m_src_ip = 0xac186536;
     }
 
-    /**
-     * @brief Default destructor, does not perform any specific operation
-     */
-    virtual ~DRLinkCallFactory() {}
+    virtual ~DRLinkCallFactory() = default;
 
     /**
      * @brief Implementation of drlink call creation
@@ -250,15 +242,14 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    MirrorCallFactory()
+    MirrorCallFactory(unsigned int start_ip) : m_ip_pool(start_ip)
     {
-        m_ip_pool = 0xac186536;
     }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~MirrorCallFactory() {}
+    virtual ~MirrorCallFactory() = default;
 
     /**
      * @brief Implementation of sinusoidal generator creation

@@ -50,17 +50,37 @@ void DisplayUsage()
     std::cout << "If somewhow want to send generated pair data to a socket use; " << std::endl;
     std::cout << "ddgen --nc 10 --dc 60 --socket 192.168.126.1 28008 --mirror" << std::endl;
     std::cout << "send pair traffic to media address 192.168.126.1:28008" << std::endl;
+    std::cout << "--start 172.24.101.54 starting point for endpoint ips" << std::endl;
 }
+
+enum class TrafficType
+{
+    DrLink,
+    Mirror
+};
+
+enum class OutputType
+{
+    Pcap,
+    Socket
+};
+
+struct ProgramOptions
+{
+    unsigned int number_of_calls;
+    unsigned int duration_of_calls;
+    unsigned int start_ip;
+    std::vector<ddgen::IpPort> dst_ipport_vector;
+    std::vector<ddgen::IpPort> drlink_ipport_vector;
+    TrafficType traffic;
+    OutputType output;
+
+    ProgramOptions() : number_of_calls(10), duration_of_calls(60), start_ip(0xac186536), traffic(TrafficType::Mirror), output(OutputType::Pcap) {}
+};
 
 int main(int argc, char*argv[])
 {
-    unsigned int number_of_calls = 10;
-    unsigned int duration_of_calls = 60;
-
-    unsigned int dst_ip = 0x691e1bac;
-    unsigned short int dst_port = 29000;
-    std::vector<ddgen::IpPort> dst_ipport_vector;
-    std::vector<ddgen::IpPort> drlink_ipport_vector;
+    ProgramOptions program_options;
 
     ddgen::G711aEncoderFactory g711a_encoder_factory;
     ddgen::SingleToneGeneratorFactory single_tone_generator_factory;
@@ -72,17 +92,20 @@ int main(int argc, char*argv[])
     {
         if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc))
         {
-            number_of_calls = std::atoi(argv[argv_index + 1]);
+            program_options.number_of_calls = std::atoi(argv[argv_index + 1]);
             argv_index++;
         }
         else if ((0 == strcmp("--dc", argv[argv_index])) && ((argv_index + 1) < argc))
         {
-            duration_of_calls = std::atoi(argv[argv_index + 1]);
+            program_options.duration_of_calls = std::atoi(argv[argv_index + 1]);
             argv_index++;
         }
         else if ((0 == strcmp("--drlink", argv[argv_index])) && ((argv_index + 4) < argc))
         {
             in_addr d_inaddr;
+            unsigned int dst_ip = 0x691e1bac;
+            unsigned short int dst_port = 29000;
+
             if (1 == inet_aton(argv[argv_index + 1], &d_inaddr))
             {
                 dst_ip = ntohl(d_inaddr.s_addr);
@@ -91,7 +114,7 @@ int main(int argc, char*argv[])
             dst_port = std::atoi(argv[argv_index + 2]);
             ddgen::IpPort dst_ipport(dst_ip, dst_port);
 
-            drlink_ipport_vector.push_back(dst_ipport);
+            program_options.drlink_ipport_vector.push_back(dst_ipport);
 
             if (1 == inet_aton(argv[argv_index + 3], &d_inaddr))
             {
@@ -101,57 +124,26 @@ int main(int argc, char*argv[])
             dst_port = std::atoi(argv[argv_index + 4]);
             ddgen::IpPort dst_ipport2(dst_ip, dst_port);
 
-            drlink_ipport_vector.push_back(dst_ipport2);
+            program_options.drlink_ipport_vector.push_back(dst_ipport2);
+            program_options.dst_ipport_vector = program_options.drlink_ipport_vector;
             argv_index += 4;
 
-            // if consumer is has not set already, default to socket
-            if (!consumer_ptr)
-            {
-                consumer_ptr = new ddgen::SocketConsumer(drlink_ipport_vector);
-                if (nullptr == consumer_ptr)
-                {
-                    std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
-                    return -1;
-                }
-            }
-
-            call_factory_ptr = std::make_unique<ddgen::DRLinkCallFactory>(drlink_ipport_vector);
+            program_options.traffic = TrafficType::DrLink;
         }
         else if (0 == strcmp("--mirror", argv[argv_index]))
         {
-            // set call generator to mirror mode
-
-            // if consumer is has not set already, default to socket
-            if (!consumer_ptr)
-            {
-                consumer_ptr = new ddgen::PcapConsumer();
-                if (NULL == consumer_ptr)
-                {
-                    std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
-                    return -1;
-                }
-            }
-
-            call_factory_ptr = std::make_unique<ddgen::MirrorCallFactory>();
+            program_options.traffic = TrafficType::Mirror;
         }
         else if (0 == strcmp("--pcap", argv[argv_index]))
         {
-            if (consumer_ptr)
-            {
-                delete consumer_ptr;
-                consumer_ptr = NULL;
-            }
-
-            consumer_ptr = new ddgen::PcapConsumer();
-            if (!consumer_ptr)
-            {
-                std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
-                return -1;
-            }
+            program_options.output = OutputType::Pcap;
         }
         else if ((0 == strcmp("--socket", argv[argv_index]) ) && ((argv_index + 2) < argc))
         {
             in_addr d_inaddr;
+            unsigned int dst_ip = 0x691e1bac;
+            unsigned short int dst_port = 29000;
+
             if (1 == inet_aton(argv[argv_index + 1], &d_inaddr))
             {
                 dst_ip = ntohl(d_inaddr.s_addr);
@@ -160,22 +152,19 @@ int main(int argc, char*argv[])
             dst_port = std::atoi(argv[argv_index + 2]);
             ddgen::IpPort dst_ipport(dst_ip, dst_port);
 
-            dst_ipport_vector.push_back(dst_ipport);
-
+            program_options.dst_ipport_vector.push_back(dst_ipport);
             argv_index += 2;
 
-            if (consumer_ptr)
+            program_options.output = OutputType::Socket;
+        }
+        else if ((0 == strcmp("--start", argv[argv_index]) ) && ((argv_index + 1) < argc))
+        {
+            in_addr s_inaddr;
+            if (1 == inet_aton(argv[argv_index + 1], &s_inaddr))
             {
-                delete consumer_ptr;
-                consumer_ptr = NULL;
+                program_options.start_ip = ntohl(s_inaddr.s_addr);
             }
-
-            consumer_ptr = new ddgen::SocketConsumer(dst_ipport_vector);
-            if (!consumer_ptr)
-            {
-                std::cerr << __FILE__ << " " << __LINE__ << " consumer is not able to be set" << std::endl;
-                return -1;
-            }
+            argv_index += 1;
         }
         else
         {
@@ -185,9 +174,21 @@ int main(int argc, char*argv[])
         }
     }
 
+    if (program_options.output == OutputType::Pcap) {
+        consumer_ptr = new ddgen::PcapConsumer();
+    } else {
+        consumer_ptr = new ddgen::SocketConsumer(program_options.dst_ipport_vector);
+    }
+
+    if (program_options.traffic == TrafficType::DrLink) {
+        call_factory_ptr = std::make_unique<ddgen::DRLinkCallFactory>(program_options.drlink_ipport_vector, program_options.start_ip);	
+    } else {
+       call_factory_ptr = std::make_unique<ddgen::MirrorCallFactory>(program_options.start_ip);
+    }
+
     std::vector<ddgen::Call*> call_ptr_vector;
 
-    const auto desired_run_time = duration_of_calls * 10 * 1000;
+    const auto desired_run_time = program_options.duration_of_calls * 10 * 1000;
 
     const auto start_time = std::chrono::steady_clock::now();
     auto last_time = start_time;
@@ -197,7 +198,7 @@ int main(int argc, char*argv[])
 
     // introduce generator
     std::minstd_rand generator(seed);
-    std::uniform_int_distribution<unsigned short int> usint_distribution(duration_of_calls*0.75, duration_of_calls*1.25);
+    std::uniform_int_distribution<unsigned short int> usint_distribution(program_options.duration_of_calls * 0.75, program_options.duration_of_calls * 1.25);
 
     if (!call_factory_ptr)
     {
@@ -209,7 +210,7 @@ int main(int argc, char*argv[])
 
     while(true)
     {
-        if (call_ptr_vector.size() < number_of_calls)
+        if (call_ptr_vector.size() < program_options.number_of_calls)
         {
             unsigned short int call_duration = usint_distribution(generator);
 

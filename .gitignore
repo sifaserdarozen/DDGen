@@ -6,6 +6,7 @@ cov-int/
 **gmon.out
 **perf.data*
 **callgrind.out*
+**.pcap
 !/3rdParty/**
 doc/html
 doc/*.db
