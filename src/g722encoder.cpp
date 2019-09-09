@@ -1,6 +1,9 @@
+#include "g722encoder.h"
+
 #include <iostream>
 
-#include "g722encoder.h"
+namespace ddgen
+{
 
 int G722EncoderType::SaturateAdd(int op1, int op2) const
 {
@@ -318,8 +321,8 @@ short int G722EncoderType::Filtez(short int* dlt_ptr, short int* bl_ptr)
 short int G722EncoderType::Filtep(short int* rlt_ptr, short int* al_ptr)
 {
 	// shift of rlt
-	rlt_ptr[2] = rlt_ptr[1];		
-	rlt_ptr[1] = rlt_ptr[0];		
+	rlt_ptr[2] = rlt_ptr[1];
+	rlt_ptr[1] = rlt_ptr[0];
 
 	short int wd1 = SaturateAddShort(rlt_ptr[1], rlt_ptr[1]);
 	wd1 = ScaledMult(al_ptr[1], wd1);
@@ -443,7 +446,7 @@ void G722EncoderType::ResetBand()
 
 G722EncoderType::G722EncoderType()
 {
-    ResetBand(); 
+    ResetBand();
 }
 
 G722EncoderType::~G722EncoderType()
@@ -464,7 +467,7 @@ bool G722EncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* enc
 		std::cerr << __FILE__ << " " << __LINE__ << "pcm_data_ptr is null" << std::endl;
 		return false;
 	}
-    
+
 	unsigned char g722_data;
 	short int xin1;
 	short int xin0;
@@ -478,7 +481,7 @@ bool G722EncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* enc
 		xin1 = *pcm_data_ptr++;
 		xin0 = *pcm_data_ptr++;
 
-		// Calculation of the synthesis QMF samples 
+		// Calculation of the synthesis QMF samples
 		// qmf_tx (xin0, xin1, &xl, &xh, encoder);
 		QmfTx(xin0, xin1, xl, xh);
 
@@ -498,4 +501,5 @@ bool G722EncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* enc
 	}
 
 	return true;
+}
 }

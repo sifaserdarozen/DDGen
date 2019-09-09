@@ -5,12 +5,16 @@
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
 
-#ifndef CONSUMER_DDGEN_H
-#define CONSUMER_DDGEN_H
+#pragma once
 
+#include "rawsocket.h"
+
+#include <fstream>
+#include <netinet/in.h>
 #include <vector>
-#include <netinet/in.h>    // for sockaddr
-#include <fstream>    // for file stream
+
+namespace ddgen
+{
 
 /** @brief Gets current time in sec and usec.
     @param sec OUTPUT system time seconds part
@@ -22,11 +26,11 @@ void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec);
 /**
  * @brief Abstract packet consumer interface
  *
- * Consumer interface 
- * @see SocketConsumerType()
- * @see PcapConsumerType()
+ * Consumer interface
+ * @see SocketConsumer()
+ * @see PcapConsumer()
  */
-class ConsumerType
+class Consumer
 {
 private:
 
@@ -34,13 +38,13 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    ConsumerType() {}
-    
+    Consumer() {}
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~ConsumerType() {}
-    
+    virtual ~Consumer() {}
+
     /**
      * @brief Pure virtual interface for consuming packets
      *
@@ -55,10 +59,10 @@ public:
  * @brief SocketConsumer realization
  *
  * Socket Consumer that will consume packets through socket
- * @see ConsumerType()
- * @see PcapConsumerType()
+ * @see Consumer()
+ * @see PcapConsumer()
  */
-class SocketConsumerType : public ConsumerType
+class SocketConsumer : public Consumer
 {
 private:
     std::vector<int> m_dst_sock_vector;    /**< destination socket vector */
@@ -68,15 +72,15 @@ public:
     /**
      * @brief Constructor for initializing socket
      *
-     * 
+     *
      */
-    SocketConsumerType(std::vector<IpPort> & dst_ipport);
-    
+    SocketConsumer(std::vector<IpPort> & dst_ipport);
+
     /**
      * @brief destructor, does close socket
      */
-    ~SocketConsumerType();
-    
+    ~SocketConsumer();
+
      /**
      * @brief Socket consumer for generated packets
      *
@@ -91,10 +95,10 @@ public:
  * @brief PcapConsumer realization
  *
  * Pcap Consumer that will consume packets through writing a pcap file
- * @see ConsumerType()
- * @see SocketConsumerType()
+ * @see Consumer()
+ * @see SocketConsumer()
  */
-class PcapConsumerType : public ConsumerType
+class PcapConsumer : public Consumer
 {
 private:
     /** @brief Types of Pcap File Header.
@@ -108,7 +112,7 @@ private:
         unsigned short int version_minor;    /**< minor version number */
         unsigned int thiszone;
         unsigned int sigfigs;    /**< flags */
-        unsigned int snaplen;    
+        unsigned int snaplen;
         unsigned int network;
     };
 
@@ -123,13 +127,13 @@ private:
         unsigned int incl_len;    /**< packet capture length */
         unsigned int orig_len;    /**< original packet length */
     };
-    
+
 private:
     std::string m_file_name;    /**< file name for pcap file */
     std::fstream m_file_stream;    /**< file stream for pcap file */
     unsigned int m_file_size;    /**< An integer that shows size of pcap file. */
     const PcapHdrType m_pcap_file_header = {0xa1b2c3d4, 2, 4, 0, 0, 65535, 1};    /**< pcap file haader for .pcap */
-    
+
     /** @brief Generates file name
 		@return Returns 1 if file is generated successfully.
 	*/
@@ -141,13 +145,13 @@ public:
      *
      * @param file_name INPUT desired filename of pcap file. If already present, overriden
      */
-    PcapConsumerType(std::string file_name = "");
-    
+    PcapConsumer(std::string file_name = "");
+
     /**
      * @brief destructor, does close pcap file
      */
-    ~PcapConsumerType();
-    
+    ~PcapConsumer();
+
      /**
      * @brief Pcap file consumer for generated packets
      *
@@ -157,5 +161,4 @@ public:
      */
     virtual bool Consume(const unsigned char* data_ptr, unsigned short int data_size);
 };
-
-#endif
+}

@@ -47,11 +47,21 @@ If somehow you want to send generated traffic to a socket (for example 192.168.1
 sudo ./bin/ddgen --nc 10 --dc 60 --socket 192.168.126.1 28008 --mirror
 ```
 
+### To generate and run the contaner image
+Install docker and generate image using docker/Dockerfile
+'''
+docker build -t ddgen -f docker/Dockerfile .
+'''
+Image can be used by providing arguments. To generate mirrored traffic of 10 simultaneous calls with average duration of 6 seconds and send the generated traffic to 10.228.210.40:28008.
+'''
+docker run ddgen /bin/ddgen --nc 10 --dc 6 --socket 10.228.210.40 28008 --mirror
+'''
+
 ### Profiling
 Small documentation about possible profiling options for ddgen may be seen through https://sifaserdarozen.wordpress.com/2016/01/01/a-small-survey-for-profiling-a-c-application/
-* poor mans profiler : see /profilers/pmp.sh.readme     
-* gprof              : see /prifilers/gprof.readme, code should be compiled with "make gprof=yes" to enable -pg flag   
-* perf               : see /profilers/perf.readme   
+* poor mans profiler : see /profilers/pmp.sh.readme
+* gprof              : see /prifilers/gprof.readme, code should be compiled with "make gprof=yes" to enable -pg flag
+* perf               : see /profilers/perf.readme
 * callgrind          : see /profilers/callgrind.readme
 
 ### Thanks to used 3rd Parties

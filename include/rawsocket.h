@@ -5,8 +5,10 @@
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
 
-#ifndef RAWSOCKET_DDGEN_H
-#define RAWSOCKET_DDGEN_H
+#pragma once
+
+namespace ddgen
+{
 
 /**
  * @brief ip port combination
@@ -17,7 +19,7 @@ struct IpPort
 {
     unsigned int m_ipv4;    /**< ip v4 information */
     unsigned short int m_port;    /**< port information */
-    
+
     /**
     * @brief Constructor
     *
@@ -31,7 +33,7 @@ struct IpPort
 /**
  * @brief Method that will calculate ones complement 16 bit summation .
  *
- * 16 bit ones complement addition is performed on data_ptr. 
+ * 16 bit ones complement addition is performed on data_ptr.
  * If data size is not multiple of 2, zero is padded to higher bit of last character.
  * @param data_ptr INPUT data array that summation will be handled on
  * @param data_size INPUT size of data array
@@ -53,21 +55,21 @@ struct RtpHeaderType
     unsigned char version:2;    /**< Version information. */
     unsigned char payload:7;    /**< Payload indicated type of rtp payload */
     unsigned char m:1;    /**< Mark bit. Set to indicate important event such as starting of data after silence suppression period */
-    unsigned short int seq_num;    /**< Sequence number of rtp data. Expected to be incremented with each rtp packet*/ 
-    unsigned int timestamp;    /**< Time stamp of header. Expected to be incremented to reflect sampling instant of first sample of each packet.*/ 
+    unsigned short int seq_num;    /**< Sequence number of rtp data. Expected to be incremented with each rtp packet*/
+    unsigned int timestamp;    /**< Time stamp of header. Expected to be incremented to reflect sampling instant of first sample of each packet.*/
     unsigned int ssrc;    /**< Source identification of rtp data. Should be session wide unique */
-       
+
     /**
      * @brief Read contents from raw line buffer
      *
      * Network data is read from line buffer and converted into host byte order.
-     * Line buffer is expected to be pointing 12 bytes of Rtp header. 
+     * Line buffer is expected to be pointing 12 bytes of Rtp header.
      * @param buffer_ptr INPUT line buffer to read from
      * @return success or failure due to buffer read
      * @see WriteToBuffer()
      */
     bool ReadFromBuffer(const unsigned char* buffer_ptr);
-    
+
     /**
      * @brief Write contents to raw line buffer
      *
@@ -78,7 +80,7 @@ struct RtpHeaderType
      * @see ReadFromBuffer()
      */
     bool WriteToBuffer(unsigned char* buffer_ptr) const;
-    
+
     /**
      * @brief overloading equivalence operator
      *
@@ -87,7 +89,7 @@ struct RtpHeaderType
      * @return boolean result of equivalence check
      */
     bool operator ==(const RtpHeaderType& rhs) const;
-    
+
     /**
      * @brief Display contents of Rtp header
      */
@@ -110,9 +112,9 @@ struct PseudoIpv4HeaderType
     unsigned char zero_pad;           /**< zero pad */
     unsigned char protocol;           /**< layer 4 protocol */
     unsigned short int data_len;      /**< data length (layer4 packet length) */
-    
+
     PseudoIpv4HeaderType() : src_addr(0), dst_addr(0), zero_pad(0), protocol(0), data_len(0) {}
-    
+
     /**
      * @brief Write contents to raw line buffer
      *
@@ -141,29 +143,29 @@ const unsigned short int pseudo_ipv4_header_size = sizeof(PseudoIpv4HeaderType);
  */
 struct Ipv4HeaderType
 {
-    unsigned char hdr_len:4;        /**< Header length in 32 bits. Minimum is 5 (20bytes) */ 
+    unsigned char hdr_len:4;        /**< Header length in 32 bits. Minimum is 5 (20bytes) */
     unsigned char version:4;        /**< Version information which is 4 */
     unsigned char service_type;     /**< Type of service field controlling the priority of the packet */
     unsigned short int tot_len;     /**< Total length Ipv4 packet*/
     unsigned short int id;          /**< Sequence identification */
     unsigned short int fragment;    /**< combined fragmentation flag (3bits) and offset information (13 bits) */
     unsigned char ttl;              /**< Time to live field, which is decremented in each hop */
-    unsigned char protocol;         /**< Layer 4 protocol indicator. 17 for udp, 6 for tcp */ 
+    unsigned char protocol;         /**< Layer 4 protocol indicator. 17 for udp, 6 for tcp */
     unsigned short int checksum;    /**< Header only checksum */
     unsigned int src_addr;          /**< Source address */
     unsigned int dst_addr;          /**< Destination address */
-    
+
     /**
      * @brief Read contents from raw line buffer
      *
      * Ipv4 header data is read from line buffer and converted into host byte order.
-     * Line buffer is expected to be pointing 20 bytes of Ipv4 header. 
+     * Line buffer is expected to be pointing 20 bytes of Ipv4 header.
      * @param buffer_ptr INPUT line buffer to read from
      * @return success or failure due to buffer read
      * @see WriteToBuffer()
      */
     bool ReadFromBuffer(const unsigned char* buffer_ptr);
-    
+
     /**
      * @brief Update checksum and write contents to raw line buffer
      *
@@ -174,19 +176,19 @@ struct Ipv4HeaderType
      * @see ReadFromBuffer()
      */
     bool UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr);
-    
+
     /**
      * @brief Write contents to raw line buffer
      *
      * Structure data is converted into network byte order and written into buffer.
      * Line buffer is expected to be pointing 20 bytes to write into. It is assumed that checksum
-     * field is calculated and set accordingly. 
+     * field is calculated and set accordingly.
      * @param buffer_ptr OUTPUT line buffer to write to
      * @return success or failure due to buffer write
      * @see ReadFromBuffer()
      */
     bool WriteToBuffer(unsigned char* buffer_ptr);
-    
+
     /**
      * @brief overloading equivalence operator
      *
@@ -195,7 +197,7 @@ struct Ipv4HeaderType
      * @return boolean result of equivalence check
      */
     bool operator ==(const Ipv4HeaderType& rhs) const;
-    
+
     /**
      * @brief Display contents of Ipv4 header
      */
@@ -226,18 +228,18 @@ struct UdpHeaderType
     unsigned short int dst_port;    /**< Destination port */
     unsigned short int tot_len;     /**< Total length of Udp packet */
     unsigned short int checksum;    /**< Checksum of header and data */
-    
+
     /**
      * @brief Read contents from raw line buffer
      *
      * Udp header data is read from line buffer and converted into host byte order.
-     * Line buffer is expected to be pointing 8 bytes of Udp header. 
+     * Line buffer is expected to be pointing 8 bytes of Udp header.
      * @param buffer_ptr INPUT line buffer to read from
      * @return success or failure due to buffer read
      * @see WriteToBuffer()
      */
     bool ReadFromBuffer(const unsigned char* buffer_ptr);
-    
+
     /**
      * @brief compute checksum and write contents to raw line buffer
      *
@@ -251,19 +253,19 @@ struct UdpHeaderType
      * @see ReadFromBuffer()
      */
     bool UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const unsigned char* udp_data_ptr, const PseudoIpv4HeaderType& pseudo_ipv4_header);
-    
+
     /**
      * @brief Write contents to raw line buffer
      *
      * Structure data is converted into network byte order and written into buffer.
      * Line buffer is expected to be pointing 8 bytes to write into. It is assumed that checksum
-     * field is calculated and set accordingly. 
+     * field is calculated and set accordingly.
      * @param buffer_ptr OUTPUT line buffer to write to
      * @return success or failure due to buffer write
      * @see ReadFromBuffer()
      */
     bool WriteToBuffer(unsigned char* buffer_ptr);
-    
+
     /**
      * @brief overloading equivalence operator
      *
@@ -272,7 +274,7 @@ struct UdpHeaderType
      * @return boolean result of equivalence check
      */
     bool operator ==(const UdpHeaderType& rhs) const;
-    
+
     /**
      * @brief Display contents of Udp header
      */
@@ -297,36 +299,36 @@ bool CheckUdpChecksum(const unsigned char* line_udp_packet_ptr, const PseudoIpv4
 /**
  * @brief Ethernet header deceleration
  *
- * Ethernet header length is 14 bytes by default. Currently VLAN is not supported. 
+ * Ethernet header length is 14 bytes by default. Currently VLAN is not supported.
  */
 struct EthHeaderType
 {
     unsigned char dst_mac[6];    /**< Destination mac address */
     unsigned char src_mac[6];    /**< Source mac address */
     unsigned short int eth_type;     /**< Type of payload */
-    
+
     /**
      * @brief Read contents from raw line buffer
      *
      * Ethernet header data is read from line buffer and converted into host byte order.
-     * Line buffer is expected to be pointing 14 bytes of Ethernet header. 
+     * Line buffer is expected to be pointing 14 bytes of Ethernet header.
      * @param buffer_ptr INPUT line buffer to read from
      * @return success or failure due to buffer read
      * @see WriteToBuffer()
      */
     bool ReadFromBuffer(const unsigned char* buffer_ptr);
-        
+
     /**
      * @brief Write contents to raw line buffer
      *
      * Structure data is converted into network byte order and written into buffer.
-     * Line buffer is expected to be pointing 14 bytes to write into. 
+     * Line buffer is expected to be pointing 14 bytes to write into.
      * @param buffer_ptr OUTPUT line buffer to write to
      * @return success or failure due to buffer write
      * @see ReadFromBuffer()
      */
     bool WriteToBuffer(unsigned char* buffer_ptr);
-    
+
     /**
      * @brief Display contents of Ethernet header
      */
@@ -352,11 +354,11 @@ struct LineDataType
     unsigned char* m_rtp_hdr_ptr;    /**< pointer to start of rtp header */
     unsigned char* m_rtp_data_ptr;    /**< pointer to start of rtp data */
     unsigned short int m_rtp_data_size;    /**< rtp data size */
-    
+
     /**
      * @brief Constructor of line data
      *
-     * Network data will be filled into this template. 
+     * Network data will be filled into this template.
      * Constructor just fills pointers to their corresponding locations.
      */
     LineDataType()
@@ -368,11 +370,10 @@ struct LineDataType
         m_rtp_data_ptr = m_rtp_hdr_ptr + rtp_header_size;
         m_rtp_data_size = 0;
     }
-    
+
     unsigned int LineDataSize()
     {
         return (eth_header_size + ipv4_header_size + udp_header_size + rtp_header_size + m_rtp_data_size);
     }
 };
-
-#endif
+}

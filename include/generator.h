@@ -5,16 +5,18 @@
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
 
-#ifndef GENERATOR_DDGEN_H
-#define GENERATOR_DDGEN_H
+#pragma once
+
+namespace ddgen
+{
 
 #define PI 3.1416    /**< value of pi in radians */
 
- 
+
 /**
  * @brief Abstract generator interface
  *
- * GeneratorEncoder interface 
+ * GeneratorEncoder interface
  * @see SingleToneGeneratorType()
  * @see SinusoidalGeneratorType()
  */
@@ -27,16 +29,16 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     GeneratorType() {}
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~GeneratorType() {}
-    
+
     /**
      * @brief Pure virtual interface for generating waveform
      *
-     * Calling method should supply at least size of space in pcm_data_ptr. 
+     * Calling method should supply at least size of space in pcm_data_ptr.
      * Notice that sampling frequency may be found to be (size / duration ) kHz
      * @param pcm_data_ptr OUTPUT pointer to output pcm data that will be generated, should contain size of data
      * @param size INPUT size, in terms of sample, of generated waveform.
@@ -49,7 +51,7 @@ public:
 /**
  * @brief ZeroGenerator realization
  *
- * Zero generator, which will return all zeros 
+ * Zero generator, which will return all zeros
  * @see GeneratorType()
  * @see SingleToneGeneratorType()
  * @see SinusoidalGeneratorType()
@@ -63,17 +65,17 @@ public:
      * @brief Default constructor, does not perform any specific operation
      */
     ZeroGeneratorType() {}
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~ZeroGeneratorType() {}
-    
+
     /**
      * @brief Generate waveform
      *
-     * Calling method should supply at least size of space in pcm_data_ptr. 
-     * Zero samples are filled at pcm_data_ptr 
+     * Calling method should supply at least size of space in pcm_data_ptr.
+     * Zero samples are filled at pcm_data_ptr
      * @param pcm_data_ptr OUTPUT pointer to output pcm data that will be generated, should contain size of data
      * @param size INPUT size, in terms of sample, of generated waveform.
      * @param duration INPUT duration,in terms of ms of waveform.
@@ -102,23 +104,23 @@ public:
      * @brief Default constructor, that does let  constructor determine tone parameters
      */
     SingleToneGeneratorType();
-    
+
     /**
      * @brief Constructor that specify tone parameters explicitly.
      */
     SingleToneGeneratorType(float amplitude, float frequency, float phase);
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~SingleToneGeneratorType() {}
-    
+
     /**
      * @brief Generate waveform
      *
-     * Calling method should supply at least size of space in pcm_data_ptr. 
+     * Calling method should supply at least size of space in pcm_data_ptr.
      * Sinusoidal samples are generated with the following formula;
-     * Notice that at the end of operation phase will be changed to be: 
+     * Notice that at the end of operation phase will be changed to be:
      * @param pcm_data_ptr OUTPUT pointer to output pcm data that will be generated, should contain size of data
      * @param size INPUT size, in terms of sample, of generated waveform.
      * @param duration INPUT duration,in terms of ms of waveform.
@@ -138,25 +140,25 @@ public:
 class SinusoidalGeneratorType : public GeneratorType
 {
 private:
- 
+
 
 public:
     /**
      * @brief Default constructor, that does let  constructor determine tone parameters
      */
     SinusoidalGeneratorType() {}
-    
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
     virtual ~SinusoidalGeneratorType() {}
-    
+
     /**
      * @brief Generate waveform
      *
-     * Calling method should supply at least size of space in pcm_data_ptr. 
+     * Calling method should supply at least size of space in pcm_data_ptr.
      * Sinusoidal samples are generated with the following formula;
-     * Notice that at the end of operation phase will be changed to be: 
+     * Notice that at the end of operation phase will be changed to be:
      * @param pcm_data_ptr OUTPUT pointer to output pcm data that will be generated, should contain size of data
      * @param size INPUT size, in terms of sample, of generated waveform.
      * @param duration INPUT duration,in terms of ms of waveform.
@@ -168,12 +170,12 @@ public:
 /**
  * @brief Abstract generator factory interface
  *
- * Generator factory interface 
- * @see ZeroGeneratorFactoryType()
- * @see SingleToneGeneratorFactoryType()
- * @see SinusoidalGeneratorFactoryType()
+ * Generator factory interface
+ * @see ZeroGeneratorFactory()
+ * @see SingleToneGeneratorFactory()
+ * @see SinusoidalGeneratorFactory()
  */
-class GeneratorFactoryType
+class GeneratorFactory
 {
 private:
 
@@ -181,13 +183,13 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    GeneratorFactoryType() {}
-    
+    GeneratorFactory() {}
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~GeneratorFactoryType() {}
-    
+    virtual ~GeneratorFactory() {}
+
     /**
      * @brief pure virtual interface for generator creating
      *
@@ -195,8 +197,8 @@ public:
      */
     virtual GeneratorType* CreateGenerator() const = 0;
 };
- 
-class ZeroGeneratorFactoryType : public GeneratorFactoryType
+
+class ZeroGeneratorFactory : public GeneratorFactory
 {
 private:
 
@@ -204,12 +206,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    ZeroGeneratorFactoryType() { }
-    
+    ZeroGeneratorFactory() { }
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~ZeroGeneratorFactoryType() {}
+    virtual ~ZeroGeneratorFactory() {}
 
     /**
      * @brief Implementation of zero generator creation
@@ -218,11 +220,11 @@ public:
      * @see GeneratorType()
      * @see SingleToneGeneratorType()
      * @see SinusoidalGeneratorType()
-     */    
+     */
     virtual GeneratorType* CreateGenerator() const { return new ZeroGeneratorType(); }
 };
 
-class SingleToneGeneratorFactoryType : public GeneratorFactoryType
+class SingleToneGeneratorFactory : public GeneratorFactory
 {
 private:
 
@@ -230,12 +232,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    SingleToneGeneratorFactoryType() { }
-    
+    SingleToneGeneratorFactory() { }
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SingleToneGeneratorFactoryType() {}
+    virtual ~SingleToneGeneratorFactory() {}
 
     /**
      * @brief Implementation of single tone generator creation
@@ -244,11 +246,11 @@ public:
      * @see GeneratorType()
      * @see ZeroGeneratorType()
      * @see SinusoidalGeneratorType()
-     */    
+     */
     virtual GeneratorType* CreateGenerator() const { return new SingleToneGeneratorType(); }
 };
 
-class SinusoidalGeneratorFactoryType : public GeneratorFactoryType
+class SinusoidalGeneratorFactory : public GeneratorFactory
 {
 private:
 
@@ -256,12 +258,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    SinusoidalGeneratorFactoryType() { }
-    
+    SinusoidalGeneratorFactory() { }
+
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SinusoidalGeneratorFactoryType() {}
+    virtual ~SinusoidalGeneratorFactory() {}
 
     /**
      * @brief Implementation of sinusoidal generator creation
@@ -270,8 +272,7 @@ public:
      * @see GeneratorType()
      * @see ZeroGeneratorType()
      * @see SingleToneGeneratorType()
-     */    
+     */
     virtual GeneratorType* CreateGenerator() const { return new SinusoidalGeneratorType(); }
 };
-
-#endif
+}
