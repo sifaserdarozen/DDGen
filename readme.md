@@ -58,6 +58,14 @@ Image can be used by providing arguments. To generate mirrored traffic of 10 sim
 docker run ddgen /bin/ddgen --nc 10 --dc 6 --socket 10.228.210.40 28008 --mirror
 ```
 
+If it is a desire to run multiple ddgen containers in parallel, a start ip address for endpoints may be provided.
+In this case generating traffic for that container will start from that ip and increment till simulation ends.
+This enables multiple generators simulate a range of ip traffic in parallel. To start with 172.24.201.54; 
+```
+docker run ddgen /bin/ddgen --nc 10 --dc 6 --socket 10.228.210.40 28008 --start 172.24.201.54 --mirror
+```
+ 
+
 ### Profiling
 Small documentation about possible profiling options for ddgen may be seen through https://sifaserdarozen.wordpress.com/2016/01/01/a-small-survey-for-profiling-a-c-application/
 * poor mans profiler : see /profilers/pmp.sh.readme
