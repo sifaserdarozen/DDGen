@@ -9,10 +9,13 @@ INCLUDE_DIR= ./include
 MAKE_DIR= ./tmp
 INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch
 
-CPP_OPTIONS= -Wall -g -std=c++14
+CPP_OPTIONS= -Wall -g -std=c++14 
 
 # to elimanete catch warning
 CPP_OPTIONS+= -Wno-unknown-pragmas
+
+# to enable position independent executable for alpine
+CPP_OPTIONS+= -fPIC
 
 ifdef gprof
 CPP_OPTIONS+= -pg
