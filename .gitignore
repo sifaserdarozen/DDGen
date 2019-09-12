@@ -5,6 +5,7 @@ tmp/
 cov-int/
 **gmon.out
 **perf.data*
+**pcap
 **callgrind.out*
 **.pcap
 !/3rdParty/**
