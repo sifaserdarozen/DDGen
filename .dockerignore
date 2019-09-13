@@ -1,6 +1,9 @@
 .idea
-lib/
+.git
 bin/
+doc/
+lib/
+profiler/
 tmp/
 cov-int/
 **gmon.out
@@ -8,6 +11,3 @@ cov-int/
 **callgrind.out*
 **/*.pcap
 !/3rdParty/**
-doc/html
-doc/*.db
-
