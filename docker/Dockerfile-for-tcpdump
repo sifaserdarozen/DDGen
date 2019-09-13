@@ -1,0 +1,4 @@
+FROM alpine:3.10
+RUN apk add tcpdump
+
+ENTRYPOINT ["/bin/sh","-c","trap : TERM INT; tail -f /dev/null"]
