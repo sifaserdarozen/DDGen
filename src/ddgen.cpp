@@ -129,6 +129,7 @@ int main(int argc, char*argv[])
             argv_index += 4;
 
             program_options.traffic = TrafficType::DrLink;
+            program_options.output = OutputType::Socket;
         }
         else if (0 == strcmp("--mirror", argv[argv_index]))
         {
