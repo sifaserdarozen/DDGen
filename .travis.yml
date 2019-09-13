@@ -11,10 +11,6 @@ before_install:
   # update before start
   - sudo apt-get update -qq
 
-install:
-  # install nvcc
-  - sudo apt-get install -qq -y nvidia-cuda-toolkit
-
 env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
