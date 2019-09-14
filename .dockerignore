@@ -2,6 +2,7 @@
 .git
 bin/
 doc/
+kubernetes/
 lib/
 profiler/
 tmp/

@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ddgen26
+  labels:
+    app: ddgen26
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddgen26
+  template:
+    metadata:
+      labels:
+        app: ddgen26
+    spec:
+      containers:
+      - name: ddgen26
+        image: sifaserdarozen/ddgen:latest
+        command: ["/bin/ddgen"]
+        args: ["--nc", "2", "--dc", "60", "--mirror", "--socket", "172.17.0.2", "28008", "--start", "172.26.201.54"]
