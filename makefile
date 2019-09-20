@@ -1,5 +1,3 @@
-#makefile of capturer
-
 NAME= ddgen
 BIN_DIR= ./bin
 SRC_DIR= ./src
@@ -7,7 +5,11 @@ UTEST_DIR= /tests
 LIB_DIR= ./lib
 INCLUDE_DIR= ./include
 MAKE_DIR= ./tmp
-INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch
+INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch -I./3rdParty/libhttp/include
+
+3RD_PARTY_DIRS = 3rdParty/libhttp
+3RD_PARTY_BUILD_DIRS = $(3RD_PARTY_DIRS:%=build-%)
+3RD_PARTY_CLEAN_DIRS = $(3RD_PARTY_DIRS:%=clean-%)
 
 CPP_OPTIONS= -Wall -g -std=c++14 
 
@@ -20,6 +22,8 @@ CPP_OPTIONS+= -fPIC
 ifdef gprof
 CPP_OPTIONS+= -pg
 endif
+
+LINK_OPTIONS= -L./3rdParty/libhttp/lib
 
 OPERATING_SYSTEM= $(shell uname -o)
 
@@ -51,7 +55,7 @@ TARGET_LIB= $(LIB_DIR)/$(NAME)_lib.a
 link: compile $(TARGETS)
 	@echo -- Link Ended
 
-clean:
+clean: $(3RD_PARTY_CLEAN_DIRS)
 	rm -f $(BIN_DIR)/*
 	rm -f $(MAKE_DIR)/*
 	rm -f $(LIB_DIR)/*
@@ -61,10 +65,13 @@ doc:
 	@echo "--> documentation may be done through"
 	@echo "--> doxygen ./doc/Doxyfile"
 
-compile: $(CPP_OBJS) $(CPP_MAKE_TARGETS)
+compile: $(CPP_OBJS) $(CPP_MAKE_TARGETS) $(3RD_PARTY_BUILD_DIRS)
 	@echo "Compiling ended for.... " $(CPP_OBJS)
 
 -include $(CPP_MAKE_TARGETS)
+
+$(3RD_PARTY_BUILD_DIRS):
+	$(MAKE) -C $(@:build-%=%)
 
 $(LIB_DIR)/%.o: $(SRC_DIR)/%.cpp | $(LIB_DIR)
 	@echo "Compiling... $@"
@@ -74,13 +81,16 @@ $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
 
 $(TARGETS): $(TARGET_LIB) | $(BIN_DIR)
-	$(CPP_COMPILER) $(CPP_OPTIONS) ./src/$@.cpp $^ $(INCLUDE) -o ./bin/$@ -lpthread
+	$(CPP_COMPILER) $(CPP_OPTIONS) $(LINK_OPTIONS) ./src/$@.cpp $^ $(INCLUDE) -o ./bin/$@ -lpthread -lhttp -ldl
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
 
 $(TARGET_LIB): $(CPP_OBJS)
 	ar rvs  $(TARGET_LIB) $(CPP_OBJS)
+
+$(3RD_PARTY_CLEAN_DIRS):
+	$(MAKE) -C $(@:clean-%=%) clean
 
 makegen: $(CPP_MAKE_TARGETS)
 	@echo "Making ended for ..." $(CPP_MAKE_TARGETS)

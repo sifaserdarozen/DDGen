@@ -75,6 +75,7 @@ Small documentation about possible profiling options for ddgen may be seen throu
 
 ### Thanks to used 3rd Parties
 Catch for unit tests https://github.com/philsquared/Catch
+libhttp for http server https://github.com/lammertb/libhttp from bb2577937ae96e19b4c9c3217b5361cd8b7ae591
 
 ### License
 Please check individual licanse information of used 3rd parties. Besides, there is a great deal of g722 taken from ITU reference implementation that should be trated as ITU wishes.
