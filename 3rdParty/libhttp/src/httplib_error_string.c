@@ -167,7 +167,8 @@ LIBHTTP_API char *httplib_error_string( int error_code, char *buf, size_t buf_le
 
 #else  /* _WIN32 */
 
-	strerror_r( error_code, buf, buf_len );
+	/* Use if clause to eliminate unused return value warning */
+	if ( strerror_r( error_code, buf, buf_len ) ) {}
 	return buf;
 
 #endif  /* _WIN32 */
