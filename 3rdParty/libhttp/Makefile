@@ -151,22 +151,11 @@ ${OBJDIR}%${OBJEXT} : ${SRCDIR}%.c
 ${TSTDIR}${OBJDIR}%${OBJEXT} : ${TSTDIR}%.c
 	${CC} -c ${CPPFLAGS} ${CFLAGS} ${DFLAGS} ${OFLAG}$@ $<
 
-all: ${LIBDIR}libhttp${LIBEXT} testmime${EXEEXT}
+all: ${LIBDIR}libhttp${LIBEXT}
 
 clean:
 	${RM} ${OBJDIR}*${OBJEXT}
 	${RM} ${LIBDIR}libhttp${LIBEXT}
-	${RM} testmime${EXEEXT}
-
-testmime${EXEEXT} :					\
-		${TSTDIR}${OBJDIR}testmime${OBJEXT}	\
-		${LIBDIR}libhttp${LIBEXT}		\
-		Makefile
-	${LINK} ${XFLAG}testmime${EXEEXT}		\
-		${TSTDIR}${OBJDIR}testmime${OBJEXT}	\
-		${LIBDIR}libhttp${LIBEXT}		\
-		${LIBS}
-	${STRIP} testmime${EXEEXT}
 
 OBJLIST =									\
 	${OBJDIR}extern_md5${OBJEXT}						\
@@ -420,9 +409,6 @@ ${LIBDIR}libhttp${LIBEXT} :	\
 #
 # Individual source files with their header dependencies
 #
-
-${TSTDIR}${OBJDIR}testmime${OBJEXT}					: ${TSTDIR}testmime.c						\
-									  ${INCDIR}libhttp.h
 
 ${OBJDIR}main${OBJEXT}							: ${SRCDIR}main.c						\
 									  ${INCDIR}libhttp.h
