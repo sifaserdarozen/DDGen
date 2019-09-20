@@ -107,7 +107,7 @@ void XX_httplib_set_thread_name( struct lh_ctx_t *ctx, const char *name ) {
 	 * on linux we can use the old prctl function
 	 */
 
-	prctl( PR_SET_NAME, threadName, 0, 0, 0 );
+	prctl( PR_SET_NAME, thread_name, 0, 0, 0 );
 
 #else
 

@@ -118,7 +118,7 @@ typedef struct {
  * definitions, structures and prototypes are present.
  */
 
-#include <sys/poll.h>
+#include <poll.h>
 #include <sys/types.h>
 #include <dirent.h>
 #include <pthread.h>
