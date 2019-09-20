@@ -8,6 +8,8 @@ cov-int/
 **callgrind.out*
 **/*.pcap
 !/3rdParty/**
+3rdParty/libhttp/lib/**
+3rdParty/libhttp/obj/**
 doc/html
 doc/*.db
 
