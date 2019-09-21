@@ -7,6 +7,7 @@
 
 #pragma once
 
+#include "ipport.h"
 #include "rawsocket.h"
 
 #include <fstream>

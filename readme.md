@@ -17,9 +17,9 @@ will do the job. Unit tests may be fired by
 ```
 
 ### How to run
-As DDGen uses Linux row sockets, it will need root privileges for some modes
+As DDGen uses Linux row sockets, it will need root privileges for some of its modes
 ```
-sudo ./bin/ddgen --mirror
+./bin/ddgen --mirror
 ```
 This will lead an execution with default parameters in passive mode. In this mode generated traffic is written to a pcap file. See following sections for detailed usage.
 
@@ -48,16 +48,6 @@ If somehow you want to send generated traffic to a socket (for example 192.168.1
 ```
 sudo ./bin/ddgen --nc 10 --dc 60 --mirror --socket 192.168.126.1 28008 (--start 172.24.201.54)
 ```
-
-MIRROR:
-send to the socket:            sifa@sifa:~/DDGen$ docker run ddgen /bin/ddgen --nc 2 --dc 60 --mirror --socket 10.228.210.40 28008 (--start 172.24.201.54)
-pcap                           sifa@sifa:~/DDGen$ docker run ddgen /bin/ddgen --nc 2 --dc 60 --mirror (--pcap) (--start 172.24.201.54)
-
-
-ACTIVE
-send to the socket:            sifa@sifa:~/DDGen$ docker run ddgen /bin/ddgen --nc 2 --dc 60 --drlink 10.228.212.32 28008 10.228.212.32 28009 (--start 172.24.201.54)
-pcap                           sifa@sifa:~/DDGen$ docker run ddgen /bin/ddgen --nc 2 --dc 60 --drlink 10.228.212.32 28008 10.228.212.32 28009 --pcap (--start 172.24.201.54)
-
 
 ### To generate and run the contaner image
 Install docker and generate image using docker/Dockerfile

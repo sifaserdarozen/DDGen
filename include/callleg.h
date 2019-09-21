@@ -11,6 +11,7 @@
 #include "generator.h"
 #include "consumer.h"
 
+#include <memory>
 #include <vector>
 
 namespace ddgen
@@ -81,33 +82,27 @@ public:
 };
 
 /**
- * @brief Abstract class that will encapsulate call information.
+ * @brief Base class that will encapsulate call information.
  */
 class Call
 {
-private:
-
+protected:
+    Call(unsigned int duration);
+    std::vector<std::unique_ptr<CallLeg>> m_call_leg_ptr_vector;
+    unsigned int m_duration;
+    
 public:
-    /**Constructor method
-     *
-     * In constructor
-     */
-    Call() {}
+    Call() = delete;
+
+    virtual ~Call() = default;
 
     /**
-     * @brief Destructor method
-     *
-     * In destructor dynamically created variables will be freed.
-     */
-    virtual ~Call() {}
-
-    /**
-     * @brief Abstract function to step simulation
+     * @brief Function to step simulation
      *
      * @param step_duration INPUT duration to simulate a call
      * @return success of operation
      */
-    virtual bool Step(unsigned int step_duration) = 0;
+    virtual bool Step(unsigned int step_duration);
 };
 
 /**
@@ -115,28 +110,13 @@ public:
  */
 class DRLinkCall : public Call
 {
-private:
-    std::vector<CallLeg*> m_call_leg_ptr_vector;
-    unsigned int m_duration;
-
 public:
-    /**Constructor method
-     *
-     * In constructor
-     */
     DRLinkCall(std::vector<IpPort>& dst_inf, unsigned int src_ip, unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
                     Consumer* consumer_ptr);
 
-    /**
-     * @brief Destructor method
-     *
-     * In destructor dynamically created variables will be freed.
-     */
-    ~DRLinkCall();
-
-    bool Step(unsigned int step_duration);
+    ~DRLinkCall() = default;
 };
 
 /**
@@ -144,28 +124,13 @@ public:
  */
 class MirrorCall : public Call
 {
-private:
-    std::vector<CallLeg*> m_call_leg_ptr_vector;
-    unsigned int m_duration;
-
 public:
-    /**Constructor method
-     *
-     * In constructor
-     */
     MirrorCall(unsigned int src_ip, unsigned int dst_ip, unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
                     Consumer* consumer_ptr);
 
-    /**
-     * @brief Destructor method
-     *
-     * In destructor dynamically created variables will be freed.
-     */
-    ~MirrorCall();
-
-    bool Step(unsigned int step_duration);
+    ~MirrorCall() = default;
 };
 
 
@@ -178,25 +143,13 @@ public:
  */
 class CallFactory
 {
-private:
-
 public:
-    /**
-     * @brief Default constructor, does not perform any specific operation
-     */
+
     CallFactory() {}
 
-    /**
-     * @brief Default destructor, does not perform any specific operation
-     */
-    virtual ~CallFactory() {}
+    virtual ~CallFactory() = default;
 
-    /**
-     * @brief pure virtual interface for call creating
-     *
-     * @return Created call
-     */
-    virtual Call* CreateCall(unsigned int duration,
+    virtual std::unique_ptr<Call> CreateCall(unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
                     Consumer* consumer_ptr) = 0;
@@ -223,15 +176,10 @@ public:
      * @see DrLinkCall()
      * @see MirrorCall()
      */
-    virtual Call* CreateCall(unsigned int duration,
+    virtual std::unique_ptr<Call> CreateCall(unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr)
-    {
-        Call* call_ptr = new DRLinkCall(m_dst_inf, m_src_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
-        m_src_ip ++;
-        return  call_ptr;
-    }
+                    Consumer* consumer_ptr);
 };
 
 class MirrorCallFactory : public CallFactory
@@ -239,16 +187,11 @@ class MirrorCallFactory : public CallFactory
 private:
     unsigned int m_ip_pool;
 public:
-    /**
-     * @brief Default constructor, does not perform any specific operation
-     */
+
     MirrorCallFactory(unsigned int start_ip) : m_ip_pool(start_ip)
     {
     }
 
-    /**
-     * @brief Default destructor, does not perform any specific operation
-     */
     virtual ~MirrorCallFactory() = default;
 
     /**
@@ -259,7 +202,7 @@ public:
      * @see ZeroGeneratorType()
      * @see SingleToneGeneratorType()
      */
-    virtual Call* CreateCall(unsigned int duration,
+    virtual std::unique_ptr<Call> CreateCall(unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
                     Consumer* consumer_ptr);
