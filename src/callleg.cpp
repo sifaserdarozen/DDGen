@@ -140,13 +140,34 @@ void CallLeg::Step(unsigned short int step_duration)
     }
 }
 
+Call::Call(unsigned int duration) : m_duration(duration * 1000)
+{
+}
+
+bool Call::Step(unsigned int step_duration)
+{
+    bool still_has_time = true;
+    if (m_duration < step_duration)
+    {
+        // change step duration to whatever time call has
+        step_duration = m_duration;
+        still_has_time = false;
+    }
+
+    for (auto& cl : m_call_leg_ptr_vector)
+    {
+        cl -> Step(step_duration);
+    }
+
+    m_duration -= step_duration;
+    return still_has_time;
+}
+
 DRLinkCall::DRLinkCall(std::vector<IpPort>& dst_inf, unsigned int src_ip, unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr)
+                    Consumer* consumer_ptr) : Call(duration)
 {
-    m_duration = duration * 1000;
-
     int no_of_call_legs = dst_inf.size();
     unsigned short id_offset = USHRT_MAX / no_of_call_legs;
     unsigned short int id = 1;
@@ -170,55 +191,31 @@ DRLinkCall::DRLinkCall(std::vector<IpPort>& dst_inf, unsigned int src_ip, unsign
         unsigned int ssrc = uint_distribution(generator);
         unsigned short int seq_num = usint_distribution(generator);
 
-        CallLeg* call_leg_ptr = new CallLeg(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
-        if (call_leg_ptr)
-        {
-            std::clog << "-------------------------------- CALL LEG CREATION -------------------------------------" << std::endl;
-            std::clog << "HOST src : " << std::hex << src_ip << std::dec << ":" << src_port << " dst: " << std::hex << dst_ip << std::dec << ":" << dst_port << std::endl;
-            std::clog << "NET src : " << std::hex << htonl(src_ip) <<std::dec << ":" << htons(src_port) << " dst: " << std::hex << htonl(dst_ip) << std::dec << ":" << htons(dst_port) << std::endl;
-            m_call_leg_ptr_vector.push_back(call_leg_ptr);
-        }
+        auto call_leg = std::make_unique<CallLeg>(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+
+        std::clog << "-------------------------------- CALL LEG CREATION -------------------------------------" << std::endl;
+        std::clog << "HOST src : " << std::hex << src_ip << std::dec << ":" << src_port << " dst: " << std::hex << dst_ip << std::dec << ":" << dst_port << std::endl;
+        std::clog << "NET src : " << std::hex << htonl(src_ip) <<std::dec << ":" << htons(src_port) << " dst: " << std::hex << htonl(dst_ip) << std::dec << ":" << htons(dst_port) << std::endl;
+        m_call_leg_ptr_vector.push_back(std::move(call_leg));
 
         src_port += 2;
         id += id_offset;
     }
 }
 
-DRLinkCall::~DRLinkCall()
+std::unique_ptr<Call> DRLinkCallFactory::CreateCall(unsigned int duration,
+                    EncoderFactory* encoder_factory_ptr,
+                    GeneratorFactory* generator_factory_ptr,
+                    Consumer* consumer_ptr)
 {
-    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
-    {
-        delete *it;
-        *it = NULL;
-    }
-}
-
-bool DRLinkCall::Step(unsigned int step_duration)
-{
-    bool still_has_time = true;
-    if (m_duration < step_duration)
-    {
-        // change step duration to whatever time call has
-        step_duration = m_duration;
-        still_has_time = false;
-    }
-
-    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
-    {
-        (*it)-> Step(step_duration);
-    }
-
-    m_duration -= step_duration;
-    return still_has_time;
+    return std::make_unique<DRLinkCall>(m_dst_inf, m_src_ip++, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
 }
 
 MirrorCall::MirrorCall(unsigned int src_ip, unsigned int dst_ip, unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr)
+                    Consumer* consumer_ptr) : Call(duration)
 {
-    m_duration = duration * 1000;
-
     int no_of_call_legs = 2;
     unsigned short id_offset = USHRT_MAX / no_of_call_legs;
     unsigned short int id = 1;
@@ -240,63 +237,29 @@ MirrorCall::MirrorCall(unsigned int src_ip, unsigned int dst_ip, unsigned int du
     unsigned int ssrc = uint_distribution(generator);
     unsigned short int seq_num = usint_distribution(generator);
 
-    CallLeg* src_call_leg_ptr = new CallLeg(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
-    if (src_call_leg_ptr)
-    {
-        m_call_leg_ptr_vector.push_back(src_call_leg_ptr);
-    }
+    auto src_call_leg = std::make_unique<CallLeg>(src_ip, src_port, dst_ip, dst_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+    m_call_leg_ptr_vector.push_back(std::move(src_call_leg));
 
     id += id_offset;
     timestamp = uint_distribution(generator);
     ssrc = uint_distribution(generator);
     seq_num = usint_distribution(generator);
 
-    CallLeg* dst_call_leg_ptr = new CallLeg(dst_ip, dst_port, src_ip, src_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
-    if (dst_call_leg_ptr)
-    {
-        m_call_leg_ptr_vector.push_back(dst_call_leg_ptr);
-    }
+    auto dst_call_leg = std::make_unique<CallLeg>(dst_ip, dst_port, src_ip, src_port, id, timestamp, ssrc, seq_num, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+    m_call_leg_ptr_vector.push_back(std::move(dst_call_leg));
 
     std::clog << "-------------------------------- MIRROR CALL CREATION -------------------------------------" << std::endl;
     std::clog << "HOST : " << std::hex << src_ip << std::dec << ":" << src_port << " <--> " << std::hex << dst_ip << std::dec << ":" << dst_port << std::endl;
     std::clog << "NET  : " << std::hex << htonl(src_ip) <<std::dec << ":" << htons(src_port) << " <--> " << std::hex << htonl(dst_ip) << std::dec << ":" << htons(dst_port) << std::endl;
 }
 
-MirrorCall::~MirrorCall()
-{
-    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
-    {
-        delete *it;
-        *it = NULL;
-    }
-}
-
-bool MirrorCall::Step(unsigned int step_duration)
-{
-    bool still_has_time = true;
-    if (m_duration < step_duration)
-    {
-        // change step duration to whatever time call has
-        step_duration = m_duration;
-        still_has_time = false;
-    }
-
-    for (std::vector<CallLeg*>::iterator it = m_call_leg_ptr_vector.begin(); it != m_call_leg_ptr_vector.end(); ++it)
-    {
-        (*it)-> Step(step_duration);
-    }
-
-    m_duration -= step_duration;
-    return still_has_time;
-}
-
-Call* MirrorCallFactory::CreateCall(unsigned int duration,
+std::unique_ptr<Call> MirrorCallFactory::CreateCall(unsigned int duration,
                     EncoderFactory* encoder_factory_ptr,
                     GeneratorFactory* generator_factory_ptr,
                     Consumer* consumer_ptr)
 {
     unsigned int src_ip = m_ip_pool++;
     unsigned int dst_ip = m_ip_pool++;
-    return new MirrorCall(src_ip, dst_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
+    return std::make_unique<MirrorCall> (src_ip, dst_ip, duration, encoder_factory_ptr, generator_factory_ptr, consumer_ptr);
 }
 }

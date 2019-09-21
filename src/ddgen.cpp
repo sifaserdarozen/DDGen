@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
        call_factory_ptr = std::make_unique<ddgen::MirrorCallFactory>(program_options.start_ip);
     }
 
-    std::vector<ddgen::Call*> call_ptr_vector;
+    std::vector<std::unique_ptr<ddgen::Call>> call_ptr_vector;
 
     const auto desired_run_time = program_options.duration_of_calls * 10 * 1000;
 
@@ -70,12 +70,6 @@ int main(int argc, char* argv[])
     std::minstd_rand generator(seed);
     std::uniform_int_distribution<unsigned short int> usint_distribution(program_options.duration_of_calls * 0.75, program_options.duration_of_calls * 1.25);
 
-    if (!call_factory_ptr)
-    {
-        std::cout << __FILE__ << " " << __LINE__ << " call factory ptr is null " << std::endl;
-        return -1;
-    }
-
     std::cout << std::endl << "Should have root privileges !" << "Simulation will end in " << desired_run_time / 1000.0 << " seconds" << std::endl;
 
     while(true)
@@ -84,14 +78,9 @@ int main(int argc, char* argv[])
         {
             unsigned short int call_duration = usint_distribution(generator);
 
-            ddgen::Call* call_ptr = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
-            if (!call_ptr)
-            {
-                std::cerr << __FILE__ << " " << __LINE__ << "unable to create call_ptr" << std::endl;
-                return -1;
-            }
+            std::unique_ptr<ddgen::Call> call = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
 
-            call_ptr_vector.push_back(call_ptr);
+            call_ptr_vector.push_back(std::move(call));
             std::cout << " a call is created with duration " << call_duration << std::endl;
         }
 
@@ -105,23 +94,14 @@ int main(int argc, char* argv[])
 
         if (ellapsed_time > 20000)
         {
-            for (std::vector<ddgen::Call*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
+            for (std::vector<std::unique_ptr<ddgen::Call>>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
             {
-                if (*it)
+                const bool step_result = (*it) -> Step(20);
+                if (false == step_result)
                 {
-                    bool step_result = (*it) -> Step(20);
-                    if (false == step_result)
-                    {
-                        std::clog << "a calltimed out " << std::endl;
-                        delete (*it);
-                        it = call_ptr_vector.erase(it);
-                        --it;
-                    }
-                }
-                else
-                {
-                    std::cerr << __FILE__ << " " << __LINE__ << "iteratoris null " << std::endl;
-                    return -1;
+                    std::clog << "a calltimed out " << std::endl;
+                    it = call_ptr_vector.erase(it);
+                    --it;
                 }
             }
 
@@ -137,15 +117,6 @@ int main(int argc, char* argv[])
         if (ellapsed_time_in_ms > desired_run_time) {
             std::cout << "Simulation time " << desired_run_time << " is over" << std::endl;
             break;
-        }
-    }
-
-    for (std::vector<ddgen::Call*>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
-    {
-        if (*it)
-        {
-            delete (*it);
-            *it = NULL;
         }
     }
 
