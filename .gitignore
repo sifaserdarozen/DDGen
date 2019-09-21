@@ -10,6 +10,7 @@ cov-int/
 !/3rdParty/**
 3rdParty/libhttp/lib/**
 3rdParty/libhttp/obj/**
+!3rdParty/libhttp/obj/README
 doc/html
 doc/*.db
 
