@@ -104,7 +104,7 @@ ARQ    = q
 RANLIB = ranlib
 LIBS   = -lpthread -lm
 
-CFLAGS=	-Wall \
+CFLAGS+=	-Wall \
 	-Wextra \
 	-Wstrict-prototypes \
 	-Wshadow \
