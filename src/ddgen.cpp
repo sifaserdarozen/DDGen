@@ -1,5 +1,6 @@
 #include "callleg.h"
 #include "programoptions.h"
+#include "webinterface.h"
 
 #include <chrono>
 #include <iostream>
@@ -70,7 +71,10 @@ int main(int argc, char* argv[])
     std::minstd_rand generator(seed);
     std::uniform_int_distribution<unsigned short int> usint_distribution(program_options.duration_of_calls * 0.75, program_options.duration_of_calls * 1.25);
 
-    std::cout << std::endl << "Should have root privileges !" << "Simulation will end in " << desired_run_time / 1000.0 << " seconds" << std::endl;
+    std::cout << std::endl << "Should have root privileges for some of operations! (for --secure / for )" << std::endl;
+    std::cout << "Simulation will end in " << desired_run_time / 1000.0 << " seconds" << std::endl;
+
+    ddgen::WebInterface web_interface(program_options.shouldUseSecureWebInterface);
 
     while(true)
     {

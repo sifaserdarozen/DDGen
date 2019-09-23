@@ -71,7 +71,7 @@ compile: $(CPP_OBJS) $(CPP_MAKE_TARGETS) $(3RD_PARTY_BUILD_DIRS)
 -include $(CPP_MAKE_TARGETS)
 
 $(3RD_PARTY_BUILD_DIRS):
-	$(MAKE) -C $(@:build-%=%)
+	$(MAKE) -C $(@:build-%=%) SSL_LIB=libssl.so.1.0.0 CRYPTO_LIB=libcrypto.so.1.0.0
 
 $(LIB_DIR)/%.o: $(SRC_DIR)/%.cpp | $(LIB_DIR)
 	@echo "Compiling... $@"
