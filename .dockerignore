@@ -15,6 +15,9 @@ cov-int/
 !/3rdParty/**
 3rdParty/libhttp/lib/**
 3rdParty/libhttp/obj/**
+docker/certificate/**
+!docker/certificate/ddgen-cert.pem
+
 
 
 

@@ -5,14 +5,16 @@ COPY . /src
 RUN make
 
 FROM alpine:3.8
-RUN apk add --no-cache libstdc++ tini openssl-dev
-COPY --from=build /src/bin/. /bin/.
-COPY *.pem /.
+RUN apk add --no-cache libstdc++ tini openssl-dev openssl
+WORKDIR ddgen
+COPY --from=build /src/bin/. /ddgen/.
+COPY ./docker/certificate /ddgen/.
 
 #ENTRYPOINT ["/bin/sh","-c","trap : TERM INT; tail -f /dev/null"]
 #ENTRYPOINT ["/bin/ddgen_utests"]
 #ENTRYPOINT ["/bin/ddgen --nc 10 --dc 6 --socket 10.228.210.40 28008 --mirror"]
 
-ADD docker/start.sh /
+ADD docker/start.sh /ddgen/
+ADD docker/cert-generate.sh /ddgen/
 
-ENTRYPOINT ["tini", "--", "/start.sh"]
+ENTRYPOINT ["tini", "--", "./start.sh"]

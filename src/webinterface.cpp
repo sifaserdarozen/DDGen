@@ -14,12 +14,12 @@ int WebInterface::begin_request_handler(struct lh_ctx_t *ctx, struct lh_con_t *c
 
     std::string local_uri(request_info->local_uri);
 
-    if (("/healthz" == local_uri) || ("/readyz" == local_uri))
+    if (("/healthz" == local_uri) || ("/health" == local_uri) || ("/readyz" == local_uri ) || ("/ready" == local_uri) )
     {
 
         // Prepare the message we're going to send
         int content_length = snprintf(content, sizeof(content),
-                                      "Hello from civetweb! Remote port: %d \n and request uri: %s \n and loacu uri: %s",
+                                      "Everything will be ok! Remote port: %d \n and request uri: %s \n and loacu uri: %s",
                                       request_info->remote_port,
                                       request_info->request_uri,
                                       local_uri.c_str());
