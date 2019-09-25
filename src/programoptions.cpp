@@ -8,7 +8,7 @@
 namespace ddgen
 {
 
-ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), duration_of_calls(60), start_ip(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap) 
+ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), duration_of_calls(60), start_ip(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap), shouldUseSecureWebInterface(false)
 {
 
     for (int argv_index = 1; argv_index < argc; ++argv_index)
@@ -89,6 +89,10 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), du
                 start_ip = ntohl(s_inaddr.s_addr);
             }
             argv_index += 1;
+        }
+        else if (0 == strcmp("--secure", argv[argv_index]))
+        {
+            shouldUseSecureWebInterface = true;
         }
         else
         {

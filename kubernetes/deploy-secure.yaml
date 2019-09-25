@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ddgen-secure
+  labels:
+    app: ddgen-secure
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddgen-secure
+  template:
+    metadata:
+      labels:
+        app: ddgen-secure
+    spec:
+      containers:
+      - name: ddgen-secure
+        image: sifaserdarozen/ddgen:0.2
+        command: ["./start.sh"]
+        args: ["./ddgen", "--nc", "2", "--dc", "60", "--mirror", "--socket", "172.17.0.2", "28008", "--start", "172.24.201.54", "--secure"]
+        ports:
+        - containerPort: 443
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 1
+          periodSeconds: 1
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 443
+            scheme: HTTPS
+          initialDelaySeconds: 1
+          periodSeconds: 10

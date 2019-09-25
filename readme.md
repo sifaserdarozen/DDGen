@@ -23,30 +23,36 @@ As DDGen uses Linux row sockets, it will need root privileges for some of its mo
 ```
 This will lead an execution with default parameters in passive mode. In this mode generated traffic is written to a pcap file. See following sections for detailed usage.
 
+### Use of secure web interface
+There is a default web interface serving at port 8080. This interface is used for kubernetes health and readiness checks.
+In order to use secure port 443 use --secure option. Besides, there should be ddgen-cert.pem certificate file prepared in working directory and executable should be run with priviledge.
+```
+sudo ./bin/ddgen --mirror --secure
+```
 
 ### Active mode (DDGen as drlink traffic generator)
 In order to generate 10 simultaneous calls each having random duration (uniform %10) of 60s and send to drlink media address 192.168.126.1:28008 and 192.168.126.1:28009. 
 Ip of generated packets may start from a specific ip by: --start option
 ```
-sudo ./bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 (--start 172.24.201.54)
+sudo ./bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 (--start 172.24.201.54) (--secure)
 ```
 Default values of ip and port are: 127.0.0.1 and 29000 29001
 
 Active traffic is send to specified target ip & ports by default. If you want to save active traffic as pcap, use `--pcap` flag
 ```
-./bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 --pcap (--start 172.24.201.54)
+./bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 --pcap (--start 172.24.201.54) (--secure)
 ```
 
 ### Passive Mode (mirror traffic generator)
 Usual case in passive mode is saving generated traffic as pcap file.
 Ip of generated packets may start from a specific ip by: --start option
 ```
-./bin/ddgen --nc 10 --dc 60 --mirror (--pcap) (--start 172.24.201.54)
+./bin/ddgen --nc 10 --dc 60 --mirror (--pcap) (--start 172.24.201.54) (--secure)
 ```
 
 If somehow you want to send generated traffic to a socket (for example 192.168.126.1:28008) use;
 ```
-sudo ./bin/ddgen --nc 10 --dc 60 --mirror --socket 192.168.126.1 28008 (--start 172.24.201.54)
+sudo ./bin/ddgen --nc 10 --dc 60 --mirror --socket 192.168.126.1 28008 (--start 172.24.201.54) (--secure)
 ```
 
 ### To generate and run the contaner image
@@ -60,32 +66,38 @@ Image can be used by providing arguments.
 #### Mirror mode from container
 To generate mirrored traffic of 10 simultaneous calls with average duration of 60 seconds and send the generated traffic to 192.168.126.1:28000.
 ```
-docker run ddgen /bin/ddgen --nc 10 --dc 60 --mirror --socket 192.168.126.1 28000 (--start 172.24.201.54)
+docker run ddgen /bin/ddgen --nc 10 --dc 60 --mirror --socket 192.168.126.1 28000 (--start 172.24.201.54) (--secure)
 ```
 
 To generate mirrored traffic of 10 simultaneous calls with average duration of 60 seconds and save as pcap
 ```
-docker run ddgen /bin/ddgen --nc 10 --dc 60 --mirror (--pcap) (--start 172.24.201.54)
+docker run ddgen /bin/ddgen --nc 10 --dc 60 --mirror (--pcap) (--start 172.24.201.54) (--secure)
 ```
 
 #### Active mode from container
 In order to generate 10 simultaneous calls each having random duration of 60s and send to drlink media address 192.168.126.1:28008 and 192.168.126.1:28009. 
 ```
-docker run ddgen /bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 (--start 172.24.201.54)
+docker run ddgen /bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 (--start 172.24.201.54) (--secure)
 ```
 
 Active traffic is send to specified target ip & ports by default. If you want to save active traffic as pcap, use `--pcap` flag
 ```
-docker run ddgen /bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 --pcap (--start 172.24.201.54)
+docker run ddgen /bin/ddgen --nc 10 --dc 60 --drlink 192.168.126.1 28008 192.168.126.1 28009 --pcap (--start 172.24.201.54) (--secure)
 ```
 
 If it is a desire to run multiple ddgen containers in parallel, a start ip address for endpoints may be provided.
 In this case generating traffic for that container will start from that ip and increment till simulation ends.
 This enables multiple generators simulate a range of ip traffic in parallel. To start with 172.24.201.54; 
 ```
-docker run ddgen /bin/ddgen --nc 10 --dc 6 --socket 192.168.126.1 28008 --start 172.24.201.54 --mirror
+docker run ddgen /bin/ddgen --nc 10 --dc 6 --socket 192.168.126.1 28008 --start 172.24.201.54 --mirror (--secure)
 ```
- 
+
+### To run with kubernetes
+Kubernetes may be used to run published ddgen images. To deploy two clusters of ddgen one with http and the other with https health check;
+```
+kubectl apply -f kubernetes/deploy.yaml
+kubectl apply -f kubernetes/deploy-secure.yaml
+```
 
 ### Profiling
 Small documentation about possible profiling options for ddgen may be seen through https://sifaserdarozen.wordpress.com/2016/01/01/a-small-survey-for-profiling-a-c-application/

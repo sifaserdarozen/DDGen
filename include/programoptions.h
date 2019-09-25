@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief call leg class
+ * @brief program running options
  *
  * @author Sifa Serder Ozen sifa.serder.ozen@gmail.com
  */
@@ -35,10 +35,11 @@ struct ProgramOptions
     std::vector<IpPort> drlink_ipport_vector;
     Traffic traffic;
     Output output;
+    bool shouldUseSecureWebInterface;
 
     ProgramOptions(int argc, char*argv[]);
     virtual ~ProgramOptions() = default;
-    
+
     void DisplayUsage() const;
 };
 

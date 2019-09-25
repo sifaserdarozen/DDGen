@@ -7,10 +7,13 @@ cov-int/
 **perf.data*
 **callgrind.out*
 **/*.pcap
+**/*.pem
 !/3rdParty/**
 3rdParty/libhttp/lib/**
 3rdParty/libhttp/obj/**
 !3rdParty/libhttp/obj/README
+docker/certicifate/**
+!docker/certificate/readme.txt
 doc/html
 doc/*.db
 
