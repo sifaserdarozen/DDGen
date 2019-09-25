@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ddgen
+  labels:
+    app: ddgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddgen
+  template:
+    metadata:
+      labels:
+        app: ddgen
+    spec:
+      containers:
+      - name: ddgen
+        image: sifaserdarozen/ddgen:0.2
+        command: ["./start.sh"]
+        args: ["./ddgen", "--nc", "2", "--dc", "60", "--mirror", "--socket", "172.17.0.2", "28008", "--start", "172.24.201.54"]
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 1
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 10

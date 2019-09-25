@@ -92,6 +92,13 @@ This enables multiple generators simulate a range of ip traffic in parallel. To 
 docker run ddgen /bin/ddgen --nc 10 --dc 6 --socket 192.168.126.1 28008 --start 172.24.201.54 --mirror (--secure)
 ```
 
+### To run with kubernetes
+Kubernetes may be used to run published ddgen images. To deploy two clusters of ddgen one with http and the other with https health check;
+```
+kubectl apply -f kubernetes/deploy.yaml
+kubectl apply -f kubernetes/deploy-secure.yaml
+```
+
 ### Profiling
 Small documentation about possible profiling options for ddgen may be seen through https://sifaserdarozen.wordpress.com/2016/01/01/a-small-survey-for-profiling-a-c-application/
 * poor mans profiler : see /profilers/pmp.sh.readme
