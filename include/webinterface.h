@@ -7,6 +7,8 @@
 
 #include "libhttp.h"
 
+#include <string>
+
 namespace ddgen
 {
 

@@ -45,18 +45,23 @@ int WebInterface::begin_request_handler(struct lh_ctx_t *ctx, struct lh_con_t *c
 
 WebInterface::WebInterface(bool shouldUseSecureWebInterface)
 {
+    static const std::string port = "8080";
+    static const std::string secure_port = "443s";
 
     lh_clb_t callbacks;
 
-    std::string listening_ports = "8080";
+    std::string listening_ports = port;
+    const char* ssl_certificate = nullptr;
     if (shouldUseSecureWebInterface)
     {
-        listening_ports += ", 443s";
+        listening_ports += ", " + secure_port;
+        ssl_certificate = "ssl_certificate";
     }
 
     // List of options. Last element must be NULL.
-    lh_opt_t options[] = {{"error_log_file", "web_interface_error_logs.txt"}, {"ssl_certificate", "ddgen-cert.pem"}, {"listening_ports", listening_ports.c_str()}, {nullptr, nullptr}} ;
-
+    lh_opt_t options[] = {{"error_log_file", "web_interface_error_logs.txt"}, {"listening_ports", listening_ports.c_str()}, {ssl_certificate, "ddgen-cert.pem"}, {nullptr, nullptr}} ;
+    
+    
     // Prepare callbacks structure. We have only one callback, the rest are NULL.
     std::memset(&callbacks, 0, sizeof(callbacks));
     callbacks.begin_request = begin_request_handler;
