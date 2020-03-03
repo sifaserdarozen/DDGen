@@ -1,11 +1,13 @@
-FROM alpine:3.8 AS build
-RUN apk update && apk add gcc g++ make
+FROM alpine:3.11 AS build
+RUN apk update && apk add gcc g++ make cmake git zlib-dev openssl-dev curl-dev
 WORKDIR /src/
 COPY . /src
+RUN chmod +x configure.sh
+RUN ./configure.sh --use-dynamodb --use-s3
 RUN make
 
-FROM alpine:3.8
-RUN apk add --no-cache libstdc++ tini openssl-dev openssl
+FROM alpine:3.11
+RUN apk add --no-cache libstdc++ tini openssl-dev openssl libcurl
 WORKDIR ddgen
 COPY --from=build /src/bin/. /ddgen/.
 COPY ./docker/certificate /ddgen/.

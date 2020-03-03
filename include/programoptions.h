@@ -9,33 +9,26 @@
 
 #include "ipport.h"
 
+#include <string>
 #include <vector>
 
 namespace ddgen
 {
-      
-enum class Traffic
-{
-    DrLink,
-    Mirror
-};
-
-enum class Output
-{
-    Pcap,
-    Socket
-};
-
 struct ProgramOptions
 {
-    unsigned int number_of_calls;
-    unsigned int duration_of_calls;
-    unsigned int start_ip;
-    std::vector<IpPort> dst_ipport_vector;
-    std::vector<IpPort> drlink_ipport_vector;
+    unsigned int numberOfCalls;
+    unsigned int callDuration;
+    unsigned int simulationDuration;
+    unsigned int startIp;
+    std::vector<IpPort> dstIpPortVector;
+    std::vector<IpPort> drlinkIpPortVector;
     Traffic traffic;
     Output output;
     bool shouldUseSecureWebInterface;
+    std::string dbPath;
+    bool useDb;
+    bool useS3;
+    std::string stackName;
 
     ProgramOptions(int argc, char*argv[]);
     virtual ~ProgramOptions() = default;

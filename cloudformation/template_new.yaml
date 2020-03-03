@@ -1,0 +1,437 @@
+Description:
+    This template deploys a DDGen pseudo rtp payload generator cluster with corresponding VPC,
+    load balancer, internet gateway and database connection.
+
+Parameters:
+    EnvironmentName:
+        Description: An environment name that will be prefixed to resource names
+        Type: String
+        
+    InstanceType:
+        Description: EC2 instance type
+        Type: String
+        Default: "t2.micro"
+        Description: Class of EC2 instances used to host containers
+        AllowedValues: [ t2.micro, t2.small, t2.medium, t2.large, t2.xlarge, t2.2xlarge,
+            c5.large, c5.xlarge, c5.2xlarge, c5.4xlarge, c5.9xlarge, c5.18xlarge]
+        ConstraintDescription: Please choose a valid instance type.     
+
+    VpcCIDR:
+        Description: Please enter the IP range (CIDR notation) for this VPC
+        Type: String
+        Default: 10.0.0.0/16
+
+    PublicSubnetDDGenCIDR:
+        Description: Please enter the IP range (CIDR notation) for the public subnet of DDGen cluster in the first Availability Zone
+        Type: String
+        Default: 10.0.0.0/24
+
+    PublicSubnetMockRecorderCIDR:
+        Description: Please enter the IP range (CIDR notation) for the public subnet of MockRecorder in the first Availability Zone
+        Type: String
+        Default: 10.0.1.0/24
+
+    AppName:
+        Description: Application name that will be deployes in ECS
+        Type: String
+        Default: "ddgen"
+        
+    DesiredCapacity:
+        Type: Number
+        Default: 1
+        Description: Number of EC2 instances to launch in your ECS cluster.
+        
+    MaxSize:
+        Type: Number
+        Default: 1
+        Description: Maximum number of EC2 instances that can be launched in your ECS cluster.
+              
+    ECSAMI:
+        Description: AMI ID
+        Type: AWS::SSM::Parameter::Value<AWS::EC2::image::Id>
+        Default: /aws/service/ecs/optimized-ami/amazon-linux/recommended/image_id
+        
+    
+
+Resources:
+    VPC:
+        Type: AWS::EC2::VPC
+        Properties:
+            CidrBlock: !Ref 'VpcCIDR'
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'
+
+    InternetGateway:
+        Type: AWS::EC2::InternetGateway
+        Properties:
+            Tags:
+                - Key: Name
+                  Value: !Ref EnvironmentName
+
+    InternetGatewayAttachment:
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+            InternetGatewayId: !Ref 'InternetGateway'
+            VpcId: !Ref 'VPC'
+
+    PublicSubnetDDGen:
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref 'VPC'
+            AvailabilityZone: 
+                Fn::Select:
+                    - 0
+                    - Fn::GetAZs: {Ref: 'AWS::Region'}
+            CidrBlock: !Ref 'PublicSubnetDDGenCIDR'
+            MapPublicIpOnLaunch: true
+            Tags:
+                - Key: Name
+                  Value: !Sub ${EnvironmentName} Public Subnet (AZ1)                 
+
+    PublicRouteTable:
+        Type: AWS::EC2::RouteTable
+        Properties:
+            VpcId: !Ref 'VPC'
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'
+
+    DefaultPublicRoute:
+        Type: AWS::EC2::Route
+        DependsOn: InternetGatewayAttachment
+        Properties:
+            RouteTableId: !Ref 'PublicRouteTable'
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId: !Ref 'InternetGateway'
+                  
+    PublicSubnetOneRouteTableAssociation:
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            SubnetId: !Ref 'PublicSubnetDDGen'
+            RouteTableId: !Ref 'PublicRouteTable'            
+
+    CallTable:
+        Type: AWS::DynamoDB::Table
+        Properties:
+            TableName: !Sub ${EnvironmentName}-calls
+            AttributeDefinitions:
+                -
+                    AttributeName: Name
+                    AttributeType: S
+            KeySchema:
+                -
+                    AttributeName: Name
+                    KeyType: HASH
+            BillingMode: PROVISIONED
+            ProvisionedThroughput:
+                ReadCapacityUnits: 10
+                WriteCapacityUnits: 10
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'  
+
+    S3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+            BucketName: !Sub ${EnvironmentName}-pcaps
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'  
+
+    Cluster:
+        Type: AWS::ECS::Cluster
+        DependsOn: VPC
+        Properties:
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'
+                  
+    ContainerSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Access to the ECS hosts that run containers
+            VpcId: !Ref 'VPC'
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'
+
+    ECSAutoScalingGroup:
+        Type: AWS::AutoScaling::AutoScalingGroup
+        Properties:
+            VPCZoneIdentifier:
+                - !Ref 'PublicSubnetDDGen'
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'
+                  PropagateAtLaunch: 'true'
+            LaunchConfigurationName: !Ref 'ContainerInstances'
+            MinSize: '1'
+            MaxSize: !Ref 'MaxSize'
+            DesiredCapacity: !Ref 'DesiredCapacity'
+        CreationPolicy:
+            ResourceSignal:
+                Timeout: PT15M
+        UpdatePolicy:
+            AutoScalingReplacingUpdate:
+                WillReplace: 'true'    
+
+    ContainerInstances:
+        Type: AWS::AutoScaling::LaunchConfiguration
+        Properties:
+            ImageId: !Ref 'ECSAMI'
+            SecurityGroups: [!Ref 'ContainerSecurityGroup']
+            InstanceType: !Ref 'InstanceType'
+            IamInstanceProfile: !Ref 'EC2InstanceProfile'
+            UserData:
+                Fn::Base64: !Sub |
+                  #!/bin/bash -xe
+                  echo ECS_CLUSTER=${Cluster} >> /etc/ecs/ecs.config
+                  yum install -y aws-cfn-bootstrap
+                  /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ECSAutoScalingGroup --region ${AWS::Region}  
+
+    EC2InstanceProfile:
+        Type: AWS::IAM::InstanceProfile
+        Properties:
+            Path: /
+            Roles: [!Ref 'EC2Role']
+
+    AutoscalingRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service: [application-autoscaling.amazonaws.com]
+                      Action: ['sts:AssumeRole']
+            Path: /
+            Policies:
+                - PolicyName: service-autoscaling
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - 'application-autoscaling:*'
+                                - 'ecs:DescribeServices'
+                                - 'ecs:UpdateService'
+                            Resource: '*'              
+
+
+    EC2Role:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service: [ec2.amazonaws.com]
+                      Action: ['sts:AssumeRole']
+            Path: /
+            Policies:
+                - PolicyName: ecs-service
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                - 'ecs:CreateCluster'
+                                - 'ecs:DeregisterContainerInstance'
+                                - 'ecs:DiscoverPollEndpoint'
+                                - 'ecs:Poll'
+                                - 'ecs:RegisterContainerInstance'
+                                - 'ecs:StartTelemetrySession'
+                                - 'ecs:Submit*'
+                                - 'ecr:GetAuthorizationToken'
+                                - 'ecr:BatchGetImage'
+                                - 'ecr:GetDownloadUrlForLayer'
+                            Resource: '*'
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'              
+
+    ECSRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                          Service: [ecs.amazonaws.com]
+                      Action: ['sts:AssumeRole']
+            Path: /
+            Policies:
+                - PolicyName: ecs-service
+                  PolicyDocument:
+                      Statement:
+                          - Effect: Allow
+                            Action:
+                                # Rules which allow ECS to attach network interfaces to instances
+                                # on your behalf in order for awsvpc networking mode to work right
+                                - 'ec2:AttachNetworkInterface'
+                                - 'ec2:CreateNetworkInterface'
+                                - 'ec2:CreateNetworkInterfacePermission'
+                                - 'ec2:DeleteNetworkInterface'
+                                - 'ec2:DeleteNetworkInterfacePermission'
+                                - 'ec2:Describe*'
+                                - 'ec2:DetachNetworkInterface'
+
+                                # Rules which allow ECS to update load balancers on your behalf
+                                # with the information sabout how to send traffic to your containers
+                                - 'elasticloadbalancing:DeregisterInstancesFromLoadBalancer'
+                                - 'elasticloadbalancing:DeregisterTargets'
+                                - 'elasticloadbalancing:Describe*'
+                                - 'elasticloadbalancing:RegisterInstancesWithLoadBalancer'
+                                - 'elasticloadbalancing:RegisterTargets'
+                            Resource: '*'
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'                             
+               
+
+    TaskDefinition:
+        Type: AWS::ECS::TaskDefinition
+        DependsOn: VPC
+        Properties:
+            Family: 'ddgen'
+            Cpu: '256'
+            Memory: '512'
+            TaskRoleArn: !Ref 'JenkinsRole'
+                #!Ref 'ECSTaskRole'
+                #- !Ref "AWS::NoValue"
+                                
+            RequiresCompatibilities: 
+                - EC2
+            ContainerDefinitions:
+                -
+                    Name: !Ref AppName
+                    Image: docker.io/sifaserdarozen/ddgen:cloudformation
+                    Cpu: '256'
+                    PortMappings:
+                        - ContainerPort: 8080
+                          HostPort: 8080
+                        - ContainerPort: 443
+                          HostPort: 443
+                    Command:
+                        - './ddgen'
+                        - '--mirror'
+                        - '--useS3'
+                        - '--useDb'                     
+                        - '--ds'
+                        - '120'
+                        - '--dc'
+                        - '30'
+                        - '--nc'
+                        - '2'
+                        - '--sn'
+                        - 'ddgen'
+
+
+                    Memory: '512'
+                    Essential: true            
+
+            Tags:
+                - Key: Name
+                  Value: !Ref 'EnvironmentName'                     
+
+    service:
+        Type: AWS::ECS::Service
+        Properties:
+            Cluster: !Ref Cluster
+            DeploymentConfiguration:
+                MaximumPercent: 200
+                MinimumHealthyPercent: 100
+            DesiredCount: 1
+            TaskDefinition: !Ref TaskDefinition
+            ServiceName: ddgen
+
+    JenkinsRole:
+        Type: AWS::IAM::Role
+        Properties:
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: 'Allow'
+                      Principal:
+                          Service:
+                              - 'ecs.amazonaws.com'
+                              - 'ecs-tasks.amazonaws.com'
+                      Action:
+                          - 'sts:AssumeRole'
+            Path: '/'
+            RoleName: 'JenkinsInstanceRole'
+                
+    JenkinsInstanceProfile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Roles:
+                - !Ref "JenkinsRole"
+
+    JenkinsPolicy:
+        Type: AWS::IAM::Policy
+        Properties:
+            PolicyName: "JenkinsPolicy"
+            PolicyDocument: 
+                Version: "2012-10-17"
+                Statement:
+                    -  Effect: "Allow"
+                       Action: 
+                                - 'dynamodb:DescribeTable'
+                                - 'dynamodb:UpdateItem'
+                                - 'dynamodb:PutItem'
+                                - 'dynamodb:ListTables'
+                                - 'dynamodb:ListGlobalTables'
+                                - 's3:ListBucket'
+                                - 's3:PutObject'
+                                - 's3:CreateBucket'
+                                - 's3:ListAllMyBuckets'
+                       Resource: "*" 
+            Roles: 
+                - !Ref 'JenkinsRole'    
+
+#    ECSTaskRole:
+#        Type: AWS::IAM::Role
+#        Properties:
+#            AssumeRolePolicyDocument:
+#                Statement:
+#                    - Effect: Allow
+#                      Principal:
+#                          Service: [ecs.amazonaws.com]
+#                      Action: ['sts:AssumeRole']
+#            Path: /
+#            Policies:      
+#                - PolicyName: ecs-service  
+#                  PolicyDocument:          
+#                      Statement:          
+#                          - Effect: Allow
+#                            Action:
+#                                - 'dynamodb:DescribeTable'
+#                                - 'dynamodb:UpdateItem'
+#                                - 'dynamodb:PutItem'
+#                                - 'dynamodb:ListTables'
+#                                - 'dynamodb:ListGlobalTables'
+#                                - 's3:ListBucket'
+#                                - 's3:PutObject'
+#                                - 's3:CreateBucket'
+#                            Resurce: '*'
+
+                                
+            
+    # Enable autoscaling for this service
+#    ScalableTarget:
+#        Type: AWS::ApplicationAutoScaling::ScalableTarget
+#        DependsOn: service
+#        Properties:
+#            ServiceNamespace: 'ecs'
+#            ScalableDimension: 'ecs:service:DesiredCount'
+#            ResourceId: 
+#                Fn::Join:
+#                    - '/'
+#                    - - service
+#                      - !Ref Cluster
+#                      - 'ddgen'
+#            MinCapacity: 1
+#            MaxCapacity: 2
+#            RoleARN: !Ref 'AutoscalingRole'
+

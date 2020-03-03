@@ -23,9 +23,9 @@ void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec)
         std::cerr << __FILE__ << " " << __LINE__ << " unable to obtain time info" << std::endl;
 }
 
-SocketConsumer::SocketConsumer(std::vector<IpPort> & dst_ipport)
+SocketConsumer::SocketConsumer(const std::vector<IpPort>& dstIpPort)
 {
-    for (std::vector<IpPort>::iterator it = dst_ipport.begin(); it != dst_ipport.end(); ++it)
+    for (std::vector<IpPort>::const_iterator it = dstIpPort.begin(); it != dstIpPort.end(); ++it)
     {
         sockaddr_in dst_address;
         dst_address.sin_family = AF_INET;
@@ -118,35 +118,33 @@ bool SocketConsumer::Consume(const unsigned char* data_ptr, unsigned short int d
 }
 
 
-PcapConsumer::PcapConsumer(std::string file_name)
+PcapConsumer::PcapConsumer(const std::shared_ptr<ICallStorage>& callStorage) : _callStorage(callStorage), _fileSize(0)
 {
-    m_file_size=0;
+    GenerateFileName();
 
-    // check if an actual file name is provided
-    if ("" == file_name)
-        GenerateFileName();
+    _fileStream.open(_fileName.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 
-    m_file_stream.open(m_file_name.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
-
-    if (!(m_file_stream.is_open()))
+    if (!(_fileStream.is_open()))
     {
-        std::cerr << __FILE__ << " " << __LINE__ << " output stream is not able to be added. Filename : " << m_file_name << std::endl;
+        std::cerr << __FILE__ << " " << __LINE__ << " output stream is not able to be added. Filename : " << _fileName << std::endl;
         return;
     }
 
-    int pcap_file_hdr_size = sizeof(m_pcap_file_header);
-    m_file_stream.write((char*)(&m_pcap_file_header), pcap_file_hdr_size);
-    m_file_size = pcap_file_hdr_size;
+    int pcap_file_hdr_size = sizeof(_pcapFileHeader);
+    _fileStream.write((char*)(&_pcapFileHeader), pcap_file_hdr_size);
+    _fileSize = pcap_file_hdr_size;
 }
 
 PcapConsumer::~PcapConsumer()
 {
-    if (m_file_stream.is_open())
-        m_file_stream.close();
+    if (_fileStream.is_open())
+        _fileStream.close();
 
-    m_file_name.clear();
-    m_file_stream.clear();
-    m_file_size=0;
+    _callStorage->Store(_fileName);
+
+    _fileName.clear();
+    _fileStream.clear();
+    _fileSize = 0;
 }
 
 void PcapConsumer::GenerateFileName()
@@ -167,11 +165,11 @@ void PcapConsumer::GenerateFileName()
     if ((snprintf_result <= 0) || (snprintf_result >= time_part_size))
     {
         std::cerr << __FILE__ << " " << __LINE__ << "unable to execute snprintf" << std::endl;
-        m_file_name = "TestFile.pcap";
+        _fileName = "TestFile.pcap";
         return;
     }
 
-    m_file_name = std::string(time_part) + ".pcap";
+    _fileName = std::string(time_part) + ".pcap";
 }
 
 bool PcapConsumer::Consume(const unsigned char* data_ptr, unsigned short int data_size)
@@ -184,24 +182,24 @@ bool PcapConsumer::Consume(const unsigned char* data_ptr, unsigned short int dat
 
     int pcap_packet_header_size = sizeof(PcapPacHdrType);
 
-    if (!(m_file_stream.is_open()))
+    if (!(_fileStream.is_open()))
     {
-        m_file_stream.open(m_file_name.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
+        _fileStream.open(_fileName.c_str(), std::ios_base::out | std::ios_base::binary | std::ios_base::app);
 
-        if (!(m_file_stream.is_open()))
+        if (!(_fileStream.is_open()))
         {
-            std::cerr << __FILE__ << " " << __LINE__ << " output stream is not able to be added. Filename : " << m_file_name << std::endl;
+            std::cerr << __FILE__ << " " << __LINE__ << " output stream is not able to be added. Filename : " << _fileName << std::endl;
             return false;
         }
     }
 
-    m_file_stream.write((char*)(&pcap_packet_header), pcap_packet_header_size);
-    m_file_size += pcap_packet_header_size;
+    _fileStream.write((char*)(&pcap_packet_header), pcap_packet_header_size);
+    _fileSize += pcap_packet_header_size;
 
-    m_file_stream.write((const char*)data_ptr, data_size);
-    m_file_size += data_size;
+    _fileStream.write((const char*)data_ptr, data_size);
+    _fileSize += data_size;
 
-    m_file_stream.flush();
+    _fileStream.flush();
 
     return true;
 }

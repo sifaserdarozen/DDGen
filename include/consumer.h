@@ -7,16 +7,17 @@
 
 #pragma once
 
+#include "CallStorage.h"
 #include "ipport.h"
 #include "rawsocket.h"
 
 #include <fstream>
 #include <netinet/in.h>
+#include <memory>
 #include <vector>
 
 namespace ddgen
 {
-
 /** @brief Gets current time in sec and usec.
     @param sec OUTPUT system time seconds part
     @param usec OUTPUT system time in micro seconds part
@@ -31,7 +32,7 @@ void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec);
  * @see SocketConsumer()
  * @see PcapConsumer()
  */
-class Consumer
+class IConsumer
 {
 private:
 
@@ -39,12 +40,12 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    Consumer() {}
+    IConsumer() {}
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~Consumer() {}
+    virtual ~IConsumer() {}
 
     /**
      * @brief Pure virtual interface for consuming packets
@@ -63,7 +64,7 @@ public:
  * @see Consumer()
  * @see PcapConsumer()
  */
-class SocketConsumer : public Consumer
+class SocketConsumer : public IConsumer
 {
 private:
     std::vector<int> m_dst_sock_vector;    /**< destination socket vector */
@@ -75,7 +76,7 @@ public:
      *
      *
      */
-    SocketConsumer(std::vector<IpPort> & dst_ipport);
+    SocketConsumer(const std::vector<IpPort>& dst_ipport);
 
     /**
      * @brief destructor, does close socket
@@ -99,7 +100,7 @@ public:
  * @see Consumer()
  * @see SocketConsumer()
  */
-class PcapConsumer : public Consumer
+class PcapConsumer : public IConsumer
 {
 private:
     /** @brief Types of Pcap File Header.
@@ -130,10 +131,11 @@ private:
     };
 
 private:
-    std::string m_file_name;    /**< file name for pcap file */
-    std::fstream m_file_stream;    /**< file stream for pcap file */
-    unsigned int m_file_size;    /**< An integer that shows size of pcap file. */
-    const PcapHdrType m_pcap_file_header = {0xa1b2c3d4, 2, 4, 0, 0, 65535, 1};    /**< pcap file haader for .pcap */
+    std::shared_ptr<ICallStorage> _callStorage;
+    std::string _fileName;    /**< file name for pcap file */
+    std::fstream _fileStream;    /**< file stream for pcap file */
+    unsigned int _fileSize;    /**< An integer that shows size of pcap file. */
+    const PcapHdrType _pcapFileHeader = {0xa1b2c3d4, 2, 4, 0, 0, 65535, 1};    /**< pcap file haader for .pcap */
 
     /** @brief Generates file name
 		@return Returns 1 if file is generated successfully.
@@ -146,7 +148,7 @@ public:
      *
      * @param file_name INPUT desired filename of pcap file. If already present, overriden
      */
-    PcapConsumer(std::string file_name = "");
+    PcapConsumer(const std::shared_ptr<ICallStorage>& callStorage);
 
     /**
      * @brief destructor, does close pcap file

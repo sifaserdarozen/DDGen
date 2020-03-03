@@ -1,3 +1,7 @@
+#include "CallLoggerFactory.h"
+#include "CallStorageFactory.h"
+#include "ConsumerFactory.h"
+
 #include "callleg.h"
 #include "programoptions.h"
 #include "webinterface.h"
@@ -38,28 +42,17 @@ int main(int argc, char* argv[])
 {
     ddgen::ProgramOptions program_options(argc, argv);
 
+    auto callLogger = ddgen::CallLoggerFactory::CreateCallLogger( { program_options.useDb, program_options.dbPath, program_options.stackName } );
+
     ddgen::G711aEncoderFactory g711a_encoder_factory;
     ddgen::SingleToneGeneratorFactory single_tone_generator_factory;
 
-    std::unique_ptr<ddgen::CallFactory> call_factory_ptr;
-    ddgen::Consumer* consumer_ptr = NULL;
-
-
-    if (program_options.output == ddgen::Output::Pcap) {
-        consumer_ptr = new ddgen::PcapConsumer();
-    } else {
-        consumer_ptr = new ddgen::SocketConsumer(program_options.dst_ipport_vector);
-    }
-
-    if (program_options.traffic == ddgen::Traffic::DrLink) {
-        call_factory_ptr = std::make_unique<ddgen::DRLinkCallFactory>(program_options.drlink_ipport_vector, program_options.start_ip);	
-    } else {
-       call_factory_ptr = std::make_unique<ddgen::MirrorCallFactory>(program_options.start_ip);
-    }
+    auto callFactory = ddgen::CallFactoryFactory::CreateCallFactory( { program_options.traffic, program_options.drlinkIpPortVector, program_options.startIp } );
+    auto consumer = ddgen::ConsumerFactory::CreateConsumer( { program_options.output, program_options.dstIpPortVector, program_options.useS3, program_options.stackName } );
 
     std::vector<std::unique_ptr<ddgen::Call>> call_ptr_vector;
 
-    const auto desired_run_time = program_options.duration_of_calls * 10 * 1000;
+    const auto simulationDuration = program_options.simulationDuration * 1000;
 
     const auto start_time = std::chrono::steady_clock::now();
     auto last_time = start_time;
@@ -69,20 +62,20 @@ int main(int argc, char* argv[])
 
     // introduce generator
     std::minstd_rand generator(seed);
-    std::uniform_int_distribution<unsigned short int> usint_distribution(program_options.duration_of_calls * 0.75, program_options.duration_of_calls * 1.25);
+    std::uniform_int_distribution<unsigned short int> usint_distribution(program_options.callDuration * 0.75, program_options.callDuration * 1.25);
 
     std::cout << std::endl << "Should have root privileges for some of operations! (for --secure / for )" << std::endl;
-    std::cout << "Simulation will end in " << desired_run_time / 1000.0 << " seconds" << std::endl;
+    std::cout << "Simulation will end in " << simulationDuration << " seconds" << std::endl;
 
     ddgen::WebInterface web_interface(program_options.shouldUseSecureWebInterface);
 
     while(true)
     {
-        if (call_ptr_vector.size() < program_options.number_of_calls)
+        if (call_ptr_vector.size() < program_options.numberOfCalls)
         {
             unsigned short int call_duration = usint_distribution(generator);
 
-            std::unique_ptr<ddgen::Call> call = call_factory_ptr->CreateCall(call_duration, &g711a_encoder_factory, &single_tone_generator_factory, consumer_ptr);
+            std::unique_ptr<ddgen::Call> call = callFactory->CreateCall({ call_duration, callLogger, &g711a_encoder_factory, &single_tone_generator_factory, consumer });
 
             call_ptr_vector.push_back(std::move(call));
             std::cout << " a call is created with duration " << call_duration << std::endl;
@@ -118,17 +111,10 @@ int main(int argc, char* argv[])
         }
 
         const auto ellapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
-        if (ellapsed_time_in_ms > desired_run_time) {
-            std::cout << "Simulation time " << desired_run_time << " is over" << std::endl;
+        if (ellapsed_time_in_ms > simulationDuration) {
+            std::cout << "Simulation time " << program_options.simulationDuration << " is over" << std::endl;
             break;
         }
-    }
-
-    // free consumer block
-    if (consumer_ptr)
-    {
-        delete consumer_ptr;
-        consumer_ptr = NULL;
     }
 
     return 0;
