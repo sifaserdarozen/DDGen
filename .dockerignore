@@ -15,7 +15,9 @@ cov-int/
 !/3rdParty/**
 3rdParty/libhttp/lib/**
 3rdParty/libhttp/obj/**
+3rdParty/aws-sdk/_build
 docker/certificate/**
+docker/aws/**
 !docker/certificate/ddgen-cert.pem
 
 

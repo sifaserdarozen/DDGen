@@ -10,6 +10,7 @@ compiler: gcc
 before_install:
   # update before start
   - sudo apt-get update -qq
+  - sudo apt-get --yes install libcurl4-openssl-dev libssl-dev uuid-dev zlib1g-dev libpulse-dev
 
 env:
   global:
@@ -28,8 +29,12 @@ addons:
     branch_pattern: coverity_scan
 
 script:
+  # configure
+  - chmod +x configure.sh
+  - ./configure.sh --use-dynamodb --use-s3
+
   # make ddgen and corresponding unit tests ddgen_utests
   - make
-  
+
   # run catch unit tests
   - ./bin/ddgen_utests

@@ -7,6 +7,9 @@
 
 #pragma once
 
+#include "CallParameters.h"
+#include <vector>
+
 namespace ddgen
 {
 
@@ -22,8 +25,6 @@ namespace ddgen
  */
 class GeneratorType
 {
-private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
@@ -46,6 +47,8 @@ public:
      * @return indicates success of generation
      */
     virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0) = 0;
+
+    virtual std::vector<CallParameters::StreamParameters::ToneParameters> GetParameters() const = 0;
 };
 
 /**
@@ -81,7 +84,9 @@ public:
      * @param duration INPUT duration,in terms of ms of waveform.
      * @return indicates success of generation
      */
-    virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0);
+    virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0) override;
+
+    std::vector<CallParameters::StreamParameters::ToneParameters> GetParameters() const override;
 };
 
 /**
@@ -95,9 +100,7 @@ public:
 class SingleToneGeneratorType : public GeneratorType
 {
 private:
-    float m_amplitude;    /** < amplitude of tone 0, < m_amplitude < 1 */
-    float m_frequency;    /**< frequency in radians of tone */
-    float m_phase;    /**< phase in radians of tone */
+    CallParameters::StreamParameters::ToneParameters _generatorParams;
 
 public:
     /**
@@ -126,7 +129,9 @@ public:
      * @param duration INPUT duration,in terms of ms of waveform.
      * @return indicates success of generation
      */
-    virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0);
+    virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0) override;
+
+    std::vector<CallParameters::StreamParameters::ToneParameters> GetParameters() const override;
 };
 
 /**
@@ -164,7 +169,9 @@ public:
      * @param duration INPUT duration,in terms of ms of waveform.
      * @return indicates success of generation
      */
-    virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0);
+    virtual bool Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration = 0) override;
+
+    std::vector<CallParameters::StreamParameters::ToneParameters> GetParameters() const override;
 };
 
 /**
@@ -227,7 +234,7 @@ public:
 class SingleToneGeneratorFactory : public GeneratorFactory
 {
 private:
-
+    CallParameters::StreamParameters::ToneParameters _generatorParams;
 public:
     /**
      * @brief Default constructor, does not perform any specific operation

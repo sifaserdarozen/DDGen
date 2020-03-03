@@ -10,6 +10,8 @@
 #include "encoder.h"
 #include "generator.h"
 #include "consumer.h"
+#include "CallLogger.h"
+#include "CallParameters.h"
 
 #include <memory>
 #include <vector>
@@ -35,7 +37,7 @@ private:
 
     EncoderType* m_encoder_ptr;    /**< encoder that will be used in waveform encoding */
     GeneratorType* m_generator_ptr;    /**< waveform generator */
-    Consumer* m_consumer_ptr;    /**< consumer that will be used to handle packets */
+    std::shared_ptr<IConsumer> _consumer;    /**< consumer that will be used to handle packets */
 
     short int m_pcm_data_ptr[MAX_PCM_DATA_SIZE];    /**< maximum rtp data size */
     LineDataType m_line_data;    /**< line array that will hold raw data to be processed */
@@ -67,7 +69,7 @@ public:
                 unsigned short int seq_num,
                 EncoderFactory* encoder_factory_ptr,
                 GeneratorFactory* generator_factory_ptr,
-                Consumer* consumer_ptr);
+                const std::shared_ptr<IConsumer>& consumer);
 
     /**
      * @brief Destructor method
@@ -79,6 +81,8 @@ public:
     ~CallLeg();
 
     void Step(unsigned short int step_durtion);    /**< Make a step in simulation */
+
+    CallParameters::StreamParameters GetParameters() const;
 };
 
 /**
@@ -87,10 +91,21 @@ public:
 class Call
 {
 protected:
-    Call(unsigned int duration);
+    Call(unsigned int duration, const std::shared_ptr<ICallLogger>& callLogger);
     std::vector<std::unique_ptr<CallLeg>> m_call_leg_ptr_vector;
     unsigned int m_duration;
-    
+    const std::shared_ptr<ICallLogger> _callLogger;
+
+public:
+
+    struct Options{
+        unsigned int duration;
+        std::shared_ptr<ICallLogger> callLogger;
+        EncoderFactory* encoder_factory_ptr;
+        GeneratorFactory* generator_factory_ptr;
+        std::shared_ptr<IConsumer> consumer;
+    };
+
 public:
     Call() = delete;
 
@@ -103,6 +118,8 @@ public:
      * @return success of operation
      */
     virtual bool Step(unsigned int step_duration);
+
+    virtual void Log();
 };
 
 /**
@@ -111,10 +128,7 @@ public:
 class DRLinkCall : public Call
 {
 public:
-    DRLinkCall(std::vector<IpPort>& dst_inf, unsigned int src_ip, unsigned int duration,
-                    EncoderFactory* encoder_factory_ptr,
-                    GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr);
+    DRLinkCall(std::vector<IpPort>& dst_inf, unsigned int src_ip, const Call::Options& options);
 
     ~DRLinkCall() = default;
 };
@@ -125,10 +139,7 @@ public:
 class MirrorCall : public Call
 {
 public:
-    MirrorCall(unsigned int src_ip, unsigned int dst_ip, unsigned int duration,
-                    EncoderFactory* encoder_factory_ptr,
-                    GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr);
+    MirrorCall(unsigned int src_ip, unsigned int dst_ip, const Call::Options& options);
 
     ~MirrorCall() = default;
 };
@@ -141,28 +152,25 @@ public:
  * @see DRLinkCallFactory()
  * @see MirrorCallFactory()
  */
-class CallFactory
+class ICallFactory
 {
 public:
 
-    CallFactory() {}
+    ICallFactory() {}
 
-    virtual ~CallFactory() = default;
+    virtual ~ICallFactory() = default;
 
-    virtual std::unique_ptr<Call> CreateCall(unsigned int duration,
-                    EncoderFactory* encoder_factory_ptr,
-                    GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr) = 0;
+    virtual std::unique_ptr<Call> CreateCall(const Call::Options& options) = 0;
 };
 
-class DRLinkCallFactory : public CallFactory
+class DRLinkCallFactory : public ICallFactory
 {
 private:
     std::vector<IpPort> m_dst_inf;
     unsigned int m_src_ip;
 
 public:
-    DRLinkCallFactory(std::vector<IpPort>& dst_inf, unsigned int start_ip) : m_dst_inf(dst_inf), m_src_ip(start_ip)
+    DRLinkCallFactory(const std::vector<IpPort>& dst_inf, unsigned int start_ip) : m_dst_inf(dst_inf), m_src_ip(start_ip)
     {
     }
 
@@ -176,13 +184,10 @@ public:
      * @see DrLinkCall()
      * @see MirrorCall()
      */
-    virtual std::unique_ptr<Call> CreateCall(unsigned int duration,
-                    EncoderFactory* encoder_factory_ptr,
-                    GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr);
+    virtual std::unique_ptr<Call> CreateCall(const Call::Options& options);
 };
 
-class MirrorCallFactory : public CallFactory
+class MirrorCallFactory : public ICallFactory
 {
 private:
     unsigned int m_ip_pool;
@@ -202,9 +207,20 @@ public:
      * @see ZeroGeneratorType()
      * @see SingleToneGeneratorType()
      */
-    virtual std::unique_ptr<Call> CreateCall(unsigned int duration,
-                    EncoderFactory* encoder_factory_ptr,
-                    GeneratorFactory* generator_factory_ptr,
-                    Consumer* consumer_ptr);
+    virtual std::unique_ptr<Call> CreateCall(const Call::Options& options);
 };
+
+    class CallFactoryFactory
+    {
+    public:
+        struct Options {
+            Traffic traffic;
+            std::vector<IpPort> drlinkIpPortVector;
+            unsigned int startIp;
+        };
+
+    public:
+        static std::unique_ptr<ICallFactory> CreateCallFactory(const Options& options);
+    };
+
 }

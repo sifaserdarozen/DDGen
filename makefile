@@ -1,3 +1,8 @@
+# Configuration parameters chosen ...
+DYNAMODB = true
+S3 = true
+dbg = -g
+
 NAME= ddgen
 BIN_DIR= ./bin
 SRC_DIR= ./src
@@ -6,12 +11,14 @@ LIB_DIR= ./lib
 INCLUDE_DIR= ./include
 MAKE_DIR= ./tmp
 INCLUDE= -I$(INCLUDE_DIR) -I./3rdParty/catch -I./3rdParty/libhttp/include
+LINK_LIBRARIES= -lpthread
 
 3RD_PARTY_DIRS = 3rdParty/libhttp
 3RD_PARTY_BUILD_DIRS = $(3RD_PARTY_DIRS:%=build-%)
 3RD_PARTY_CLEAN_DIRS = $(3RD_PARTY_DIRS:%=clean-%)
+LINK_LIBRARIES+= -lhttp -ldl
 
-CPP_OPTIONS= -Wall -g -std=c++14 
+CPP_OPTIONS= -Wall -g -std=c++14
 
 # to elimanete catch warning
 CPP_OPTIONS+= -Wno-unknown-pragmas
@@ -24,6 +31,30 @@ CPP_OPTIONS+= -pg
 endif
 
 LINK_OPTIONS= -L./3rdParty/libhttp/lib
+
+ifneq ($(or $(DYNAMODB), $(S3)), )
+3RD_PARTY_DIRS+= 3rdParty/aws-sdk/_build
+INCLUDE+= -I./3rdParty/aws-sdk/aws-sdk-cpp-1.7.267/aws-cpp-sdk-core/include
+LINK_OPTIONS+= -L./3rdParty/aws-sdk/_build/aws-cpp-sdk-core -L./3rdParty/aws-sdk/_build/.deps/install/lib
+endif
+
+ifeq ($(DYNAMODB), true)
+CPP_OPTIONS+= -DDBASE=DynamoDB
+INCLUDE+= -I./3rdParty/aws-sdk/aws-sdk-cpp-1.7.267/aws-cpp-sdk-dynamodb/include
+LINK_OPTIONS+= -L./3rdParty/aws-sdk/_build/aws-cpp-sdk-dynamodb
+LINK_LIBRARIES+= -laws-cpp-sdk-dynamodb
+endif
+
+ifeq ($(S3), true)
+CPP_OPTIONS+= -DSTORAGE=S3
+INCLUDE+= -I./3rdParty/aws-sdk/aws-sdk-cpp-1.7.267/aws-cpp-sdk-s3/include
+LINK_OPTIONS+= -L./3rdParty/aws-sdk/_build/aws-cpp-sdk-s3
+LINK_LIBRARIES+= -laws-cpp-sdk-s3
+endif
+
+ifneq ($(or $(DYNAMODB), $(S3)), )
+LINK_LIBRARIES+= -laws-cpp-sdk-core -laws-c-event-stream -laws-checksums -laws-c-common -lcurl -lssl -lcrypto
+endif
 
 OPERATING_SYSTEM= $(shell uname -o)
 
@@ -81,7 +112,7 @@ $(LIB_DIR):
 	mkdir -p $(LIB_DIR)
 
 $(TARGETS): $(TARGET_LIB) | $(BIN_DIR)
-	$(CPP_COMPILER) $(CPP_OPTIONS) $(LINK_OPTIONS) ./src/$@.cpp $^ $(INCLUDE) -o ./bin/$@ -lpthread -lhttp -ldl
+	$(CPP_COMPILER) $(CPP_OPTIONS) $(LINK_OPTIONS) ./src/$@.cpp $^ $(INCLUDE) -o ./bin/$@ $(LINK_LIBRARIES)
 
 $(BIN_DIR):
 	mkdir -p $(BIN_DIR)
@@ -105,3 +136,4 @@ $(MAKE_DIR)/%.d: $(SRC_DIR)/%.cpp | $(MAKE_DIR)
 
 $(MAKE_DIR):
 	mkdir -p $(MAKE_DIR)
+

@@ -17,6 +17,11 @@ bool ZeroGeneratorType::Generate(short int* pcm_data_ptr, unsigned short int siz
     return true;
 }
 
+std::vector<CallParameters::StreamParameters::ToneParameters> ZeroGeneratorType::GetParameters() const
+{
+    return {CallParameters::StreamParameters::ToneParameters{}};
+}
+
 SingleToneGeneratorType::SingleToneGeneratorType(float amplitude, float frequency, float phase)
 {
     // form a seed
@@ -27,27 +32,27 @@ SingleToneGeneratorType::SingleToneGeneratorType(float amplitude, float frequenc
 
     // check amplitude between 0 to 1.0
     if (( 0 <= amplitude) && ( 1 >= amplitude))
-        m_amplitude = amplitude;
+        _generatorParams.amplitude = amplitude;
     else
     {
         // generate amplitude randomly between 0.2 to 0.8
         std::uniform_real_distribution<float> amplitude_distribution(0.2, 0.8);
-        m_amplitude = amplitude_distribution(generator);
+        _generatorParams.amplitude = amplitude_distribution(generator);
     }
 
     // check frequency to be between 0.2PI to 0.2PI
     if ((((0.2)*PI) < frequency) && (frequency < ((0.8)*PI)))
-        m_frequency = frequency;
+        _generatorParams.frequency = frequency;
     else
     {
         // generate frequency between 0.2PI to 0.8PI
         std::uniform_real_distribution<float> frequency_distribution(0.2*PI, 0.8*PI);
-        m_frequency = frequency_distribution(generator);
+        _generatorParams.frequency = frequency_distribution(generator);
     }
 
     // check phase to be between -PI to PI
     if ((-PI < phase) && (phase < PI))
-        m_phase = phase;
+        _generatorParams.phase = phase;
     else
     {
         // normalize PI
@@ -57,7 +62,7 @@ SingleToneGeneratorType::SingleToneGeneratorType(float amplitude, float frequenc
         else
             while (-PI > phase)
                 phase += 2*PI;
-        m_phase = phase;
+        _generatorParams.phase = phase;
     }
 }
 
@@ -71,17 +76,15 @@ SingleToneGeneratorType::SingleToneGeneratorType()
 
     // generate amplitude between 0.2 to 0.8
     std::uniform_real_distribution<float> amplitude_distribution(0.2, 0.8);
-    m_amplitude = amplitude_distribution(generator);
+    _generatorParams.amplitude = amplitude_distribution(generator);
 
     // generate phase between -PI to PI
     std::uniform_real_distribution<float> phase_distribution(-PI, PI);
-    m_phase = phase_distribution(generator);
+    _generatorParams.phase = phase_distribution(generator);
 
     // generate frequency between 0.2PI to 0.8PI
     std::uniform_real_distribution<float> frequency_distribution(0.2*PI, 0.8*PI);
-    m_frequency = frequency_distribution(generator);
-
-    std::cout << __FILE__ << " " << __LINE__ << " Single tone generator with A: " << m_amplitude << " F: " << m_frequency << " P: " << m_phase << std::endl;
+    _generatorParams.frequency = frequency_distribution(generator);
 }
 
 bool SingleToneGeneratorType::Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration)
@@ -94,15 +97,20 @@ bool SingleToneGeneratorType::Generate(short int* pcm_data_ptr, unsigned short i
 
     for (; size; --size)
     {
-        *pcm_data_ptr++ = (short int)(m_amplitude * SHRT_MAX * sin(m_phase));
-        m_phase += m_frequency;
+        *pcm_data_ptr++ = (short int)(_generatorParams.amplitude * SHRT_MAX * sin(_generatorParams.phase));
+        _generatorParams.phase += _generatorParams.frequency;
     }
 
     // normalize phase
-    while (m_phase > PI)
-        m_phase -= 2*PI;
+    while (_generatorParams.phase > PI)
+        _generatorParams.phase -= 2*PI;
 
     return true;
+}
+
+std::vector<CallParameters::StreamParameters::ToneParameters> SingleToneGeneratorType::GetParameters() const
+{
+    return {_generatorParams};
 }
 
 bool SinusoidalGeneratorType::Generate(short int* pcm_data_ptr, unsigned short int size, unsigned short int duration)
@@ -111,5 +119,10 @@ bool SinusoidalGeneratorType::Generate(short int* pcm_data_ptr, unsigned short i
         *pcm_data_ptr++ = 0;
 
     return true;
+}
+
+std::vector<CallParameters::StreamParameters::ToneParameters> SinusoidalGeneratorType::GetParameters() const
+{
+    return {CallParameters::StreamParameters::ToneParameters{}};
 }
 }

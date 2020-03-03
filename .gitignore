@@ -1,4 +1,5 @@
 .idea
+makefile
 lib/
 bin/
 tmp/
@@ -8,12 +9,17 @@ cov-int/
 **callgrind.out*
 **/*.pcap
 **/*.pem
+**/*.log
+**/web_interface_error_logs.txt
 !/3rdParty/**
 3rdParty/libhttp/lib/**
 3rdParty/libhttp/obj/**
+3rdParty/aws-sdk/_build/**
 !3rdParty/libhttp/obj/README
 docker/certicifate/**
 !docker/certificate/readme.txt
+docker/aws/**
+!docker/aws/readme.txt
 doc/html
 doc/*.db
 

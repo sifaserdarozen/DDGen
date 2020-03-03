@@ -8,19 +8,24 @@
 namespace ddgen
 {
 
-ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), duration_of_calls(60), start_ip(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap), shouldUseSecureWebInterface(false)
+ProgramOptions::ProgramOptions(int argc, char* argv[]) : numberOfCalls(10), callDuration(60), simulationDuration(600), startIp(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap), shouldUseSecureWebInterface(false), useDb(false), useS3(false), stackName("ddgen")
 {
 
     for (int argv_index = 1; argv_index < argc; ++argv_index)
     {
         if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc))
         {
-            number_of_calls = std::atoi(argv[argv_index + 1]);
+            numberOfCalls = std::atoi(argv[argv_index + 1]);
             argv_index++;
         }
         else if ((0 == strcmp("--dc", argv[argv_index])) && ((argv_index + 1) < argc))
         {
-            duration_of_calls = std::atoi(argv[argv_index + 1]);
+            callDuration = std::atoi(argv[argv_index + 1]);
+            argv_index++;
+        }
+        else if ((0 == strcmp("--ds", argv[argv_index])) && ((argv_index + 1) < argc))
+        {
+            simulationDuration = std::atoi(argv[argv_index + 1]);
             argv_index++;
         }
         else if ((0 == strcmp("--drlink", argv[argv_index])) && ((argv_index + 4) < argc))
@@ -37,7 +42,7 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), du
             dst_port = std::atoi(argv[argv_index + 2]);
             ddgen::IpPort dst_ipport(dst_ip, dst_port);
 
-            drlink_ipport_vector.push_back(dst_ipport);
+            drlinkIpPortVector.push_back(dst_ipport);
 
             if (1 == inet_aton(argv[argv_index + 3], &d_inaddr))
             {
@@ -47,8 +52,8 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), du
             dst_port = std::atoi(argv[argv_index + 4]);
             ddgen::IpPort dst_ipport2(dst_ip, dst_port);
 
-            drlink_ipport_vector.push_back(dst_ipport2);
-            dst_ipport_vector = drlink_ipport_vector;
+            drlinkIpPortVector.push_back(dst_ipport2);
+            dstIpPortVector = drlinkIpPortVector;
             argv_index += 4;
 
             traffic = Traffic::DrLink;
@@ -76,7 +81,7 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), du
             dst_port = std::atoi(argv[argv_index + 2]);
             ddgen::IpPort dst_ipport(dst_ip, dst_port);
 
-            dst_ipport_vector.push_back(dst_ipport);
+            dstIpPortVector.push_back(dst_ipport);
             argv_index += 2;
 
             output = Output::Socket;
@@ -86,13 +91,32 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : number_of_calls(10), du
             in_addr s_inaddr;
             if (1 == inet_aton(argv[argv_index + 1], &s_inaddr))
             {
-                start_ip = ntohl(s_inaddr.s_addr);
+                startIp = ntohl(s_inaddr.s_addr);
             }
+            argv_index += 1;
+        }
+        else if ((0 == strcmp("--dbPath", argv[argv_index]) ) && ((argv_index + 1) < argc))
+        {
+            useDb = true;
+            dbPath = argv[argv_index + 1];
             argv_index += 1;
         }
         else if (0 == strcmp("--secure", argv[argv_index]))
         {
             shouldUseSecureWebInterface = true;
+        }
+        else if (0 == strcmp("--useDb", argv[argv_index]))
+        {
+            useDb = true;
+        }
+        else if (0 == strcmp("--useS3", argv[argv_index]))
+        {
+            useS3 = true;
+        }
+        else if ((0 == strcmp("--sn", argv[argv_index])) && ((argv_index + 1) < argc))
+        {
+            stackName = std::string(argv[argv_index + 1]);
+            argv_index++;
         }
         else
         {
@@ -120,6 +144,9 @@ void ProgramOptions::DisplayUsage() const
     std::cout << "ddgen --nc 10 --dc 60 --socket 192.168.126.1 28008 --mirror" << std::endl;
     std::cout << "send pair traffic to media address 192.168.126.1:28008" << std::endl;
     std::cout << "--start 172.24.101.54 starting point for endpoint ips" << std::endl;
+    std::cout << "To disable db usage (in case it is build) use  --noDb" << std::endl;
+    std::cout << "To force a database path use --dbPath http://localhost:8000" << std::endl;
+    std::cout << "To push pcap (if any) to s3 (in case it is build with) use --useS3" << std::endl;
 }
 
 }

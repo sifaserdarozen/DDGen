@@ -10,6 +10,18 @@
 namespace ddgen
 {
 
+enum class Traffic
+{
+    DrLink,
+    Mirror
+};
+
+enum class Output
+{
+    Pcap,
+    Socket
+};
+
 /**
  * @brief ip port combination
  *
