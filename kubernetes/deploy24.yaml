@@ -17,5 +17,5 @@ spec:
       containers:
       - name: ddgen24
         image: sifaserdarozen/ddgen:latest
-        command: ["/bin/ddgen"]
+        command: ["./ddgen"]
         args: ["--nc", "2", "--dc", "60", "--mirror", "--socket", "172.17.0.2", "28008", "--start", "172.24.201.54"]
