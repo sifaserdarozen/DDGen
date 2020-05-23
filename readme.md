@@ -69,16 +69,21 @@ Active traffic is send to specified target ip & ports by default. If you want to
 ```
 
 ### Use of secure web interface
-http://localhost:8080/healthz
-http://localhost:8080/readyz
-https://localhost:443/healthz
-https://localhost:443/readyz
+`http://localhost:8080/healthz`
+`http://localhost:8080/readyz`
+`https://localhost:443/healthz`
+`https://localhost:443/readyz`
 There is a default web interface serving at port 8080. This interface is used for kubernetes health and readiness checks.
 In order to use secure port 443 use `--secure` option. Besides, there should be ddgen-cert.pem certificate file prepared in working directory and executable should be run with priviledged mode for non standard port ranges;
 ```
 sudo ./bin/ddgen --mirror --secure
 ```
 
+### Use of web config (under development)
+In order to block default packet generation, and configure through web, start ddgen with
+```
+./bin/ddgen --webConfig
+```
 
 ### To generate and run the container image
 In order to generate [docker](https://www.docker.com/) container `docker/Dockerfile` file can be used. Used image is [Alpine Linux](https://alpinelinux.org/).

@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 
     while(true)
     {
-        if (call_ptr_vector.size() < program_options.numberOfCalls)
+        if (program_options.shouldStart && (call_ptr_vector.size() < program_options.numberOfCalls))
         {
             unsigned short int call_duration = usint_distribution(generator);
 
