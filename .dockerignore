@@ -1,6 +1,7 @@
 .idea
 .git
 bin/
+makefile
 doc/
 kubernetes/
 lib/
