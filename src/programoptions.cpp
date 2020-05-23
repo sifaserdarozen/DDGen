@@ -8,12 +8,15 @@
 namespace ddgen
 {
 
-ProgramOptions::ProgramOptions(int argc, char* argv[]) : numberOfCalls(10), callDuration(60), simulationDuration(600), startIp(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap), shouldUseSecureWebInterface(false), useDb(false), useS3(false), stackName("ddgen")
+ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numberOfCalls(10), callDuration(60), simulationDuration(600), startIp(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap), shouldUseSecureWebInterface(false), useDb(false), useS3(false), stackName("ddgen")
 {
 
     for (int argv_index = 1; argv_index < argc; ++argv_index)
     {
-        if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc))
+        if (0 == strcmp("--webConfig", argv[argv_index]))
+        {
+            shouldStart = false;
+        } else if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc))
         {
             numberOfCalls = std::atoi(argv[argv_index + 1]);
             argv_index++;
@@ -147,6 +150,8 @@ void ProgramOptions::DisplayUsage() const
     std::cout << "To disable db usage (in case it is build) use  --noDb" << std::endl;
     std::cout << "To force a database path use --dbPath http://localhost:8000" << std::endl;
     std::cout << "To push pcap (if any) to s3 (in case it is build with) use --useS3" << std::endl;
+    std::cout << "--- wait for webstart ---" << std::endl;
+    std::cout << "ddgen --webConfig" << std::endl;
 }
 
 }

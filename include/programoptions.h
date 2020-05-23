@@ -16,6 +16,7 @@ namespace ddgen
 {
 struct ProgramOptions
 {
+    bool shouldStart;
     unsigned int numberOfCalls;
     unsigned int callDuration;
     unsigned int simulationDuration;
