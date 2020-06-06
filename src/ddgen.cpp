@@ -1,6 +1,7 @@
 #include "CallLoggerFactory.h"
 #include "CallStorageFactory.h"
 #include "ConsumerFactory.h"
+#include "SignalHandler.h"
 
 #include "callleg.h"
 #include "programoptions.h"
@@ -40,6 +41,8 @@ bool SleepSystemUsec(unsigned long long int sleep_usec)
 
 int main(int argc, char* argv[])
 {
+    ddgen::SignalHandler signalHandler;
+
     ddgen::ProgramOptions program_options(argc, argv);
 
     auto callLogger = ddgen::CallLoggerFactory::CreateCallLogger( { program_options.useDb, program_options.dbPath, program_options.stackName } );
@@ -113,6 +116,11 @@ int main(int argc, char* argv[])
         const auto ellapsed_time_in_ms = std::chrono::duration_cast<std::chrono::milliseconds>(current_time - start_time).count();
         if (ellapsed_time_in_ms > simulationDuration) {
             std::cout << "Simulation time " << program_options.simulationDuration << " is over" << std::endl;
+            break;
+        }
+
+        if (signalHandler.shallStop()) {
+            std::cout << "Quiting after a simulation time " << ellapsed_time_in_ms << " ms" << std::endl;
             break;
         }
     }
