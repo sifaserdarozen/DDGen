@@ -45,7 +45,7 @@ bool XX_httplib_process_options( struct lh_ctx_t *ctx, const struct lh_opt_t *op
 	if ( ctx == NULL ) return true;
 
 	while ( options != NULL  &&  options->name != NULL ) {
-		printf("------------- an option %s with data %s \n", options->name, options->value);   
+		printf("A http option %s with data %s \n", options->name, options->value);
 
 		if ( check_str(  ctx, options, "access_control_allow_origin", & ctx->access_control_allow_origin             ) ) return true;
 		if ( check_str(  ctx, options, "access_control_list",         & ctx->access_control_list                     ) ) return true;
@@ -97,7 +97,7 @@ bool XX_httplib_process_options( struct lh_ctx_t *ctx, const struct lh_opt_t *op
 		options++;
 	}
 	
-	printf("------------- option read is done----------------");  
+	printf("All http options are read ...\n\n");
 
 	return false;
 
