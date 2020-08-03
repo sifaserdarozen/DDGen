@@ -1,14 +1,6 @@
 pipeline {
     agent any
     stages {
-        stage('preperation ...') {
-            steps {
-                sh 'echo "cloning ..."'
-                sh 'git clone https://github.com/sifaserdarozen/DDGen.git'
-                sh 'cd DDGen'
-            }        
-        }
-        
         stage('linting ...') {
             failFast false
             parallel {
@@ -23,13 +15,13 @@ pipeline {
                     steps {
                         sh 'echo "hadolint ..."'
                         sh 'pwd'
-                        sh 'hadolint docker/Dockerfile'
+                        sh 'hadolint --ignore DL3018 docker/Dockerfile'
                     }
                 }
                 stage('clang-format') {
                     steps {
                         sh 'pwd'
-                        sh 'echo "dclang-format ..."'
+                        sh 'echo "clang-format ..."'
                     }
                 }
             }
@@ -46,14 +38,6 @@ pipeline {
             steps {
                 sh 'echo "deploying ..."'
             }
-        }
-        
-        stage('cleanup ...') {
-            steps {
-                sh 'echo "cleanup ..."'
-                sh 'cd ..'
-                sh 'rm -rf DDGen'
-            }        
         }
     }
 }
