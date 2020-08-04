@@ -12,12 +12,11 @@
 #include "rawsocket.h"
 
 #include <fstream>
-#include <netinet/in.h>
 #include <memory>
+#include <netinet/in.h>
 #include <vector>
 
-namespace ddgen
-{
+namespace ddgen {
 /** @brief Gets current time in sec and usec.
     @param sec OUTPUT system time seconds part
     @param usec OUTPUT system time in micro seconds part
@@ -35,17 +34,20 @@ void GetCurrentTimeInTv(unsigned int& sec, unsigned int& usec);
 class IConsumer
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    IConsumer() {}
+    IConsumer()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~IConsumer() {}
+    virtual ~IConsumer()
+    {
+    }
 
     /**
      * @brief Pure virtual interface for consuming packets
@@ -67,8 +69,8 @@ public:
 class SocketConsumer : public IConsumer
 {
 private:
-    std::vector<int> m_dst_sock_vector;    /**< destination socket vector */
-    std::vector<sockaddr_in> m_dst_sockaddr_vector;    /**< destination socket addr */
+    std::vector<int> m_dst_sock_vector;             /**< destination socket vector */
+    std::vector<sockaddr_in> m_dst_sockaddr_vector; /**< destination socket addr */
 
 public:
     /**
@@ -83,7 +85,7 @@ public:
      */
     ~SocketConsumer();
 
-     /**
+    /**
      * @brief Socket consumer for generated packets
      *
      * @param pcm_data_ptr INPUT pointer to data that will be consumed
@@ -106,14 +108,14 @@ private:
     /** @brief Types of Pcap File Header.
      *
      * Header information for classical .pcap file
-    */
+     */
     struct PcapHdrType
     {
-        unsigned int magic_number;    /**< An integer that takes major number. */
-        unsigned short int version_major;    /**< major version number */
-        unsigned short int version_minor;    /**< minor version number */
+        unsigned int magic_number;        /**< An integer that takes major number. */
+        unsigned short int version_major; /**< major version number */
+        unsigned short int version_minor; /**< minor version number */
         unsigned int thiszone;
-        unsigned int sigfigs;    /**< flags */
+        unsigned int sigfigs; /**< flags */
         unsigned int snaplen;
         unsigned int network;
     };
@@ -124,22 +126,22 @@ private:
      */
     struct PcapPacHdrType
     {
-        unsigned int ts_sec;    /**< packet time in sec */
-        unsigned int ts_usec;    /**< packet time in micro sec */
-        unsigned int incl_len;    /**< packet capture length */
-        unsigned int orig_len;    /**< original packet length */
+        unsigned int ts_sec;   /**< packet time in sec */
+        unsigned int ts_usec;  /**< packet time in micro sec */
+        unsigned int incl_len; /**< packet capture length */
+        unsigned int orig_len; /**< original packet length */
     };
 
 private:
     std::shared_ptr<ICallStorage> _callStorage;
-    std::string _fileName;    /**< file name for pcap file */
-    std::fstream _fileStream;    /**< file stream for pcap file */
-    unsigned int _fileSize;    /**< An integer that shows size of pcap file. */
-    const PcapHdrType _pcapFileHeader = {0xa1b2c3d4, 2, 4, 0, 0, 65535, 1};    /**< pcap file haader for .pcap */
+    std::string _fileName;                                                    /**< file name for pcap file */
+    std::fstream _fileStream;                                                 /**< file stream for pcap file */
+    unsigned int _fileSize;                                                   /**< An integer that shows size of pcap file. */
+    const PcapHdrType _pcapFileHeader = { 0xa1b2c3d4, 2, 4, 0, 0, 65535, 1 }; /**< pcap file haader for .pcap */
 
     /** @brief Generates file name
-		@return Returns 1 if file is generated successfully.
-	*/
+        @return Returns 1 if file is generated successfully.
+    */
     void GenerateFileName();
 
 public:
@@ -155,7 +157,7 @@ public:
      */
     ~PcapConsumer();
 
-     /**
+    /**
      * @brief Pcap file consumer for generated packets
      *
      * @param pcm_data_ptr INPUT pointer to data that will be consumed
@@ -164,4 +166,4 @@ public:
      */
     virtual bool Consume(const unsigned char* data_ptr, unsigned short int data_size);
 };
-}
+} // namespace ddgen

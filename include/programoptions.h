@@ -12,8 +12,7 @@
 #include <string>
 #include <vector>
 
-namespace ddgen
-{
+namespace ddgen {
 struct ProgramOptions
 {
     bool shouldStart;
@@ -31,10 +30,10 @@ struct ProgramOptions
     bool useS3;
     std::string stackName;
 
-    ProgramOptions(int argc, char*argv[]);
+    ProgramOptions(int argc, char* argv[]);
     virtual ~ProgramOptions() = default;
 
     static void DisplayUsage();
 };
 
-}
+} // namespace ddgen

@@ -5,17 +5,17 @@
 #include <memory>
 #include <string>
 
-namespace ddgen
+namespace ddgen {
+class CallStorageFactory
 {
-    class CallStorageFactory
+public:
+    struct Options
     {
-    public:
-        struct Options {
-            bool useS3;
-            std::string stackName;
-        };
-
-    public:
-        static std::shared_ptr<ICallStorage> CreateCallStorage(const Options& options);
+        bool useS3;
+        std::string stackName;
     };
-}
+
+public:
+    static std::shared_ptr<ICallStorage> CreateCallStorage(const Options& options);
+};
+} // namespace ddgen

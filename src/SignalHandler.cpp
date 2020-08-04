@@ -3,20 +3,22 @@
 #include <iostream>
 #include <signal.h>
 
-namespace ddgen
-{
+namespace ddgen {
 bool SignalHandler::_shallStop = false;
 bool SignalHandler::_shallConfigurationUpdate = false;
 
-SignalHandler::SignalHandler() {
+SignalHandler::SignalHandler()
+{
     _registerSignals();
 }
 
-bool SignalHandler::shallStop() {
+bool SignalHandler::shallStop()
+{
     return _shallStop;
 }
 
-void SignalHandler::_registerSignals() {
+void SignalHandler::_registerSignals()
+{
     struct sigaction new_action;
 
     new_action.sa_handler = SignalHandler::_handleSignals;
@@ -27,7 +29,8 @@ void SignalHandler::_registerSignals() {
     sigaction(SIGTERM, &new_action, NULL);
 }
 
-void SignalHandler::_handleSignals(int sigNum) {
+void SignalHandler::_handleSignals(int sigNum)
+{
     switch (sigNum) {
     case SIGTERM:
         std::cout << "SIGTERM signal received, quitting ..." << std::endl;
@@ -42,5 +45,4 @@ void SignalHandler::_handleSignals(int sigNum) {
     }
 }
 
-}
-
+} // namespace ddgen

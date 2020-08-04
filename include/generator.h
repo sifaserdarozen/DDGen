@@ -10,11 +10,9 @@
 #include "CallParameters.h"
 #include <vector>
 
-namespace ddgen
-{
+namespace ddgen {
 
-#define PI 3.1416    /**< value of pi in radians */
-
+#define PI 3.1416 /**< value of pi in radians */
 
 /**
  * @brief Abstract generator interface
@@ -29,12 +27,16 @@ public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    GeneratorType() {}
+    GeneratorType()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~GeneratorType() {}
+    virtual ~GeneratorType()
+    {
+    }
 
     /**
      * @brief Pure virtual interface for generating waveform
@@ -62,17 +64,20 @@ public:
 class ZeroGeneratorType : public GeneratorType
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    ZeroGeneratorType() {}
+    ZeroGeneratorType()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~ZeroGeneratorType() {}
+    virtual ~ZeroGeneratorType()
+    {
+    }
 
     /**
      * @brief Generate waveform
@@ -116,7 +121,9 @@ public:
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SingleToneGeneratorType() {}
+    virtual ~SingleToneGeneratorType()
+    {
+    }
 
     /**
      * @brief Generate waveform
@@ -145,18 +152,20 @@ public:
 class SinusoidalGeneratorType : public GeneratorType
 {
 private:
-
-
 public:
     /**
      * @brief Default constructor, that does let  constructor determine tone parameters
      */
-    SinusoidalGeneratorType() {}
+    SinusoidalGeneratorType()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SinusoidalGeneratorType() {}
+    virtual ~SinusoidalGeneratorType()
+    {
+    }
 
     /**
      * @brief Generate waveform
@@ -185,17 +194,20 @@ public:
 class GeneratorFactory
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    GeneratorFactory() {}
+    GeneratorFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~GeneratorFactory() {}
+    virtual ~GeneratorFactory()
+    {
+    }
 
     /**
      * @brief pure virtual interface for generator creating
@@ -208,17 +220,20 @@ public:
 class ZeroGeneratorFactory : public GeneratorFactory
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    ZeroGeneratorFactory() { }
+    ZeroGeneratorFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~ZeroGeneratorFactory() {}
+    virtual ~ZeroGeneratorFactory()
+    {
+    }
 
     /**
      * @brief Implementation of zero generator creation
@@ -228,23 +243,31 @@ public:
      * @see SingleToneGeneratorType()
      * @see SinusoidalGeneratorType()
      */
-    virtual GeneratorType* CreateGenerator() const { return new ZeroGeneratorType(); }
+    virtual GeneratorType* CreateGenerator() const
+    {
+        return new ZeroGeneratorType();
+    }
 };
 
 class SingleToneGeneratorFactory : public GeneratorFactory
 {
 private:
     CallParameters::StreamParameters::ToneParameters _generatorParams;
+
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    SingleToneGeneratorFactory() { }
+    SingleToneGeneratorFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SingleToneGeneratorFactory() {}
+    virtual ~SingleToneGeneratorFactory()
+    {
+    }
 
     /**
      * @brief Implementation of single tone generator creation
@@ -254,23 +277,29 @@ public:
      * @see ZeroGeneratorType()
      * @see SinusoidalGeneratorType()
      */
-    virtual GeneratorType* CreateGenerator() const { return new SingleToneGeneratorType(); }
+    virtual GeneratorType* CreateGenerator() const
+    {
+        return new SingleToneGeneratorType();
+    }
 };
 
 class SinusoidalGeneratorFactory : public GeneratorFactory
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    SinusoidalGeneratorFactory() { }
+    SinusoidalGeneratorFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~SinusoidalGeneratorFactory() {}
+    virtual ~SinusoidalGeneratorFactory()
+    {
+    }
 
     /**
      * @brief Implementation of sinusoidal generator creation
@@ -280,6 +309,9 @@ public:
      * @see ZeroGeneratorType()
      * @see SingleToneGeneratorType()
      */
-    virtual GeneratorType* CreateGenerator() const { return new SinusoidalGeneratorType(); }
+    virtual GeneratorType* CreateGenerator() const
+    {
+        return new SinusoidalGeneratorType();
+    }
 };
-}
+} // namespace ddgen

@@ -4,11 +4,10 @@
 
 #include <iostream>
 
-namespace ddgen
-{
+namespace ddgen {
 std::shared_ptr<ICallStorage> CallStorageFactory::CreateCallStorage(const Options& options)
 {
-#if defined STORAGE  &&  STORAGE == S3
+#if defined STORAGE && STORAGE == S3
     if (options.useS3) {
         return std::make_shared<S3CallStorage>(options.stackName);
     } else {
@@ -18,4 +17,4 @@ std::shared_ptr<ICallStorage> CallStorageFactory::CreateCallStorage(const Option
     return std::make_shared<NullCallStorage>();
 #endif
 }
-}
+} // namespace ddgen

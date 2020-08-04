@@ -9,19 +9,18 @@
 
 #include <string>
 
-namespace ddgen
-{
+namespace ddgen {
 
 class WebInterface
 {
 public:
     explicit WebInterface(bool shouldUseSecureWebInterface);
-    ~ WebInterface();
+    ~WebInterface();
 
 private:
-    static int begin_request_handler(struct lh_ctx_t *ctx, struct lh_con_t *conn);
+    static int begin_request_handler(struct lh_ctx_t* ctx, struct lh_con_t* conn);
 
-    lh_ctx_t *ctx;
+    lh_ctx_t* ctx;
 };
 
-}
+} // namespace ddgen
