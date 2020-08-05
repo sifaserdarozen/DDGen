@@ -13,7 +13,7 @@ pipeline {
                 stage('hadolint') {
                     steps {
                         sh 'echo "hadolint ..."'
-                        sh 'hadolint docker/Dockerfile'
+                        sh 'hadolint --ignore DL3018 docker/Dockerfile'
                     }
                 }
                 stage('clang-format') {
