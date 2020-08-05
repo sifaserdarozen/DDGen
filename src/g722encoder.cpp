@@ -5,7 +5,7 @@
 namespace ddgen
 {
 
-int G722EncoderType::SaturateAdd(int op1, int op2) const
+int G722EncoderType::SaturateAdd(int op1, int op2)
 {
 	int out = op1 + op2;
 	if ((((op1 ^ op2) & MIN_32) == 0) && ((out ^ op1) & MIN_32))
@@ -13,7 +13,7 @@ int G722EncoderType::SaturateAdd(int op1, int op2) const
 	return out;
 }
 
-int G722EncoderType::SaturateSubtract(int op1, int op2) const
+int G722EncoderType::SaturateSubtract(int op1, int op2)
 {
 	int out = op1 - op2;
 	if ((((op1 ^ op2) & MIN_32) != 0) && ((out ^ op1) & MIN_32))
@@ -21,7 +21,7 @@ int G722EncoderType::SaturateSubtract(int op1, int op2) const
 	return out;
 }
 
-int G722EncoderType::ShiftRight(int op1, short int op2) const
+int G722EncoderType::ShiftRight(int op1, short int op2)
 {
 		if (op2 >= 31)
 			return (op1 < 0) ? -1 : 0;
@@ -29,22 +29,7 @@ int G722EncoderType::ShiftRight(int op1, short int op2) const
 			return op1 >> op2;
 }
 
-int G722EncoderType::ShiftLeft(int op1, short int op2) const
-{
-
-		for (; op2 > 0; op2--)
-		{
-			if (op1 > 0X3fffffff)
-				return MAX_32;
-			else if (op1 < (int)0xc0000000)
-				return MIN_32;
-			op1 *= 2;
-		}
-	return op1;
-}
-
-
-short int G722EncoderType::ShiftLeftShort(short int op1, short int op2) const
+short int G722EncoderType::ShiftLeftShort(short int op1, short int op2)
 {
 		int result = ((int)op1) * ((int) 1 << op2);
 
@@ -55,7 +40,7 @@ short int G722EncoderType::ShiftLeftShort(short int op1, short int op2) const
 }
 
 
-short int G722EncoderType::ShiftRightShort(short int op1, short int op2) const
+short int G722EncoderType::ShiftRightShort(short int op1, short int op2)
 {
 		if (op2 >= 15)
 			return (op1 < 0) ? -1 : 0;
@@ -66,7 +51,7 @@ short int G722EncoderType::ShiftRightShort(short int op1, short int op2) const
 				return op1 >> op2;
 }
 
-int G722EncoderType::Clamp15ToBits(int op) const
+int G722EncoderType::Clamp15ToBits(int op)
 {
 	if (op > 16383)
 		return 16383;
@@ -75,7 +60,7 @@ int G722EncoderType::Clamp15ToBits(int op) const
 	return op;
 }
 
-int G722EncoderType::MultiplyAdd(int add_op, short int mul_op1, short int mul_op2) const
+int G722EncoderType::MultiplyAdd(int add_op, short int mul_op1, short int mul_op2)
 {
 	return SaturateAdd(add_op, ((int)mul_op1 * (int)mul_op2));
 }
@@ -99,7 +84,7 @@ short int G722EncoderType::SaturateAddShort(short int op1, short int op2) const
 	return Saturate (((int)op1 + op2));
 }
 
-short int G722EncoderType::ScaledMult(short int op1, short int op2) const
+short int G722EncoderType::ScaledMult(short int op1, short int op2)
 {
 	int product = (((int)op1 * (int)op2) & (int)(0xffff8000)) >> 15;
 
@@ -161,7 +146,7 @@ short int G722EncoderType::Quanth(short int eh, short int deth) const
 	return misih[sih][mih];
 }
 
-short int G722EncoderType::Invqal(short int il, short int detl) const
+short int G722EncoderType::Invqal(short int il, short int detl)
 {
 	short int ril = ShiftRightShort(il, 2);
 	short int wd1 = ShiftLeftShort(oq4[ril4[ril]], 3);
@@ -173,7 +158,7 @@ short int G722EncoderType::Invqal(short int il, short int detl) const
 	return ScaledMult(detl, wd2);
 }
 
-short int G722EncoderType::Invqah(short int ih, short int deth) const
+short int G722EncoderType::Invqah(short int ih, short int deth)
 {
 	short int wd1 = ShiftLeftShort(oq2[ih2[ih]], 3);
 	short int wd2 = -wd1;
@@ -231,7 +216,7 @@ short int G722EncoderType::Scaleh(short int nbph) const
 }
 
 
-void G722EncoderType::Upzero(short int* dlt_ptr, short int* bl_ptr)
+void G722EncoderType::Upzero(short int* dlt_ptr, short int* bl_ptr) const
 {
 	short int wd1 = 128;
 
@@ -251,7 +236,7 @@ void G722EncoderType::Upzero(short int* dlt_ptr, short int* bl_ptr)
 	}
 }
 
-void G722EncoderType::Uppol1(short int* al_ptr, short int* plt_ptr)
+void G722EncoderType::Uppol1(short int* al_ptr, short int* plt_ptr) const
 {
 	short int sg0 = ShiftRightShort(plt_ptr[0], 15);
 	short int sg1 = ShiftRightShort(plt_ptr[1], 15);
@@ -275,7 +260,7 @@ void G722EncoderType::Uppol1(short int* al_ptr, short int* plt_ptr)
 	al_ptr[1] = apl1;
 }
 
-void G722EncoderType::Uppol2(short int* al_ptr, short int* plt_ptr)
+void G722EncoderType::Uppol2(short int* al_ptr, short int* plt_ptr) const
 {
 	short int sg0 = ShiftRightShort(plt_ptr[0], 15);
 	short int sg1 = ShiftRightShort(plt_ptr[1], 15);
@@ -305,7 +290,7 @@ void G722EncoderType::Uppol2(short int* al_ptr, short int* plt_ptr)
 	al_ptr[2] = apl2;
 }
 
-short int G722EncoderType::Filtez(short int* dlt_ptr, short int* bl_ptr)
+short int G722EncoderType::Filtez(short int* dlt_ptr, short int* bl_ptr) const
 {
 	short int szl = 0;
 
@@ -318,7 +303,7 @@ short int G722EncoderType::Filtez(short int* dlt_ptr, short int* bl_ptr)
 	return szl;
 }
 
-short int G722EncoderType::Filtep(short int* rlt_ptr, short int* al_ptr)
+short int G722EncoderType::Filtep(short int* rlt_ptr, short int* al_ptr) const
 {
 	// shift of rlt
 	rlt_ptr[2] = rlt_ptr[1];
@@ -468,18 +453,13 @@ bool G722EncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* enc
 		return false;
 	}
 
-	unsigned char g722_data;
-	short int xin1;
-	short int xin0;
 	short int xl;
-	short int il;
 	short int xh;
-	short int ih;
 
 	for (unsigned int index = 0; index < G722_PACKET_SIZE; index += 2)
 	{
-		xin1 = *pcm_data_ptr++;
-		xin0 = *pcm_data_ptr++;
+		short int xin1 = *pcm_data_ptr++;
+		short int xin0 = *pcm_data_ptr++;
 
 		// Calculation of the synthesis QMF samples
 		// qmf_tx (xin0, xin1, &xl, &xh, encoder);
@@ -487,15 +467,15 @@ bool G722EncoderType :: Encode(const short int* pcm_data_ptr, unsigned char* enc
 
 		// Call the upper and lower band ADPCM encoders
 		// il = lsbcod (xl, 0, encoder);
-		il = LsbCod(xl);
+		short int il = LsbCod(xl);
 		// ih = hsbcod (xh, 0, encoder);
-		ih = HsbCod(xh);
+		short int ih = HsbCod(xh);
 
 		// Mount the output G722 codeword: bits 0 to 5 are the lower-band
 		// portion of the encoding, and bits 6 and 7 are the upper-band
 		// portion of the encoding
 		// code[i] = s_and(add(shl(ih, 6), il), 0xFF);
-		g722_data = (unsigned char) SaturateAddShort(ShiftLeftShort(ih, 6), il);
+		unsigned char g722_data = (unsigned char) SaturateAddShort(ShiftLeftShort(ih, 6), il);
 
 		*encoded_data_ptr++ = g722_data;
 	}

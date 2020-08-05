@@ -10,13 +10,13 @@ namespace ddgen
 int WebInterface::begin_request_handler(struct lh_ctx_t *ctx, struct lh_con_t *conn)
 {
     const lh_rqi_t *request_info = httplib_get_request_info(conn);
-    char content[1000];
 
     std::string local_uri(request_info->local_uri);
 
     if (("/healthz" == local_uri) || ("/health" == local_uri) || ("/readyz" == local_uri ) || ("/ready" == local_uri) )
     {
-
+        char content[1000];
+        
         // Prepare the message we're going to send
         int content_length = snprintf(content, sizeof(content),
                                       "Everything will be ok! Remote port: %d \n and request uri: %s \n and loacu uri: %s",

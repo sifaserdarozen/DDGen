@@ -7,7 +7,7 @@ pipeline {
                 stage('cppcheck') {
                     steps {
                         sh 'echo "cppcheck ..."'
-                        sh 'cppcheck --error-exitcode=1 --enable=all --inconclusive -I include src' 
+                        sh 'cppcheck -v --error-exitcode=1 --enable=style,performance,portability --inconclusive -I include --inline-suppr src' 
                     }
                 }
                 stage('hadolint') {

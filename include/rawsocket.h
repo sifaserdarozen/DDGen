@@ -351,7 +351,7 @@ struct LineDataType
         m_rtp_data_size = 0;
     }
 
-    unsigned int LineDataSize()
+    unsigned int LineDataSize() const
     {
         return (eth_header_size + ipv4_header_size + udp_header_size + rtp_header_size + m_rtp_data_size);
     }

@@ -111,19 +111,13 @@ void NormalizeString(const std::string& message, std::string& normalized_message
     }
 }
 
-JsonElementType::JsonElementType()
+JsonElementType::JsonElementType(): m_key(""), m_value_ptr(nullptr)
 {
-   m_key = "";
-   m_value_ptr = NULL;
 }
 
-JsonElementType::JsonElementType(std::string element_in_line)
+JsonElementType::JsonElementType(const std::string& elementInLine): m_key(""), m_value_ptr(nullptr)
 {
-    std::string normalized_element = element_in_line;
-    // NormalizeString(element_in_line, normalized_element);
-
-    m_key = "";
-    m_value_ptr = NULL;
+    std::string normalized_element = elementInLine;
 
     // find key and value
     std::size_t pos = normalized_element.find(':');
@@ -199,32 +193,39 @@ JsonElementType::JsonElementType(std::string element_in_line)
     }
 }
 
-JsonElementType::JsonElementType(std::string key, int value)
+JsonElementType::JsonElementType(const std::string& key, int value): m_key(key), m_value_ptr(new IntJsonValueType(value))
 {
-    m_key = key;
-    m_value_ptr = new IntJsonValueType(value);
 }
 
-JsonElementType::JsonElementType(std::string key, std::string value)
+JsonElementType::JsonElementType(const std::string& key, const std::string& value): m_key(key), m_value_ptr(new StringJsonValueType(value))
 {
-    m_key = key;
-    m_value_ptr = new StringJsonValueType(value);
 }
 
-JsonElementType::JsonElementType(std::string key, JsonType& value)
+JsonElementType::JsonElementType(const std::string& key, JsonType& value): m_key(key), m_value_ptr(new JsonJsonValueType(value))
 {
-    m_key = key;
-    m_value_ptr = new JsonJsonValueType(value);
 }
 
-JsonElementType::JsonElementType(const JsonElementType& org)
+JsonElementType::JsonElementType(const JsonElementType& org): m_key(org.m_key)
+{
+    if (org.m_value_ptr) {
+        m_value_ptr = org.m_value_ptr -> Clone();
+    }    
+    else {
+        m_value_ptr = nullptr;
+    }    
+}
+
+JsonElementType& JsonElementType::operator = (const JsonElementType& org)
 {
     m_key = org.m_key;
-    if (org.m_value_ptr)
+    if (org.m_value_ptr) {
         m_value_ptr = org.m_value_ptr -> Clone();
-    else
-        m_value_ptr = NULL;
-}
+    }    
+    else {
+        m_value_ptr = nullptr;
+    }    
+    return *this;
+}    
 
 std::string JsonElementType::Key() const
 {
@@ -319,9 +320,8 @@ IntJsonValueType::~IntJsonValueType()
 
 // **********************************************************************************
 
-JsonJsonValueType::JsonJsonValueType(const JsonType& value)
+JsonJsonValueType::JsonJsonValueType(const JsonType& value): m_value(value)
 {
-    m_value = value;
 }
 
 JsonJsonValueType* JsonJsonValueType::Clone() const
@@ -373,9 +373,8 @@ NullJsonValueType::~NullJsonValueType()
 
 // **********************************************************************************
 
-StringJsonValueType::StringJsonValueType(const std::string& value)
+StringJsonValueType::StringJsonValueType(const std::string& value): m_value(value)
 {
-    m_value = value;
 }
 
 StringJsonValueType* StringJsonValueType::Clone() const

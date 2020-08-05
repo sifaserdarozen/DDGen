@@ -39,7 +39,7 @@ private:
     GeneratorType* m_generator_ptr;    /**< waveform generator */
     std::shared_ptr<IConsumer> _consumer;    /**< consumer that will be used to handle packets */
 
-    short int m_pcm_data_ptr[MAX_PCM_DATA_SIZE];    /**< maximum rtp data size */
+    short int m_pcm_data_ptr[MAX_PCM_DATA_SIZE] = {0};    /**< maximum rtp data size */
     LineDataType m_line_data;    /**< line array that will hold raw data to be processed */
 
 public:
@@ -80,7 +80,7 @@ public:
      */
     ~CallLeg();
 
-    void Step(unsigned short int step_durtion);    /**< Make a step in simulation */
+    void Step(unsigned short int stepDuration);    /**< Make a step in simulation */
 
     CallParameters::StreamParameters GetParameters() const;
 };
@@ -193,7 +193,7 @@ private:
     unsigned int m_ip_pool;
 public:
 
-    MirrorCallFactory(unsigned int start_ip) : m_ip_pool(start_ip)
+    explicit MirrorCallFactory(unsigned int start_ip) : m_ip_pool(start_ip)
     {
     }
 

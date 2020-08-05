@@ -76,7 +76,7 @@ public:
      *
      *
      */
-    SocketConsumer(const std::vector<IpPort>& dst_ipport);
+    explicit SocketConsumer(const std::vector<IpPort>& dstIpPort);
 
     /**
      * @brief destructor, does close socket
@@ -148,7 +148,7 @@ public:
      *
      * @param file_name INPUT desired filename of pcap file. If already present, overriden
      */
-    PcapConsumer(const std::shared_ptr<ICallStorage>& callStorage);
+    explicit PcapConsumer(const std::shared_ptr<ICallStorage>& callStorage);
 
     /**
      * @brief destructor, does close pcap file

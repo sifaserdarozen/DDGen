@@ -41,9 +41,7 @@ SocketConsumer::SocketConsumer(const std::vector<IpPort>& dstIpPort)
         m_dst_sockaddr_vector.push_back(dst_address);
 
         // create corresponding socket
-        int my_socket = -1;
-
-        my_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+        int my_socket = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 
         if (-1 == my_socket)
         {

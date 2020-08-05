@@ -244,32 +244,31 @@ class G722EncoderType : public EncoderType
 private:
 	FullBandType band;
 
-	int SaturateAdd(int op1, int op2) const;
-	int SaturateSubtract(int op1, int op2) const;
+	static int SaturateAdd(int op1, int op2);
+	static int SaturateSubtract(int op1, int op2);
 	short int SaturateSubtractShort(short int op1, short int op2) const;
 	short int SaturateAddShort(short int op1, short int op2) const;
-	int MultiplyAdd(int add_op, short int mul_op1, short int mul_op2) const;
-	int ShiftRight(int op1, short int op2) const;
-	int ShiftLeft(int op1, short int op2) const;
-	short int ShiftLeftShort(short int op1, short int op2) const;
-	short int ShiftRightShort(short int op1, short int op2) const;
-	int Clamp15ToBits(int op) const;
+	static int MultiplyAdd(int add_op, short int mul_op1, short int mul_op2);
+	static int ShiftRight(int op1, short int op2);
+	static short int ShiftLeftShort(short int op1, short int op2);
+	static short int ShiftRightShort(short int op1, short int op2);
+	static int Clamp15ToBits(int op);
 	short int Saturate(int op) const;
-	short int ScaledMult(short int op1, short int op2) const;
+	static short int ScaledMult(short int op1, short int op2);
 
 	short int Quantl(short int el, short int detl) const;
 	short int Quanth(short int eh, short int deth) const;
-	short int Invqal(short int il, short int detl) const;
-	short int Invqah(short int ih, short int deth) const;
+	static short int Invqal(short int il, short int detl);
+	static short int Invqah(short int ih, short int deth);
 	short int Logscl(short int il, short int nbl) const;
 	short int Logsch(short int ih, short int nbh) const;
 	short int Scalel(short int nbpl) const;
 	short int Scaleh(short int nbph) const;
-	void Upzero(short int* dlt_ptr, short int* bl_ptr);
-	void Uppol1(short int* al_ptr, short int* plt_ptr);
-	void Uppol2(short int* al_ptr, short int* plt_ptr);
-	short int Filtez(short int* dlt_ptr, short int* bl_ptr);
-	short int Filtep(short int* rlt_ptr, short int* al_ptr);
+	void Upzero(short int* dlt_ptr, short int* bl_ptr) const;
+	void Uppol1(short int* al_ptr, short int* plt_ptr) const;
+	void Uppol2(short int* al_ptr, short int* plt_ptr) const;
+	short int Filtez(short int* dlt_ptr, short int* bl_ptr) const;
+	short int Filtep(short int* rlt_ptr, short int* al_ptr) const;
 	void QmfTx(short int xin0, short int xin1, short int& xl, short int& xh);
 	short int LsbCod(short int xl);
 	short int HsbCod(short int xh);

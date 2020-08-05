@@ -34,7 +34,7 @@ struct ProgramOptions
     ProgramOptions(int argc, char*argv[]);
     virtual ~ProgramOptions() = default;
 
-    void DisplayUsage() const;
+    static void DisplayUsage();
 };
 
 }

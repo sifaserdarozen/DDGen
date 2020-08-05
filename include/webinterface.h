@@ -15,7 +15,7 @@ namespace ddgen
 class WebInterface
 {
 public:
-    WebInterface(bool shouldUseSecureWebInterface);
+    explicit WebInterface(bool shouldUseSecureWebInterface);
     ~ WebInterface();
 
 private:

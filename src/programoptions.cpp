@@ -130,7 +130,7 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numb
     }
 }
 
-void ProgramOptions::DisplayUsage() const
+void ProgramOptions::DisplayUsage()
 {
     std::cout << " --- drlink --- " << std::endl;
     std::cout << "Usage is: ddgen --nc 10 [-i ip_of_capturer -p port_of_capturer ... ]" << std::endl;

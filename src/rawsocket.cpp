@@ -35,7 +35,7 @@ bool RtpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const RtpHeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const RtpHeaderType*>(buffer_ptr));
 
     // correct seq_num, time stamp and ssrc from network byte order to host byte order
     seq_num = ntohs(seq_num);
@@ -58,7 +58,7 @@ bool RtpHeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
     dummy_rtp_header.ssrc = htonl(dummy_rtp_header.ssrc);
 
     // write whole bunch
-    *((RtpHeaderType*)buffer_ptr) = dummy_rtp_header;
+    *(reinterpret_cast<RtpHeaderType*>(buffer_ptr)) = dummy_rtp_header;
 
     return true;
 }
@@ -71,6 +71,7 @@ bool RtpHeaderType::operator ==(const RtpHeaderType& rhs) const
         return false;
 }
 
+// cppcheck-suppress unusedFunction
 void RtpHeaderType::Display() const
 {
     std::cout << "------------------ RTP Header ---------------------" << std::endl;
@@ -104,7 +105,7 @@ bool PseudoIpv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
     dummy_pseudo_ipv4_header.dst_addr = htonl(dst_addr);
 
     // write whole bunch
-    *((PseudoIpv4HeaderType*)buffer_ptr) = dummy_pseudo_ipv4_header;
+    *(reinterpret_cast<PseudoIpv4HeaderType*>(buffer_ptr)) = dummy_pseudo_ipv4_header;
 
     return true;
 }
@@ -127,7 +128,7 @@ bool Ipv4HeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const Ipv4HeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const Ipv4HeaderType*>(buffer_ptr));
 
     // correct seq_num, time stamp from network byte order to host byte order
     tot_len = ntohs(tot_len);
@@ -161,7 +162,7 @@ bool Ipv4HeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr)
     dummy_ipv4_header.dst_addr = htonl(dst_addr);
 
     // write whole bunch
-    *((Ipv4HeaderType*)buffer_ptr) = dummy_ipv4_header;
+    *(reinterpret_cast<Ipv4HeaderType*>(buffer_ptr)) = dummy_ipv4_header;
 
     // calculate checksum
     checksum = ~(OnesComplementShortSummation(buffer_ptr, ipv4_header_size));
@@ -194,7 +195,7 @@ bool Ipv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_ipv4_header.dst_addr = htonl(dst_addr);
 
     // write whole bunch
-    *((Ipv4HeaderType*)buffer_ptr) = dummy_ipv4_header;
+    *(reinterpret_cast<Ipv4HeaderType*>(buffer_ptr)) = dummy_ipv4_header;
 
     return true;
 }
@@ -237,7 +238,7 @@ bool UdpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const UdpHeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const UdpHeaderType*>(buffer_ptr));
 
     // correct seq_num, time stamp from network byte order to host byte order
     src_port = ntohs(src_port);
@@ -269,7 +270,7 @@ bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const
     dummy_udp_header.checksum = htons(0);
 
     // write whole bunch
-    *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
+    *(reinterpret_cast<UdpHeaderType*>(buffer_ptr)) = dummy_udp_header;
 
     // calculate checksum
     sum  += OnesComplementShortSummation(buffer_ptr, udp_header_size);
@@ -295,7 +296,7 @@ bool UdpHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_udp_header.checksum = htons(checksum);
 
     // write whole bunch
-    *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
+    *(reinterpret_cast<UdpHeaderType*>(buffer_ptr)) = dummy_udp_header;
 
     return true;
 }
@@ -342,7 +343,7 @@ bool EthHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const EthHeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const EthHeaderType*>(buffer_ptr));
 
     // correct ether type to host byte order
     eth_type = ntohs(eth_type);
@@ -361,7 +362,7 @@ bool EthHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_eth_header.eth_type = htons(eth_type);
 
     // write whole bunch
-    *((EthHeaderType*)buffer_ptr) = dummy_eth_header;
+    *(reinterpret_cast<EthHeaderType*>(buffer_ptr)) = dummy_eth_header;
 
     return true;
 }

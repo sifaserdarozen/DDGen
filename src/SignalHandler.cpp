@@ -12,11 +12,11 @@ SignalHandler::SignalHandler() {
     _registerSignals();
 }
 
-bool SignalHandler::shallStop() const {
+bool SignalHandler::shallStop() {
     return _shallStop;
 }
 
-void SignalHandler::_registerSignals() const {
+void SignalHandler::_registerSignals() {
     struct sigaction new_action;
 
     new_action.sa_handler = SignalHandler::_handleSignals;

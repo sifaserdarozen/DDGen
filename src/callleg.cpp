@@ -87,8 +87,8 @@ namespace ddgen {
         }
     }
 
-    void CallLeg::Step(unsigned short int step_duration) {
-        m_accumulated_step_time += step_duration;
+    void CallLeg::Step(unsigned short int stepDuration) {
+        m_accumulated_step_time += stepDuration;
 
         while (m_accumulated_step_time >= m_encoder_ptr->GetPacketDuration()) {
             if (!m_generator_ptr->Generate(m_pcm_data_ptr, m_line_data.m_rtp_data_size)) {
