@@ -1,3 +1,5 @@
+def String image = ''
+
 pipeline {
     agent any
     stages {
@@ -28,15 +30,36 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'echo "building ..."'
+                sh 'echo "building image ..."'
                 // TODO BUILD STEPS
             }
         }
-        
+
+        stage('Publish') {
+            steps {
+                script {
+                    sh 'echo "publishing image ..."'
+                    sh 'docker pull hello-world'
+                    image = sh(script:'echo "sifaserdarozen/hello-world/$(git rev-parse --abbrev-ref HEAD):$(date +%Y.%m.%d-%H.%M)-$(git rev-parse --short HEAD)"', returnStdout: true).trim().toLowerCase()
+                    echo "image: ${image}"
+                    sh "docker tag hello-world ${image}"
+                    sh 'docker image list'
+                }    
+            }
+        }
+
         stage('Deploy') {
             steps {
                 sh 'echo "deploying ..."'
+                echo "deploying with image: ${image}"
                 // TODO DEPLOY STEPS
+            }
+        }
+        
+        stage('Cleanup') {
+            steps {
+                sh 'echo "cleaning ..."'
+                sh 'docker system prune -a -f'
             }
         }
     }
