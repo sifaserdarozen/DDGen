@@ -1,6 +1,9 @@
 def String image = ''
 
 pipeline {
+    environment {
+        dockerCredentials = 'dockerHubCredentials'
+    }
     agent any
     stages {
         stage('linting ...') {
@@ -30,8 +33,16 @@ pipeline {
 
         stage('Build') {
             steps {
-                sh 'echo "building image ..."'
-                // TODO BUILD STEPS
+                script {
+                    sh 'echo "building image ..."'
+                    // TODO REPLACE DOCKER PULL WITH BUILD STEPS
+                    sh 'docker pull sifaserdarozen/ddgen:latest'
+                    // image = sh(script:'echo "sifaserdarozen/ddgen/$(git rev-parse --abbrev-ref HEAD):$(date +%Y.%m.%d-%H.%M)-$(git rev-parse --short HEAD)"', returnStdout: true).trim().toLowerCase()
+                    image = sh(script:'echo "sifaserdarozen/ddgen:$(date +%Y.%m.%d-%H.%M)-$(git rev-parse --short HEAD)"', returnStdout: true).trim().toLowerCase()
+                    echo "image: ${image}"
+                    sh "docker tag sifaserdarozen/ddgen:latest ${image}"
+                    sh 'docker image list'
+                }
             }
         }
 
@@ -39,12 +50,15 @@ pipeline {
             steps {
                 script {
                     sh 'echo "publishing image ..."'
-                    sh 'docker pull hello-world'
-                    image = sh(script:'echo "sifaserdarozen/hello-world/$(git rev-parse --abbrev-ref HEAD):$(date +%Y.%m.%d-%H.%M)-$(git rev-parse --short HEAD)"', returnStdout: true).trim().toLowerCase()
-                    echo "image: ${image}"
-                    sh "docker tag hello-world ${image}"
-                    sh 'docker image list'
-                }    
+                    withCredentials([usernamePassword(credentialsId: 'dockerHubCredentials', usernameVariable: 'dockerUsername', passwordVariable: 'dockerPassword')]) {
+                        sh "docker login -u ${dockerUsername} -p ${dockerPassword}"
+                        sh "docker push ${image}"
+                    }
+
+                    // def dockerImage = docker.build("${image}", "./docker/")
+                    // docker.withRegistry( '', dockerCredentials ) {
+                    // dockerImage.push()
+                }
             }
         }
 
@@ -55,11 +69,14 @@ pipeline {
                 // TODO DEPLOY STEPS
             }
         }
-        
+
         stage('Cleanup') {
             steps {
                 sh 'echo "cleaning ..."'
-                sh 'docker system prune -a -f'
+                sh 'docker image list'
+                sh 'docker system prune -f'
+                sh "docker rmi ${image}"
+                sh 'docker image list'
             }
         }
     }
