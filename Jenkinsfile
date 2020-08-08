@@ -1,4 +1,5 @@
 def String image = ''
+def dockerImage = ''
 
 pipeline {
     environment {
@@ -6,7 +7,7 @@ pipeline {
     }
     agent any
     stages {
-        stage('linting ...') {
+        stage('Linting ...') {
             failFast false
             parallel {
                 stage('cppcheck') {
@@ -42,7 +43,26 @@ pipeline {
                     echo "image: ${image}"
                     sh "docker tag sifaserdarozen/ddgen:latest ${image}"
                     sh 'docker image list'
+
+                    // dockerImage = docker.build("${image}", "./docker/")
                 }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'echo "running unit tests ..."'
+                script {
+                    sh "docker run --entrypoint=./ddgen_utests ${image}"
+                }
+
+                //script {
+                //    docker.image("${image}").inside("-i --entrypoint=/bin/sh") {
+                //        sh "pwd"
+                //        sh "ls -al"
+                //        sh "./ddgen_utests"
+                //    }
+                //}
             }
         }
 
@@ -54,9 +74,7 @@ pipeline {
                         sh "docker login -u ${dockerUsername} -p ${dockerPassword}"
                         sh "docker push ${image}"
                     }
-
-                    // def dockerImage = docker.build("${image}", "./docker/")
-                    // docker.withRegistry( '', dockerCredentials ) {
+                    // docker.withRegistry( '', dockerCredentials )
                     // dockerImage.push()
                 }
             }
@@ -73,10 +91,7 @@ pipeline {
         stage('Cleanup') {
             steps {
                 sh 'echo "cleaning ..."'
-                sh 'docker image list'
-                sh 'docker system prune -f'
-                sh "docker rmi ${image}"
-                sh 'docker image list'
+                sh 'docker system prune -a -f'
             }
         }
     }
