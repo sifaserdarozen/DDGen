@@ -36,15 +36,13 @@ pipeline {
             steps {
                 script {
                     sh 'echo "building image ..."'
-                    // TODO REPLACE DOCKER PULL WITH BUILD STEPS
-                    sh 'docker pull sifaserdarozen/ddgen:latest'
-                    // image = sh(script:'echo "sifaserdarozen/ddgen/$(git rev-parse --abbrev-ref HEAD):$(date +%Y.%m.%d-%H.%M)-$(git rev-parse --short HEAD)"', returnStdout: true).trim().toLowerCase()
+                    sh 'docker build -t ddgen -f docker/Dockerfile .'
+
                     image = sh(script:'echo "sifaserdarozen/ddgen:$(date +%Y.%m.%d-%H.%M)-$(git rev-parse --short HEAD)"', returnStdout: true).trim().toLowerCase()
                     echo "image: ${image}"
-                    sh "docker tag sifaserdarozen/ddgen:latest ${image}"
-                    sh 'docker image list'
+                    sh "docker tag ddgen:latest ${image}"
 
-                    // dockerImage = docker.build("${image}", "./docker/")
+                    sh 'docker image list'
                 }
             }
         }
@@ -56,13 +54,6 @@ pipeline {
                     sh "docker run --entrypoint=./ddgen_utests ${image}"
                 }
 
-                //script {
-                //    docker.image("${image}").inside("-i --entrypoint=/bin/sh") {
-                //        sh "pwd"
-                //        sh "ls -al"
-                //        sh "./ddgen_utests"
-                //    }
-                //}
             }
         }
 
@@ -74,8 +65,7 @@ pipeline {
                         sh "docker login -u ${dockerUsername} -p ${dockerPassword}"
                         sh "docker push ${image}"
                     }
-                    // docker.withRegistry( '', dockerCredentials )
-                    // dockerImage.push()
+
                 }
             }
         }

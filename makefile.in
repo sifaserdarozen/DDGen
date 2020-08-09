@@ -13,7 +13,13 @@ LINK_LIBRARIES= -lpthread
 3RD_PARTY_CLEAN_DIRS = $(3RD_PARTY_DIRS:%=clean-%)
 LINK_LIBRARIES+= -lhttp -ldl
 
-CPP_OPTIONS= -Wall -g -std=c++14
+CPP_OPTIONS= -Wall -std=c++14
+
+# optionally add degug symbols
+CPP_OPTIONS+= $(dbg)
+
+# to reduce memory requirements
+CPP_OPTIONS+= --param ggc-min-expand=1 --param ggc-min-heapsize=32768
 
 # to elimanete catch warning
 CPP_OPTIONS+= -Wno-unknown-pragmas
