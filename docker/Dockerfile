@@ -3,7 +3,7 @@ RUN apk update && apk add --no-cache gcc g++ make cmake git zlib-dev openssl-dev
 WORKDIR /src/
 COPY . /src
 RUN ["chmod", "+x", "configure.sh"]
-RUN ["./configure.sh", "--use-dynamodb", "--use-s3"]
+RUN ["./configure.sh"]
 RUN ["make"]
 
 FROM alpine:3.11
