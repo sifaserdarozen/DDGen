@@ -72,7 +72,9 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'echo "deploying ..."'
+                sh 'echo "generating deployment file with helm"'
+                sh "helm template --set image=${image} kubernetes > kubernetes/deployment.yaml"
+                sh "cat kubernetes/deployment.yaml"
                 echo "deploying with image: ${image}"
                 // TODO DEPLOY STEPS
             }

@@ -1,0 +1,35 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ddgen
+  labels:
+    app: ddgen
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ddgen
+  template:
+    metadata:
+      labels:
+        app: ddgen
+    spec:
+      containers:
+      - name: ddgen
+        image: {{default "sifaserdarozen/ddgen:latest" .Values.image}}
+        command: ["./ddgen"]
+        args: ["--webConfig"]
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 1
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 1
+          periodSeconds: 10

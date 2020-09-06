@@ -130,6 +130,13 @@ kubectl apply -f kubernetes/deploy.yaml
 kubectl apply -f kubernetes/deploy-secure.yaml
 ```
 
+### Helm templates
+Helm can be used to generate deployment file. Install [helm](https://helm.sh/docs/intro/install/) and inject desired image with
+```
+helm template --set image=sifaserdarozen/a_newest_wonderful_image kubernetes > kubernetes/deployment.yaml
+kubectl apply -f kubernetes/deployment.yaml
+```
+
 #### Amazon S3 object storage  support for pcap files.
 
 DDGen supports [Amazon S3](https://aws.amazon.com/s3) when generates pcap. This is the default mode for passive mode, or `--pcap` flagged active mode. After simulation ends, geberated pcap file will be send to S3 bucket.
@@ -261,8 +268,11 @@ Small documentation about possible profiling options for ddgen may be seen throu
 
 ### Thanks to used 3rd Parties
 Catch for unit tests: [Catch](https://github.com/philsquared/Catch)
+
 Http library used to provide kubernetes readiness / liveliness probes : [libhttp](http://www.libhttp.org)
+
 DynamoDB and S3 access : [AWS c++ SDK](https://github.com/aws/aws-sdk-cpp)
+
 Online markdown editor used to create this page: [MEditor](https://pandao.github.io/editor.md/en.html)
 
 ### License
