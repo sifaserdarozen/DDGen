@@ -5,10 +5,15 @@ metadata:
   labels:
     app: ddgen
 spec:
-  replicas: 1
   selector:
     matchLabels:
       app: ddgen
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 50%
+      maxSurge: 1
   template:
     metadata:
       labels:

@@ -1,0 +1,211 @@
+Description:
+  Udacity Cloud-DevOps Nanodegree Capstone Project
+  Eks deployment code for DDGen pseudo rtp payload generator
+
+
+Parameters:
+  EnvironmentName:
+    Description: Label that will be prefixed to resource names.
+    Type: String
+
+  VpcCIDR:
+    Description: IP range (CIDR notation) for this VPC. Default is 10.0.0.0/16.
+    Type: String
+    Default: 10.0.0.0/16
+
+  PublicSubnet1DDGenCIDR:
+    Description: IP range (CIDR notation) for the public subnet of DDGen cluster in the first Availability Zone
+    Type: String
+    Default: 10.0.1.0/24
+
+  PublicSubnet2DDGenCIDR:
+    Description: IP range (CIDR notation) for the public subnet of DDGen cluster in the second Availability Zone
+    Type: String
+    Default: 10.0.2.0/24
+
+
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Ref VpcCIDR
+      EnableDnsHostnames: true
+      EnableDnsSupport: true
+      InstanceTenancy: default
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+
+  InternetGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId: !Ref InternetGateway
+      VpcId: !Ref VPC
+
+  PublicSubnet1DDGen:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet1DDGenCIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+      VpcId: !Ref VPC
+
+  PublicSubnet2DDGen:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [ 1, !GetAZs '' ]
+      CidrBlock: !Ref PublicSubnet2DDGenCIDR
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+      VpcId: !Ref VPC
+
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags:
+        - Key: Name
+          Value: !Ref EnvironmentName
+      VpcId: !Ref VPC
+
+  DefaultPublicRoute:
+    Type: AWS::EC2::Route
+    DependsOn: InternetGatewayAttachment
+    Properties:
+      RouteTableId: !Ref 'PublicRouteTable'
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref 'InternetGateway'
+
+  PublicSubnet1RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+          RouteTableId: !Ref 'PublicRouteTable'
+          SubnetId: !Ref 'PublicSubnet1DDGen'
+
+  PublicSubnet2RouteTableAssociation:
+      Type: AWS::EC2::SubnetRouteTableAssociation
+      Properties:
+          RouteTableId: !Ref 'PublicRouteTable'
+          SubnetId: !Ref 'PublicSubnet2DDGen'
+
+  EksClusterRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+
+  EksClusterInstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref 'EksClusterRole'
+
+  EksSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: EKS Cluster Security Group
+      VpcId: !Ref VPC
+      GroupDescription: Default security group for EKS.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 443
+          ToPort: 443
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - IpProtocol: tcp
+          FromPort: 1025
+          ToPort: 65535
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: !Ref 'EnvironmentName'
+      VpcId: !Ref 'VPC'
+
+  EksCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: ddgen
+      Version: '1.15'
+      RoleArn: !GetAtt EksClusterRole.Arn
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+          - !Ref 'EksSecurityGroup'
+        SubnetIds:
+          - !Ref 'PublicSubnet1DDGen'
+          - !Ref 'PublicSubnet2DDGen'
+
+  EksNodeGroupRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+
+  EksNodeGroupProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - !Ref EksNodeGroupRole
+
+  EksNodeGroup:
+    Type: AWS::EKS::Nodegroup
+    Properties:
+      ClusterName: !Ref 'EksCluster'
+      NodeRole: !GetAtt EksNodeGroupRole.Arn
+      InstanceTypes:
+        - 't2.micro'
+      ScalingConfig:
+        MinSize: 1
+        DesiredSize: 2
+        MaxSize: 3
+      Subnets:
+          - !Ref 'PublicSubnet1DDGen'
+          - !Ref 'PublicSubnet2DDGen'
+
+
+Outputs:
+  VpcId:
+    Description: VPC id
+    Value: !Ref 'VPC'
+
+  PublicSubnets:
+    Description: List of punlic subnets
+    Value: !Join [ ",", [ !Ref 'PublicSubnet1DDGen', !Ref 'PublicSubnet2DDGen' ]]

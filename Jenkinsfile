@@ -76,7 +76,11 @@ pipeline {
                 sh "helm template --set image=${image} kubernetes > kubernetes/deployment.yaml"
                 sh "cat kubernetes/deployment.yaml"
                 echo "deploying with image: ${image}"
-                // TODO DEPLOY STEPS
+                withAWS(region:'us-east-2', credentials:'eksCredentials') {
+                    sh "kubectl config use-context arn:aws:eks:us-east-2:313595130251:cluster/ddgen"
+                    sh "kubectl apply -f kubernetes/deployment.json"
+                    sh "kubectl get services"
+                }
             }
         }
 
