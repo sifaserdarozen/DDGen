@@ -22,6 +22,9 @@ spec:
       containers:
       - name: ddgen
         image: {{default "sifaserdarozen/ddgen:latest" .Values.image}}
+        env:
+        - name: IMAGE
+          value: {{default "sifaserdarozen/ddgen:latest" .Values.image}}
         command: ["./ddgen"]
         args: ["--webConfig"]
         ports:

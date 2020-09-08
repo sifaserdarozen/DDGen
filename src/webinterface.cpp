@@ -1,5 +1,6 @@
 #include "webinterface.h"
 
+#include <cstdlib>
 #include <cstring>
 #include <string>
 
@@ -22,6 +23,26 @@ int WebInterface::begin_request_handler(struct lh_ctx_t* ctx, struct lh_con_t* c
                                       request_info->remote_port,
                                       request_info->request_uri,
                                       local_uri.c_str());
+
+        // Send HTTP reply to the client
+        httplib_printf(ctx,
+                       conn,
+                       "HTTP/1.1 200 OK\r\n"
+                       "Content-Type: text/plain\r\n"
+                       "Content-Length: %d\r\n" // Always set Content-Length
+                       "\r\n"
+                       "%s",
+                       content_length,
+                       content);
+
+        // Returning non-zero tells civetweb that our function has replied to
+        // the client, and civetweb should not send client any more data.
+        return 1;
+    } else if ("/image" == local_uri) {
+        char content[1000];
+
+        // Prepare the message we're going to send
+        int content_length = snprintf(content, sizeof(content), "%s", std::getenv("IMAGE"));
 
         // Send HTTP reply to the client
         httplib_printf(ctx,

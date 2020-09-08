@@ -1,10 +1,8 @@
 def String image = ''
-def dockerImage = ''
+def String appImage = ''
+def String hostname = ''
 
 pipeline {
-    environment {
-        dockerCredentials = 'dockerHubCredentials'
-    }
     agent any
     stages {
         stage('Linting ...') {
@@ -53,7 +51,6 @@ pipeline {
                 script {
                     sh "docker run --entrypoint=./ddgen_utests ${image}"
                 }
-
             }
         }
 
@@ -65,21 +62,42 @@ pipeline {
                         sh "docker login -u ${dockerUsername} -p ${dockerPassword}"
                         sh "docker push ${image}"
                     }
-
                 }
             }
         }
 
         stage('Deploy') {
             steps {
-                sh 'echo "generating deployment file with helm"'
-                sh "helm template --set image=${image} kubernetes > kubernetes/deployment.yaml"
-                sh "cat kubernetes/deployment.yaml"
-                echo "deploying with image: ${image}"
-                withAWS(region:'us-east-2', credentials:'eksCredentials') {
-                    sh "kubectl config use-context arn:aws:eks:us-east-2:313595130251:cluster/ddgen"
-                    sh "kubectl apply -f kubernetes/deployment.json"
-                    sh "kubectl get services"
+                script {
+                    sh 'echo "generating deployment file with helm"'
+                    sh "helm template --set image=${image} kubernetes > kubernetes/deployment.yaml"
+                    sh "cat kubernetes/deployment.yaml"
+                    echo "deploying with image: ${image}"
+                    withAWS(region:'us-east-2', credentials:'eksCredentials') {
+                        sh "kubectl config use-context arn:aws:eks:us-east-2:313595130251:cluster/ddgen"
+                        sh "kubectl apply -f kubernetes/deployment.yaml"
+                        sh "kubectl rollout status deployment/ddgen"
+                        sh "kubectl get service --selector=app=ddgen -o jsonpath={.items[0].status.loadBalancer.ingress[0].hostname}"
+                    }
+                }
+            }
+        }
+
+        stage('Verification') {
+            steps {
+                script {
+                    sh 'echo "verification..."'
+                    withAWS(region:'us-east-2', credentials:'eksCredentials') {
+                        hostname = sh(script:'kubectl get service --selector=app=ddgen -o jsonpath={.items[0].status.loadBalancer.ingress[0].hostname}', returnStdout: true)
+                        appImage = sh(script:"curl ${hostname}:8080/image", returnStdout: true)
+                        if (image.equals( appImage )) {
+                            echo "verification is ok, image querry ${appImage} is equal to docker image"
+                        } else {
+                            echo "verification failed, image querry ${appImage} is not equal to docker image ${image}"
+                            sh "kubectl rollout undo deployment/ddgen"
+                            currentBuild.result = 'FAILURE'
+                        }
+                    }
                 }
             }
         }
