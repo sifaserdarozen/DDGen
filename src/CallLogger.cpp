@@ -1,20 +1,19 @@
 #include "CallLogger.h"
 
-#if defined DBASE  &&  DBASE == DynamoDB
+#if defined DBASE && DBASE == DynamoDB
 
 #include <aws/core/client/DefaultRetryStrategy.h>
 #include <aws/core/utils/Outcome.h>
 #include <aws/dynamodb/DynamoDBClient.h>
+#include <aws/dynamodb/model/AttributeDefinition.h>
 #include <aws/dynamodb/model/CreateTableRequest.h>
 #include <aws/dynamodb/model/DescribeTableRequest.h>
-#include <aws/dynamodb/model/AttributeDefinition.h>
 #include <aws/dynamodb/model/PutItemRequest.h>
 #include <aws/dynamodb/model/PutItemResult.h>
 
-namespace ddgen
-{
+namespace ddgen {
 
-DynamoDBCallLogger::DynamoDBCallLogger(const std::string& dbPath, const std::string& stackName) : _keys(stackName), _dbPath(dbPath) 
+DynamoDBCallLogger::DynamoDBCallLogger(const std::string& dbPath, const std::string& stackName) : _keys(stackName), _dbPath(dbPath)
 {
     std::cout << "Construction..." << std::endl;
     _options.loggingOptions.logLevel = Aws::Utils::Logging::LogLevel::Debug;
@@ -56,10 +55,9 @@ void DynamoDBCallLogger::LogCall(const CallParameters& parameters)
     duration.SetN(std::to_string(parameters.duration));
     pir.AddItem(_keys.duration, duration);
 
-    if ( !parameters.streams.empty() ) {
-
-        Aws::Vector< std::shared_ptr< Aws::DynamoDB::Model::AttributeValue >> streamList;
-        for ( const auto& p : parameters.streams ) {
+    if (!parameters.streams.empty()) {
+        Aws::Vector<std::shared_ptr<Aws::DynamoDB::Model::AttributeValue>> streamList;
+        for (const auto& p : parameters.streams) {
             auto stream = std::make_shared<Aws::DynamoDB::Model::AttributeValue>();
             auto sourceIp = std::make_shared<Aws::DynamoDB::Model::AttributeValue>();
             sourceIp->SetS(p.sourceIp);
@@ -93,9 +91,9 @@ void DynamoDBCallLogger::LogCall(const CallParameters& parameters)
             sequenceNumber->SetN(std::to_string(p.sequenceNumber));
             stream->AddMEntry("SequenceNumber", sequenceNumber);
 
-            if ( !p.toneParameters.empty() ) {
-                Aws::Vector< std::shared_ptr< Aws::DynamoDB::Model::AttributeValue >> tonesList;
-                for ( const auto& t : p.toneParameters ) {
+            if (!p.toneParameters.empty()) {
+                Aws::Vector<std::shared_ptr<Aws::DynamoDB::Model::AttributeValue>> tonesList;
+                for (const auto& t : p.toneParameters) {
                     auto tone = std::make_shared<Aws::DynamoDB::Model::AttributeValue>();
                     auto amplitude = std::make_shared<Aws::DynamoDB::Model::AttributeValue>();
                     amplitude->SetN(std::to_string(t.amplitude));
@@ -112,10 +110,9 @@ void DynamoDBCallLogger::LogCall(const CallParameters& parameters)
                     tonesList.push_back(tone);
                 }
 
-                auto tonesVal = std::make_shared<Aws::DynamoDB::Model::AttributeValue> () ;
+                auto tonesVal = std::make_shared<Aws::DynamoDB::Model::AttributeValue>();
                 tonesVal->SetL(tonesList);
                 stream->AddMEntry("Tones", tonesVal);
-
             }
 
             streamList.push_back(stream);
@@ -124,29 +121,27 @@ void DynamoDBCallLogger::LogCall(const CallParameters& parameters)
         Aws::DynamoDB::Model::AttributeValue streamsVal;
         streamsVal.SetL(streamList);
 
-//        std::cout << " stream values  =  " << streamsVal.SerializeAttribute() << std::endl;
+        //        std::cout << " stream values  =  " << streamsVal.SerializeAttribute() << std::endl;
 
         pir.AddItem("Streams", streamsVal);
-
-
     }
 
     _dynamoClient->PutItemAsync(pir,
-                                                [name = parameters.name](const Aws::DynamoDB::DynamoDBClient*,
-                                                  const Aws::DynamoDB::Model::PutItemRequest&,
-                                                  const Aws::DynamoDB::Model::PutItemOutcome& result,
-                                                  const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) {
-            if (!result.IsSuccess()) {
-                std::cout << "Failed to write " << name << " with error: " << result.GetError().GetMessage() << std::endl;
-            } else {
-                std::cout << "Succedded to write " << name << std::endl;
-            }
-        });
+                                [name = parameters.name](const Aws::DynamoDB::DynamoDBClient*,
+                                                         const Aws::DynamoDB::Model::PutItemRequest&,
+                                                         const Aws::DynamoDB::Model::PutItemOutcome& result,
+                                                         const std::shared_ptr<const Aws::Client::AsyncCallerContext>&) {
+                                    if (!result.IsSuccess()) {
+                                        std::cout << "Failed to write " << name << " with error: " << result.GetError().GetMessage() << std::endl;
+                                    } else {
+                                        std::cout << "Succedded to write " << name << std::endl;
+                                    }
+                                });
 }
 
 void DynamoDBCallLogger::_checkTable()
 {
-    if ( false == _doesTableExists() ) {
+    if (false == _doesTableExists()) {
         _createTable();
     }
 }
@@ -168,10 +163,10 @@ bool DynamoDBCallLogger::_doesTableExists()
         const auto errorType = result.GetError().GetErrorType();
         std::cout << "Failed to describe table: " << result.GetError().GetMessage() << " with type " << (int)errorType << std::endl;
 
-        if ( Aws::DynamoDB::DynamoDBErrors::RESOURCE_NOT_FOUND == errorType ) {
-            std::cout << "Table does not present"  << std::endl;
-        } else if ( Aws::DynamoDB::DynamoDBErrors::NETWORK_CONNECTION == errorType ) {
-            std::cout << "Database is probably not reachable, quiting..."  << std::endl;
+        if (Aws::DynamoDB::DynamoDBErrors::RESOURCE_NOT_FOUND == errorType) {
+            std::cout << "Table does not present" << std::endl;
+        } else if (Aws::DynamoDB::DynamoDBErrors::NETWORK_CONNECTION == errorType) {
+            std::cout << "Database is probably not reachable, quiting..." << std::endl;
             exit(0);
         }
 
@@ -200,16 +195,13 @@ void DynamoDBCallLogger::_createTable()
     req.SetTableName(_keys.table);
 
     const Aws::DynamoDB::Model::CreateTableOutcome& result = _dynamoClient->CreateTable(req);
-    if (result.IsSuccess())
-    {
+    if (result.IsSuccess()) {
         std::cout << "Table \"" << result.GetResult().GetTableDescription().GetTableName() << " created!" << std::endl;
-    }
-    else
-    {
+    } else {
         std::cout << "Failed to create table: " << result.GetError().GetMessage();
     }
 }
 
-}
+} // namespace ddgen
 
 #endif

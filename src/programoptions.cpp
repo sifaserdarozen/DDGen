@@ -5,40 +5,39 @@
 #include <cstring>
 #include <iostream>
 
-namespace ddgen
-{
+namespace ddgen {
 
-ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numberOfCalls(10), callDuration(60), simulationDuration(600), startIp(0xac186536), traffic(Traffic::Mirror), output(Output::Pcap), shouldUseSecureWebInterface(false), useDb(false), useS3(false), stackName("ddgen")
+ProgramOptions::ProgramOptions(int argc, char* argv[])
+    : shouldStart(true)
+    , numberOfCalls(10)
+    , callDuration(60)
+    , simulationDuration(600)
+    , startIp(0xac186536)
+    , traffic(Traffic::Mirror)
+    , output(Output::Pcap)
+    , shouldUseSecureWebInterface(false)
+    , useDb(false)
+    , useS3(false)
+    , stackName("ddgen")
 {
-
-    for (int argv_index = 1; argv_index < argc; ++argv_index)
-    {
-        if (0 == strcmp("--webConfig", argv[argv_index]))
-        {
+    for (int argv_index = 1; argv_index < argc; ++argv_index) {
+        if (0 == strcmp("--webConfig", argv[argv_index])) {
             shouldStart = false;
-        } else if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc))
-        {
+        } else if ((0 == strcmp("--nc", argv[argv_index])) && ((argv_index + 1) < argc)) {
             numberOfCalls = std::atoi(argv[argv_index + 1]);
             argv_index++;
-        }
-        else if ((0 == strcmp("--dc", argv[argv_index])) && ((argv_index + 1) < argc))
-        {
+        } else if ((0 == strcmp("--dc", argv[argv_index])) && ((argv_index + 1) < argc)) {
             callDuration = std::atoi(argv[argv_index + 1]);
             argv_index++;
-        }
-        else if ((0 == strcmp("--ds", argv[argv_index])) && ((argv_index + 1) < argc))
-        {
+        } else if ((0 == strcmp("--ds", argv[argv_index])) && ((argv_index + 1) < argc)) {
             simulationDuration = std::atoi(argv[argv_index + 1]);
             argv_index++;
-        }
-        else if ((0 == strcmp("--drlink", argv[argv_index])) && ((argv_index + 4) < argc))
-        {
+        } else if ((0 == strcmp("--drlink", argv[argv_index])) && ((argv_index + 4) < argc)) {
             in_addr d_inaddr;
             unsigned int dst_ip = 0x691e1bac;
             unsigned short int dst_port = 29000;
 
-            if (1 == inet_aton(argv[argv_index + 1], &d_inaddr))
-            {
+            if (1 == inet_aton(argv[argv_index + 1], &d_inaddr)) {
                 dst_ip = ntohl(d_inaddr.s_addr);
             }
 
@@ -47,8 +46,7 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numb
 
             drlinkIpPortVector.push_back(dst_ipport);
 
-            if (1 == inet_aton(argv[argv_index + 3], &d_inaddr))
-            {
+            if (1 == inet_aton(argv[argv_index + 3], &d_inaddr)) {
                 dst_ip = ntohl(d_inaddr.s_addr);
             }
 
@@ -61,23 +59,16 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numb
 
             traffic = Traffic::DrLink;
             output = Output::Socket;
-        }
-        else if (0 == strcmp("--mirror", argv[argv_index]))
-        {
+        } else if (0 == strcmp("--mirror", argv[argv_index])) {
             traffic = Traffic::Mirror;
-        }
-        else if (0 == strcmp("--pcap", argv[argv_index]))
-        {
+        } else if (0 == strcmp("--pcap", argv[argv_index])) {
             output = Output::Pcap;
-        }
-        else if ((0 == strcmp("--socket", argv[argv_index]) ) && ((argv_index + 2) < argc))
-        {
+        } else if ((0 == strcmp("--socket", argv[argv_index])) && ((argv_index + 2) < argc)) {
             in_addr d_inaddr;
             unsigned int dst_ip = 0x691e1bac;
             unsigned short int dst_port = 29000;
 
-            if (1 == inet_aton(argv[argv_index + 1], &d_inaddr))
-            {
+            if (1 == inet_aton(argv[argv_index + 1], &d_inaddr)) {
                 dst_ip = ntohl(d_inaddr.s_addr);
             }
 
@@ -88,41 +79,26 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numb
             argv_index += 2;
 
             output = Output::Socket;
-        }
-        else if ((0 == strcmp("--start", argv[argv_index]) ) && ((argv_index + 1) < argc))
-        {
+        } else if ((0 == strcmp("--start", argv[argv_index])) && ((argv_index + 1) < argc)) {
             in_addr s_inaddr;
-            if (1 == inet_aton(argv[argv_index + 1], &s_inaddr))
-            {
+            if (1 == inet_aton(argv[argv_index + 1], &s_inaddr)) {
                 startIp = ntohl(s_inaddr.s_addr);
             }
             argv_index += 1;
-        }
-        else if ((0 == strcmp("--dbPath", argv[argv_index]) ) && ((argv_index + 1) < argc))
-        {
+        } else if ((0 == strcmp("--dbPath", argv[argv_index])) && ((argv_index + 1) < argc)) {
             useDb = true;
             dbPath = argv[argv_index + 1];
             argv_index += 1;
-        }
-        else if (0 == strcmp("--secure", argv[argv_index]))
-        {
+        } else if (0 == strcmp("--secure", argv[argv_index])) {
             shouldUseSecureWebInterface = true;
-        }
-        else if (0 == strcmp("--useDb", argv[argv_index]))
-        {
+        } else if (0 == strcmp("--useDb", argv[argv_index])) {
             useDb = true;
-        }
-        else if (0 == strcmp("--useS3", argv[argv_index]))
-        {
+        } else if (0 == strcmp("--useS3", argv[argv_index])) {
             useS3 = true;
-        }
-        else if ((0 == strcmp("--sn", argv[argv_index])) && ((argv_index + 1) < argc))
-        {
+        } else if ((0 == strcmp("--sn", argv[argv_index])) && ((argv_index + 1) < argc)) {
             stackName = std::string(argv[argv_index + 1]);
             argv_index++;
-        }
-        else
-        {
+        } else {
             std::cout << "unknown option : " << argv[argv_index] << std::endl;
             DisplayUsage();
             exit(-1);
@@ -130,7 +106,7 @@ ProgramOptions::ProgramOptions(int argc, char* argv[]) : shouldStart(true), numb
     }
 }
 
-void ProgramOptions::DisplayUsage() const
+void ProgramOptions::DisplayUsage()
 {
     std::cout << " --- drlink --- " << std::endl;
     std::cout << "Usage is: ddgen --nc 10 [-i ip_of_capturer -p port_of_capturer ... ]" << std::endl;
@@ -154,4 +130,4 @@ void ProgramOptions::DisplayUsage() const
     std::cout << "ddgen --webConfig" << std::endl;
 }
 
-}
+} // namespace ddgen

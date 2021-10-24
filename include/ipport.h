@@ -7,8 +7,7 @@
 
 #pragma once
 
-namespace ddgen
-{
+namespace ddgen {
 
 enum class Traffic
 {
@@ -29,17 +28,19 @@ enum class Output
  */
 struct IpPort
 {
-    unsigned int m_ipv4;    /**< ip v4 information */
-    unsigned short int m_port;    /**< port information */
+    unsigned int m_ipv4;       /**< ip v4 information */
+    unsigned short int m_port; /**< port information */
 
     /**
-    * @brief Constructor
-    *
-    * constructor that sets ipv4 and port pair
-    * @param ipv4 INPUT ipv4 address
-    * @param port INPUT port information
-    */
-    IpPort(unsigned int ipv4 = 0, unsigned short int port = 0) : m_ipv4(ipv4), m_port(port) {}
+     * @brief Constructor
+     *
+     * constructor that sets ipv4 and port pair
+     * @param ipv4 INPUT ipv4 address
+     * @param port INPUT port information
+     */
+    IpPort(unsigned int ipv4 = 0, unsigned short int port = 0) : m_ipv4(ipv4), m_port(port)
+    {
+    }
 };
 
-}
+} // namespace ddgen

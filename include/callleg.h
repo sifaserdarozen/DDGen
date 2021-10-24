@@ -7,17 +7,16 @@
 
 #pragma once
 
-#include "encoder.h"
-#include "generator.h"
-#include "consumer.h"
 #include "CallLogger.h"
 #include "CallParameters.h"
+#include "consumer.h"
+#include "encoder.h"
+#include "generator.h"
 
 #include <memory>
 #include <vector>
 
-namespace ddgen
-{
+namespace ddgen {
 #define MAX_PCM_DATA_SIZE 8000
 
 /**
@@ -26,21 +25,21 @@ namespace ddgen
 class CallLeg
 {
 private:
-    RtpHeaderType m_rtp_header;    /**< rtp header */
-    UdpHeaderType m_udp_header;    /**< udp header */
-    Ipv4HeaderType m_ipv4_header;    /**< ipv4 header */
-    EthHeaderType m_eth_header;    /**< ethernet header */
-    PseudoIpv4HeaderType m_pseudo_ipv4_header;    /**< pseudo ipv4 header that will be used in header checksum */
+    RtpHeaderType m_rtp_header;                /**< rtp header */
+    UdpHeaderType m_udp_header;                /**< udp header */
+    Ipv4HeaderType m_ipv4_header;              /**< ipv4 header */
+    EthHeaderType m_eth_header;                /**< ethernet header */
+    PseudoIpv4HeaderType m_pseudo_ipv4_header; /**< pseudo ipv4 header that will be used in header checksum */
 
-    unsigned int m_remaining_time;    /**< remaining time in ms in this call leg */
-    unsigned int m_accumulated_step_time;    /**< accumulated step time that is not handled yet */
+    unsigned int m_remaining_time;        /**< remaining time in ms in this call leg */
+    unsigned int m_accumulated_step_time; /**< accumulated step time that is not handled yet */
 
-    EncoderType* m_encoder_ptr;    /**< encoder that will be used in waveform encoding */
-    GeneratorType* m_generator_ptr;    /**< waveform generator */
-    std::shared_ptr<IConsumer> _consumer;    /**< consumer that will be used to handle packets */
+    EncoderType* m_encoder_ptr;           /**< encoder that will be used in waveform encoding */
+    GeneratorType* m_generator_ptr;       /**< waveform generator */
+    std::shared_ptr<IConsumer> _consumer; /**< consumer that will be used to handle packets */
 
-    short int m_pcm_data_ptr[MAX_PCM_DATA_SIZE];    /**< maximum rtp data size */
-    LineDataType m_line_data;    /**< line array that will hold raw data to be processed */
+    short int m_pcm_data_ptr[MAX_PCM_DATA_SIZE] = { 0 }; /**< maximum rtp data size */
+    LineDataType m_line_data;                            /**< line array that will hold raw data to be processed */
 
 public:
     /**
@@ -60,16 +59,16 @@ public:
      * @param consumer_ptr INPUT consumer that will be used to handle generated packet
      */
     CallLeg(unsigned int src_addr,
-                unsigned short int src_port,
-                unsigned int dst_addr,
-                unsigned short int dst_port,
-                unsigned short int id,
-                unsigned int timestamp,
-                unsigned int ssrc,
-                unsigned short int seq_num,
-                EncoderFactory* encoder_factory_ptr,
-                GeneratorFactory* generator_factory_ptr,
-                const std::shared_ptr<IConsumer>& consumer);
+            unsigned short int src_port,
+            unsigned int dst_addr,
+            unsigned short int dst_port,
+            unsigned short int id,
+            unsigned int timestamp,
+            unsigned int ssrc,
+            unsigned short int seq_num,
+            EncoderFactory* encoder_factory_ptr,
+            GeneratorFactory* generator_factory_ptr,
+            const std::shared_ptr<IConsumer>& consumer);
 
     /**
      * @brief Destructor method
@@ -80,7 +79,7 @@ public:
      */
     ~CallLeg();
 
-    void Step(unsigned short int step_durtion);    /**< Make a step in simulation */
+    void Step(unsigned short int stepDuration); /**< Make a step in simulation */
 
     CallParameters::StreamParameters GetParameters() const;
 };
@@ -97,8 +96,8 @@ protected:
     const std::shared_ptr<ICallLogger> _callLogger;
 
 public:
-
-    struct Options{
+    struct Options
+    {
         unsigned int duration;
         std::shared_ptr<ICallLogger> callLogger;
         EncoderFactory* encoder_factory_ptr;
@@ -144,7 +143,6 @@ public:
     ~MirrorCall() = default;
 };
 
-
 /**
  * @brief Abstract call factory interface
  *
@@ -155,8 +153,9 @@ public:
 class ICallFactory
 {
 public:
-
-    ICallFactory() {}
+    ICallFactory()
+    {
+    }
 
     virtual ~ICallFactory() = default;
 
@@ -191,9 +190,9 @@ class MirrorCallFactory : public ICallFactory
 {
 private:
     unsigned int m_ip_pool;
-public:
 
-    MirrorCallFactory(unsigned int start_ip) : m_ip_pool(start_ip)
+public:
+    explicit MirrorCallFactory(unsigned int start_ip) : m_ip_pool(start_ip)
     {
     }
 
@@ -210,17 +209,18 @@ public:
     virtual std::unique_ptr<Call> CreateCall(const Call::Options& options);
 };
 
-    class CallFactoryFactory
+class CallFactoryFactory
+{
+public:
+    struct Options
     {
-    public:
-        struct Options {
-            Traffic traffic;
-            std::vector<IpPort> drlinkIpPortVector;
-            unsigned int startIp;
-        };
-
-    public:
-        static std::unique_ptr<ICallFactory> CreateCallFactory(const Options& options);
+        Traffic traffic;
+        std::vector<IpPort> drlinkIpPortVector;
+        unsigned int startIp;
     };
 
-}
+public:
+    static std::unique_ptr<ICallFactory> CreateCallFactory(const Options& options);
+};
+
+} // namespace ddgen

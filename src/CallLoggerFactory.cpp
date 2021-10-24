@@ -2,18 +2,17 @@
 
 #include "CallLogger.h"
 
-namespace ddgen
-{
+namespace ddgen {
 std::shared_ptr<ICallLogger> CallLoggerFactory::CreateCallLogger(const Options& options)
 {
-    #if defined DBASE  &&  DBASE == DynamoDB
+#if defined DBASE && DBASE == DynamoDB
     if (options.useDb) {
         return std::make_shared<DynamoDBCallLogger>(options.dbPath, options.stackName);
     } else {
         return std::make_shared<NullCallLogger>();
     }
-    #else
+#else
     return std::make_shared<NullCallLogger>();
-    #endif
+#endif
 }
-}
+} // namespace ddgen

@@ -7,8 +7,7 @@
 
 #pragma once
 
-namespace ddgen
-{
+namespace ddgen {
 
 /**
  * @brief Method that will calculate ones complement 16 bit summation .
@@ -29,15 +28,15 @@ unsigned short int OnesComplementShortSummation(const unsigned char* data_ptr, u
  */
 struct RtpHeaderType
 {
-    unsigned char cc:4;    /**< Contributor source identifier count */
-    unsigned char x:1;    /**< Extension flag */
-    unsigned char p:1;    /**< Padding flag */
-    unsigned char version:2;    /**< Version information. */
-    unsigned char payload:7;    /**< Payload indicated type of rtp payload */
-    unsigned char m:1;    /**< Mark bit. Set to indicate important event such as starting of data after silence suppression period */
-    unsigned short int seq_num;    /**< Sequence number of rtp data. Expected to be incremented with each rtp packet*/
-    unsigned int timestamp;    /**< Time stamp of header. Expected to be incremented to reflect sampling instant of first sample of each packet.*/
-    unsigned int ssrc;    /**< Source identification of rtp data. Should be session wide unique */
+    unsigned char cc : 4;       /**< Contributor source identifier count */
+    unsigned char x : 1;        /**< Extension flag */
+    unsigned char p : 1;        /**< Padding flag */
+    unsigned char version : 2;  /**< Version information. */
+    unsigned char payload : 7;  /**< Payload indicated type of rtp payload */
+    unsigned char m : 1;        /**< Mark bit. Set to indicate important event such as starting of data after silence suppression period */
+    unsigned short int seq_num; /**< Sequence number of rtp data. Expected to be incremented with each rtp packet*/
+    unsigned int timestamp;     /**< Time stamp of header. Expected to be incremented to reflect sampling instant of first sample of each packet.*/
+    unsigned int ssrc;          /**< Source identification of rtp data. Should be session wide unique */
 
     /**
      * @brief Read contents from raw line buffer
@@ -68,7 +67,7 @@ struct RtpHeaderType
      * @param rhs other RtpHeaderType to compare with
      * @return boolean result of equivalence check
      */
-    bool operator ==(const RtpHeaderType& rhs) const;
+    bool operator==(const RtpHeaderType& rhs) const;
 
     /**
      * @brief Display contents of Rtp header
@@ -76,7 +75,7 @@ struct RtpHeaderType
     void Display() const;
 };
 
-const unsigned short int rtp_header_size = sizeof(RtpHeaderType);    /**< size of rtp header */
+const unsigned short int rtp_header_size = sizeof(RtpHeaderType); /**< size of rtp header */
 
 /**
  * @brief Pseudo Ipv4 header that will be used in udp checksum calculation
@@ -87,13 +86,15 @@ const unsigned short int rtp_header_size = sizeof(RtpHeaderType);    /**< size o
  */
 struct PseudoIpv4HeaderType
 {
-    unsigned int src_addr;            /**< source address */
-    unsigned int dst_addr;            /**< destination address */
-    unsigned char zero_pad;           /**< zero pad */
-    unsigned char protocol;           /**< layer 4 protocol */
-    unsigned short int data_len;      /**< data length (layer4 packet length) */
+    unsigned int src_addr;       /**< source address */
+    unsigned int dst_addr;       /**< destination address */
+    unsigned char zero_pad;      /**< zero pad */
+    unsigned char protocol;      /**< layer 4 protocol */
+    unsigned short int data_len; /**< data length (layer4 packet length) */
 
-    PseudoIpv4HeaderType() : src_addr(0), dst_addr(0), zero_pad(0), protocol(0), data_len(0) {}
+    PseudoIpv4HeaderType() : src_addr(0), dst_addr(0), zero_pad(0), protocol(0), data_len(0)
+    {
+    }
 
     /**
      * @brief Write contents to raw line buffer
@@ -112,7 +113,7 @@ struct PseudoIpv4HeaderType
     void Display() const;
 };
 
-const unsigned short int pseudo_ipv4_header_size = sizeof(PseudoIpv4HeaderType);    /**< size of pseudo ipv4 header */
+const unsigned short int pseudo_ipv4_header_size = sizeof(PseudoIpv4HeaderType); /**< size of pseudo ipv4 header */
 
 /**
  * @brief IPv4 header deceleration
@@ -123,17 +124,17 @@ const unsigned short int pseudo_ipv4_header_size = sizeof(PseudoIpv4HeaderType);
  */
 struct Ipv4HeaderType
 {
-    unsigned char hdr_len:4;        /**< Header length in 32 bits. Minimum is 5 (20bytes) */
-    unsigned char version:4;        /**< Version information which is 4 */
-    unsigned char service_type;     /**< Type of service field controlling the priority of the packet */
-    unsigned short int tot_len;     /**< Total length Ipv4 packet*/
-    unsigned short int id;          /**< Sequence identification */
-    unsigned short int fragment;    /**< combined fragmentation flag (3bits) and offset information (13 bits) */
-    unsigned char ttl;              /**< Time to live field, which is decremented in each hop */
-    unsigned char protocol;         /**< Layer 4 protocol indicator. 17 for udp, 6 for tcp */
-    unsigned short int checksum;    /**< Header only checksum */
-    unsigned int src_addr;          /**< Source address */
-    unsigned int dst_addr;          /**< Destination address */
+    unsigned char hdr_len : 4;   /**< Header length in 32 bits. Minimum is 5 (20bytes) */
+    unsigned char version : 4;   /**< Version information which is 4 */
+    unsigned char service_type;  /**< Type of service field controlling the priority of the packet */
+    unsigned short int tot_len;  /**< Total length Ipv4 packet*/
+    unsigned short int id;       /**< Sequence identification */
+    unsigned short int fragment; /**< combined fragmentation flag (3bits) and offset information (13 bits) */
+    unsigned char ttl;           /**< Time to live field, which is decremented in each hop */
+    unsigned char protocol;      /**< Layer 4 protocol indicator. 17 for udp, 6 for tcp */
+    unsigned short int checksum; /**< Header only checksum */
+    unsigned int src_addr;       /**< Source address */
+    unsigned int dst_addr;       /**< Destination address */
 
     /**
      * @brief Read contents from raw line buffer
@@ -176,7 +177,7 @@ struct Ipv4HeaderType
      * @param rhs other Ipv4HeaderType to compare with
      * @return boolean result of equivalence check
      */
-    bool operator ==(const Ipv4HeaderType& rhs) const;
+    bool operator==(const Ipv4HeaderType& rhs) const;
 
     /**
      * @brief Display contents of Ipv4 header
@@ -184,7 +185,7 @@ struct Ipv4HeaderType
     void Display() const;
 };
 
-const unsigned short int ipv4_header_size = sizeof(Ipv4HeaderType);    /**< size of ipv4 header */
+const unsigned short int ipv4_header_size = sizeof(Ipv4HeaderType); /**< size of ipv4 header */
 
 /**
  * @brief Method that will be used to check ipv4 header against errors.
@@ -204,10 +205,10 @@ bool CheckIpv4Checksum(const unsigned char* line_ipv4_header_ptr);
  */
 struct UdpHeaderType
 {
-    unsigned short int src_port;    /**< Source port */
-    unsigned short int dst_port;    /**< Destination port */
-    unsigned short int tot_len;     /**< Total length of Udp packet */
-    unsigned short int checksum;    /**< Checksum of header and data */
+    unsigned short int src_port; /**< Source port */
+    unsigned short int dst_port; /**< Destination port */
+    unsigned short int tot_len;  /**< Total length of Udp packet */
+    unsigned short int checksum; /**< Checksum of header and data */
 
     /**
      * @brief Read contents from raw line buffer
@@ -253,7 +254,7 @@ struct UdpHeaderType
      * @param rhs other UdpHeaderType to compare with
      * @return boolean result of equivalence check
      */
-    bool operator ==(const UdpHeaderType& rhs) const;
+    bool operator==(const UdpHeaderType& rhs) const;
 
     /**
      * @brief Display contents of Udp header
@@ -261,7 +262,7 @@ struct UdpHeaderType
     void Display() const;
 };
 
-const unsigned short int udp_header_size = sizeof(UdpHeaderType);    /**< size of udp header */
+const unsigned short int udp_header_size = sizeof(UdpHeaderType); /**< size of udp header */
 
 /**
  * @brief Method that will be used to check udp packet against errors.
@@ -285,7 +286,7 @@ struct EthHeaderType
 {
     unsigned char dst_mac[6];    /**< Destination mac address */
     unsigned char src_mac[6];    /**< Source mac address */
-    unsigned short int eth_type;     /**< Type of payload */
+    unsigned short int eth_type; /**< Type of payload */
 
     /**
      * @brief Read contents from raw line buffer
@@ -315,9 +316,9 @@ struct EthHeaderType
     void Display() const;
 };
 
-const unsigned short int eth_header_size = sizeof(EthHeaderType);    /**< size of ethernet header */
+const unsigned short int eth_header_size = sizeof(EthHeaderType); /**< size of ethernet header */
 
-#define MAX_LINE_DATA_SIZE 65536    /**< maximum line packet size */
+#define MAX_LINE_DATA_SIZE 65536 /**< maximum line packet size */
 
 /**
  * @brief Line  data that will be denerated
@@ -327,13 +328,13 @@ const unsigned short int eth_header_size = sizeof(EthHeaderType);    /**< size o
  */
 struct LineDataType
 {
-    unsigned char m_line_data[MAX_LINE_DATA_SIZE];    /**< pointer to start of line data */
-    unsigned char* m_eth_hdr_ptr;    /**< pointer to start of ethernet header */
-    unsigned char* m_ipv4_hdr_ptr;    /**< pointer to start of internet header */
-    unsigned char* m_udp_hdr_ptr;    /**< pointer to start of udp header */
-    unsigned char* m_rtp_hdr_ptr;    /**< pointer to start of rtp header */
-    unsigned char* m_rtp_data_ptr;    /**< pointer to start of rtp data */
-    unsigned short int m_rtp_data_size;    /**< rtp data size */
+    unsigned char m_line_data[MAX_LINE_DATA_SIZE]; /**< pointer to start of line data */
+    unsigned char* m_eth_hdr_ptr;                  /**< pointer to start of ethernet header */
+    unsigned char* m_ipv4_hdr_ptr;                 /**< pointer to start of internet header */
+    unsigned char* m_udp_hdr_ptr;                  /**< pointer to start of udp header */
+    unsigned char* m_rtp_hdr_ptr;                  /**< pointer to start of rtp header */
+    unsigned char* m_rtp_data_ptr;                 /**< pointer to start of rtp data */
+    unsigned short int m_rtp_data_size;            /**< rtp data size */
 
     /**
      * @brief Constructor of line data
@@ -351,9 +352,9 @@ struct LineDataType
         m_rtp_data_size = 0;
     }
 
-    unsigned int LineDataSize()
+    unsigned int LineDataSize() const
     {
         return (eth_header_size + ipv4_header_size + udp_header_size + rtp_header_size + m_rtp_data_size);
     }
 };
-}
+} // namespace ddgen

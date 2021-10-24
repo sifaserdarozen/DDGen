@@ -1,0 +1,4 @@
+apiVersion: v1
+description: DDGen pseudo rtp packet generator
+name: ddgen
+version: 1.0.0

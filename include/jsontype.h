@@ -11,8 +11,7 @@
 #include <string>
 #include <vector>
 
-namespace ddgen
-{
+namespace ddgen {
 
 /** @brief Find delimeter location between json elements
  *
@@ -61,11 +60,12 @@ private:
 
 public:
     JsonElementType();
-    JsonElementType(std::string element_in_line);
-    JsonElementType(std::string key, int value);
-    JsonElementType(std::string key, std::string value);
-    JsonElementType(std::string key, JsonType& value);
+    explicit JsonElementType(const std::string& elementInLine);
+    JsonElementType(const std::string& key, int value);
+    JsonElementType(const std::string& key, const std::string& value);
+    JsonElementType(const std::string& key, JsonType& value);
     JsonElementType(const JsonElementType& org);
+    JsonElementType& operator=(const JsonElementType& org);
     virtual std::string Key() const;
     virtual std::string Value() const;
     virtual std::vector<std::string> GetStrArrValue() const;
@@ -91,11 +91,12 @@ class JsonType
 private:
     std::vector<JsonElementType> m_data;
     void FromString(const std::string& data);
+
 public:
     JsonType();
-    JsonType(const std::string& data);
-    virtual std::string operator[] (const std::string& key) const;
-    virtual std::vector<std::string> GetStrArrValue (const std::string& key) const;
+    explicit JsonType(const std::string& data);
+    virtual std::string operator[](const std::string& key) const;
+    virtual std::vector<std::string> GetStrArrValue(const std::string& key) const;
     virtual void Add(const std::string& data);
     virtual void Add(const JsonElementType& data);
     virtual void Add(const std::string& key, const std::string& value);
@@ -106,36 +107,35 @@ public:
 class JsonValueType
 {
 private:
-
 public:
     JsonValueType();
     virtual std::string ToString() const = 0;
-    virtual std::string Value()const = 0;
+    virtual std::string Value() const = 0;
     virtual JsonValueType* Clone() const = 0;
     virtual std::vector<std::string> GetStrArr() const;
     virtual ~JsonValueType();
-
 };
 
 class IntJsonValueType : public JsonValueType
 {
 private:
     int m_value;
+
 public:
-    IntJsonValueType(int value = 0);
+    explicit IntJsonValueType(int value = 0);
     virtual std::string ToString() const;
     virtual std::string Value() const;
     virtual IntJsonValueType* Clone() const;
     virtual ~IntJsonValueType();
-
 };
 
 class JsonJsonValueType : public JsonValueType
 {
 private:
     JsonType m_value;
+
 public:
-    JsonJsonValueType(const JsonType& value);
+    explicit JsonJsonValueType(const JsonType& value);
     virtual JsonJsonValueType* Clone() const;
     virtual std::string ToString() const;
     virtual std::string Value() const;
@@ -145,22 +145,21 @@ public:
 class NullJsonValueType : public JsonValueType
 {
 private:
-
 public:
     NullJsonValueType();
     virtual NullJsonValueType* Clone() const;
     virtual std::string ToString() const;
     virtual std::string Value() const;
     virtual ~NullJsonValueType();
-
 };
 
 class StringJsonValueType : public JsonValueType
 {
 private:
     std::string m_value;
+
 public:
-    StringJsonValueType(const std::string& value);
+    explicit StringJsonValueType(const std::string& value);
     virtual StringJsonValueType* Clone() const;
     virtual std::string ToString() const;
     virtual std::string Value() const;
@@ -171,12 +170,13 @@ class VectorJsonValueType : public JsonValueType
 {
 private:
     std::vector<JsonValueType*> m_value;
+
 public:
-    VectorJsonValueType(const std::vector<JsonValueType*>& value);
+    explicit VectorJsonValueType(const std::vector<JsonValueType*>& value);
     virtual VectorJsonValueType* Clone() const;
     virtual std::string ToString() const;
     virtual std::string Value() const;
     virtual std::vector<std::string> GetStrArr() const;
     virtual ~VectorJsonValueType();
 };
-}
+} // namespace ddgen

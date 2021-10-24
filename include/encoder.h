@@ -7,15 +7,14 @@
 
 #pragma once
 
-namespace ddgen
-{
+namespace ddgen {
 
-#define G711_PACKET_SIZE 160    /**< G711 packet size is 160 samples, 20ms data at 8kHz sampling */
-#define G722_PACKET_SIZE 320    /**< G722 packet size is 320 sapmles, 20ms data at 16kHz sampling */
-#define PACKET_DURATION 20    /**< Default packet duration is 20ms */
-#define G711a_RTP_PAYLOAD_TYPE 0x8    //*< G711a rtp payload type */
-#define G711u_RTP_PAYLOAD_TYPE 0x0    //*< G711u rtp payload type */
-#define G722_RTP_PAYLOAD_TYPE 0x9    //*< G722 rtp payload type */
+#define G711_PACKET_SIZE 160       /**< G711 packet size is 160 samples, 20ms data at 8kHz sampling */
+#define G722_PACKET_SIZE 320       /**< G722 packet size is 320 sapmles, 20ms data at 16kHz sampling */
+#define PACKET_DURATION 20         /**< Default packet duration is 20ms */
+#define G711a_RTP_PAYLOAD_TYPE 0x8 //*< G711a rtp payload type */
+#define G711u_RTP_PAYLOAD_TYPE 0x0 //*< G711u rtp payload type */
+#define G722_RTP_PAYLOAD_TYPE 0x9  //*< G722 rtp payload type */
 
 /**
  * @brief Abstract encoder interface
@@ -27,17 +26,20 @@ namespace ddgen
 class EncoderType
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    EncoderType() {}
+    EncoderType()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~EncoderType() {}
+    virtual ~EncoderType()
+    {
+    }
 
     /**
      * @brief Pure virtual interface for encoding
@@ -71,7 +73,10 @@ public:
      * @return default packet duration
      * @see GetPacketSize()
      */
-    virtual unsigned short int GetPacketDuration () const { return PACKET_DURATION; }
+    virtual unsigned short int GetPacketDuration() const
+    {
+        return PACKET_DURATION;
+    }
 };
 
 /**
@@ -84,17 +89,20 @@ public:
 class G711aEncoderType : public EncoderType
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G711aEncoderType() {}
+    G711aEncoderType()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G711aEncoderType() {}
+    virtual ~G711aEncoderType()
+    {
+    }
 
     /**
      * @brief g711u encoding implementation
@@ -114,7 +122,10 @@ public:
      *
      * @return rtp payload type of encoder
      */
-    virtual unsigned char GetRtpPayload() const { return G711a_RTP_PAYLOAD_TYPE; }
+    virtual unsigned char GetRtpPayload() const
+    {
+        return G711a_RTP_PAYLOAD_TYPE;
+    }
 
     /**
      * @brief Implementation for obtaining packet size
@@ -122,7 +133,10 @@ public:
      * Default packet size of G711aEncoderType is G711_PACKET_SIZE samples.
      * @return packet size of encoder
      */
-    virtual unsigned short int GetPacketSize() const { return G711_PACKET_SIZE; }
+    virtual unsigned short int GetPacketSize() const
+    {
+        return G711_PACKET_SIZE;
+    }
 };
 
 /**
@@ -135,17 +149,20 @@ public:
 class G711uEncoderType : public EncoderType
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G711uEncoderType() {}
+    G711uEncoderType()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G711uEncoderType() {}
+    virtual ~G711uEncoderType()
+    {
+    }
 
     /**
      * @brief g711u encoding implementation
@@ -165,7 +182,10 @@ public:
      *
      * @return rtp payload type of encoder
      */
-    virtual unsigned char GetRtpPayload() const { return G711u_RTP_PAYLOAD_TYPE; }
+    virtual unsigned char GetRtpPayload() const
+    {
+        return G711u_RTP_PAYLOAD_TYPE;
+    }
 
     /**
      * @brief Implementation for obtaining packet size
@@ -173,7 +193,10 @@ public:
      * Default packet size of G711uEncoderType is G711_PACKET_SIZE samples.
      * @return packet size of encoder
      */
-    virtual unsigned short int GetPacketSize() const { return G711_PACKET_SIZE; }
+    virtual unsigned short int GetPacketSize() const
+    {
+        return G711_PACKET_SIZE;
+    }
 };
 
 /**
@@ -186,17 +209,20 @@ public:
 class EncoderFactory
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    EncoderFactory() {}
+    EncoderFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~EncoderFactory() {}
+    virtual ~EncoderFactory()
+    {
+    }
 
     /**
      * @brief pure virtual interface for encoder generation
@@ -209,17 +235,20 @@ public:
 class G711aEncoderFactory : public EncoderFactory
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G711aEncoderFactory() { }
+    G711aEncoderFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G711aEncoderFactory() {}
+    virtual ~G711aEncoderFactory()
+    {
+    }
 
     /**
      * @brief Implementation of encoder generation
@@ -228,23 +257,29 @@ public:
      * @see EncoderType()
      * @see G711aEncoderType()
      */
-    virtual EncoderType* CreateEncoder() const { return new G711aEncoderType(); }
+    virtual EncoderType* CreateEncoder() const
+    {
+        return new G711aEncoderType();
+    }
 };
 
 class G711uEncoderFactory : public EncoderFactory
 {
 private:
-
 public:
     /**
      * @brief Default constructor, does not perform any specific operation
      */
-    G711uEncoderFactory() {}
+    G711uEncoderFactory()
+    {
+    }
 
     /**
      * @brief Default destructor, does not perform any specific operation
      */
-    virtual ~G711uEncoderFactory() {}
+    virtual ~G711uEncoderFactory()
+    {
+    }
 
     /**
      * @brief Implementation of encoder generation
@@ -253,6 +288,9 @@ public:
      * @see EncoderType()
      * @see G711uEncoderType()
      */
-    virtual EncoderType* CreateEncoder() const { return new G711uEncoderType(); }
+    virtual EncoderType* CreateEncoder() const
+    {
+        return new G711uEncoderType();
+    }
 };
-}
+} // namespace ddgen

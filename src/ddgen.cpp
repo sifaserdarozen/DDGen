@@ -17,22 +17,16 @@
 
 bool SleepSystemUsec(unsigned long long int sleep_usec)
 {
-    timespec sleep_timespec = {((time_t) sleep_usec/1000000), ((long int)((sleep_usec % 1000000) * 1000))};
+    timespec sleep_timespec = { ((time_t)sleep_usec / 1000000), ((long int)((sleep_usec % 1000000) * 1000)) };
     timespec unused_timespec;
 
-    for (;;)
-    {
-        if (0 == nanosleep(&sleep_timespec, &unused_timespec))
-        {
+    for (;;) {
+        if (0 == nanosleep(&sleep_timespec, &unused_timespec)) {
             return true;
-        }
-        else if (EINTR == errno )
-        {
+        } else if (EINTR == errno) {
             std::cerr << "Interrupted sleep with sleep value: " << sleep_usec << " at: bool SleepSystemUsec()" << std::endl;
             sleep_timespec = unused_timespec;
-        }
-        else
-        {
+        } else {
             std::cerr << "Errror in nanosleep(), error: " << errno << " sleep value: " << sleep_usec << " at: bool SleepSystemUsec()" << std::endl;
             return false;
         }
@@ -45,13 +39,15 @@ int main(int argc, char* argv[])
 
     ddgen::ProgramOptions program_options(argc, argv);
 
-    auto callLogger = ddgen::CallLoggerFactory::CreateCallLogger( { program_options.useDb, program_options.dbPath, program_options.stackName } );
+    auto callLogger = ddgen::CallLoggerFactory::CreateCallLogger({ program_options.useDb, program_options.dbPath, program_options.stackName });
 
     ddgen::G711aEncoderFactory g711a_encoder_factory;
     ddgen::SingleToneGeneratorFactory single_tone_generator_factory;
 
-    auto callFactory = ddgen::CallFactoryFactory::CreateCallFactory( { program_options.traffic, program_options.drlinkIpPortVector, program_options.startIp } );
-    auto consumer = ddgen::ConsumerFactory::CreateConsumer( { program_options.output, program_options.dstIpPortVector, program_options.useS3, program_options.stackName } );
+    auto callFactory =
+        ddgen::CallFactoryFactory::CreateCallFactory({ program_options.traffic, program_options.drlinkIpPortVector, program_options.startIp });
+    auto consumer = ddgen::ConsumerFactory::CreateConsumer(
+        { program_options.output, program_options.dstIpPortVector, program_options.useS3, program_options.stackName });
 
     std::vector<std::unique_ptr<ddgen::Call>> call_ptr_vector;
 
@@ -72,13 +68,12 @@ int main(int argc, char* argv[])
 
     ddgen::WebInterface web_interface(program_options.shouldUseSecureWebInterface);
 
-    while(true)
-    {
-        if (program_options.shouldStart && (call_ptr_vector.size() < program_options.numberOfCalls))
-        {
+    while (true) {
+        if (program_options.shouldStart && (call_ptr_vector.size() < program_options.numberOfCalls)) {
             unsigned short int call_duration = usint_distribution(generator);
 
-            std::unique_ptr<ddgen::Call> call = callFactory->CreateCall({ call_duration, callLogger, &g711a_encoder_factory, &single_tone_generator_factory, consumer });
+            std::unique_ptr<ddgen::Call> call =
+                callFactory->CreateCall({ call_duration, callLogger, &g711a_encoder_factory, &single_tone_generator_factory, consumer });
 
             call_ptr_vector.push_back(std::move(call));
             std::cout << " a call is created with duration " << call_duration << std::endl;
@@ -87,18 +82,14 @@ int main(int argc, char* argv[])
         const auto current_time = std::chrono::steady_clock::now();
         const auto ellapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(current_time - last_time).count();
 
-        if (ellapsed_time > 40000)
-        {
+        if (ellapsed_time > 40000) {
             std::clog << __FILE__ << " " << __LINE__ << "... too much lag: " << ellapsed_time / 1000 << " ms " << std::endl;
         }
 
-        if (ellapsed_time > 20000)
-        {
-            for (std::vector<std::unique_ptr<ddgen::Call>>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it)
-            {
-                const bool step_result = (*it) -> Step(20);
-                if (false == step_result)
-                {
+        if (ellapsed_time > 20000) {
+            for (std::vector<std::unique_ptr<ddgen::Call>>::iterator it = call_ptr_vector.begin(); it != call_ptr_vector.end(); ++it) {
+                const bool step_result = (*it)->Step(20);
+                if (false == step_result) {
                     std::clog << "a calltimed out " << std::endl;
                     it = call_ptr_vector.erase(it);
                     --it;
@@ -106,9 +97,7 @@ int main(int argc, char* argv[])
             }
 
             last_time = current_time;
-        }
-        else
-        {
+        } else {
             const auto sleep_time = 20000 - ellapsed_time;
             SleepSystemUsec(sleep_time);
         }

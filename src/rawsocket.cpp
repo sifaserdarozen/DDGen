@@ -4,15 +4,13 @@
 #include <iostream>
 #include <netinet/in.h>
 
-namespace ddgen
-{
+namespace ddgen {
 
 unsigned short int OnesComplementShortSummation(const unsigned char* data_ptr, unsigned short int data_size)
 {
     unsigned int sum = 0;
 
-    for (unsigned short int i = 0; i < data_size/2; i++)
-    {
+    for (unsigned short int i = 0; i < data_size / 2; i++) {
         sum += ntohs(*((unsigned short int*)data_ptr));
         data_ptr += 2;
     }
@@ -35,7 +33,7 @@ bool RtpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const RtpHeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const RtpHeaderType*>(buffer_ptr));
 
     // correct seq_num, time stamp and ssrc from network byte order to host byte order
     seq_num = ntohs(seq_num);
@@ -58,12 +56,12 @@ bool RtpHeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
     dummy_rtp_header.ssrc = htonl(dummy_rtp_header.ssrc);
 
     // write whole bunch
-    *((RtpHeaderType*)buffer_ptr) = dummy_rtp_header;
+    *(reinterpret_cast<RtpHeaderType*>(buffer_ptr)) = dummy_rtp_header;
 
     return true;
 }
 
-bool RtpHeaderType::operator ==(const RtpHeaderType& rhs) const
+bool RtpHeaderType::operator==(const RtpHeaderType& rhs) const
 {
     if (0 == std::memcmp(this, &rhs, sizeof(RtpHeaderType)))
         return true;
@@ -71,26 +69,25 @@ bool RtpHeaderType::operator ==(const RtpHeaderType& rhs) const
         return false;
 }
 
+// cppcheck-suppress unusedFunction
 void RtpHeaderType::Display() const
 {
     std::cout << "------------------ RTP Header ---------------------" << std::endl;
-    std::cout << "Version               : " << (unsigned int) version << std::endl;
-    std::cout << "Padding flag          : " << (unsigned int) p << std::endl;
-    std::cout << "Extension flag        : " << (unsigned int) x << std::endl;
-    std::cout << "cc                    : " << (unsigned int) cc << std::endl;
-    std::cout << "Mark flag             : " << (unsigned int) m << std::endl;
-    std::cout << "Payload               : " << (unsigned int) payload << std::endl;
+    std::cout << "Version               : " << (unsigned int)version << std::endl;
+    std::cout << "Padding flag          : " << (unsigned int)p << std::endl;
+    std::cout << "Extension flag        : " << (unsigned int)x << std::endl;
+    std::cout << "cc                    : " << (unsigned int)cc << std::endl;
+    std::cout << "Mark flag             : " << (unsigned int)m << std::endl;
+    std::cout << "Payload               : " << (unsigned int)payload << std::endl;
     std::cout << "Sequence number       : " << seq_num << std::endl;
     std::cout << "Time stamp            : " << timestamp << std::endl;
     std::cout << "Source identification : " << (std::hex) << ssrc << (std::dec) << std::endl;
-
 }
 
 // *************************************** PseudoIpv4HeaderType *********************************************
 
 bool PseudoIpv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
 {
-
     // check if buffer_ptr points to somewhere (hopefully) to 12 byte pseudo ipv4 header
     if (NULL == buffer_ptr)
         return false;
@@ -104,7 +101,7 @@ bool PseudoIpv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr) const
     dummy_pseudo_ipv4_header.dst_addr = htonl(dst_addr);
 
     // write whole bunch
-    *((PseudoIpv4HeaderType*)buffer_ptr) = dummy_pseudo_ipv4_header;
+    *(reinterpret_cast<PseudoIpv4HeaderType*>(buffer_ptr)) = dummy_pseudo_ipv4_header;
 
     return true;
 }
@@ -127,7 +124,7 @@ bool Ipv4HeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const Ipv4HeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const Ipv4HeaderType*>(buffer_ptr));
 
     // correct seq_num, time stamp from network byte order to host byte order
     tot_len = ntohs(tot_len);
@@ -161,7 +158,7 @@ bool Ipv4HeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr)
     dummy_ipv4_header.dst_addr = htonl(dst_addr);
 
     // write whole bunch
-    *((Ipv4HeaderType*)buffer_ptr) = dummy_ipv4_header;
+    *(reinterpret_cast<Ipv4HeaderType*>(buffer_ptr)) = dummy_ipv4_header;
 
     // calculate checksum
     checksum = ~(OnesComplementShortSummation(buffer_ptr, ipv4_header_size));
@@ -194,12 +191,12 @@ bool Ipv4HeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_ipv4_header.dst_addr = htonl(dst_addr);
 
     // write whole bunch
-    *((Ipv4HeaderType*)buffer_ptr) = dummy_ipv4_header;
+    *(reinterpret_cast<Ipv4HeaderType*>(buffer_ptr)) = dummy_ipv4_header;
 
     return true;
 }
 
-bool Ipv4HeaderType::operator ==(const Ipv4HeaderType& rhs) const
+bool Ipv4HeaderType::operator==(const Ipv4HeaderType& rhs) const
 {
     if (0 == std::memcmp(this, &rhs, sizeof(Ipv4HeaderType)))
         return true;
@@ -210,14 +207,14 @@ bool Ipv4HeaderType::operator ==(const Ipv4HeaderType& rhs) const
 void Ipv4HeaderType::Display() const
 {
     std::cout << "------------------ Ipv4 Header ---------------------" << std::endl;
-    std::cout << "Version                 : " << (unsigned int) version << std::endl;
-    std::cout << "Header length           : " << (unsigned int) hdr_len << std::endl;
-    std::cout << "Service type            : " << std::hex << (unsigned int) service_type << std::dec << std::endl;
+    std::cout << "Version                 : " << (unsigned int)version << std::endl;
+    std::cout << "Header length           : " << (unsigned int)hdr_len << std::endl;
+    std::cout << "Service type            : " << std::hex << (unsigned int)service_type << std::dec << std::endl;
     std::cout << "Total length            : " << tot_len << std::endl;
     std::cout << "Sequence identification : " << std::hex << id << std::dec << std::endl;
     std::cout << "Fragment information    : " << std::hex << fragment << std::dec << std::endl;
-    std::cout << "Time to live            : " << (unsigned int) ttl << std::endl;
-    std::cout << "Protocol                : " << (unsigned int) protocol << std::endl;
+    std::cout << "Time to live            : " << (unsigned int)ttl << std::endl;
+    std::cout << "Protocol                : " << (unsigned int)protocol << std::endl;
     std::cout << "Header checksum         : " << std::hex << checksum << std::dec << std::endl;
     std::cout << "Source address          : " << std::hex << src_addr << std::dec << std::endl;
     std::cout << "Destination address     : " << std::hex << dst_addr << std::dec << std::endl;
@@ -237,7 +234,7 @@ bool UdpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const UdpHeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const UdpHeaderType*>(buffer_ptr));
 
     // correct seq_num, time stamp from network byte order to host byte order
     src_port = ntohs(src_port);
@@ -248,7 +245,9 @@ bool UdpHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
     return true;
 }
 
-bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const unsigned char* udp_data_ptr, const PseudoIpv4HeaderType& pseudo_ipv4_header)
+bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr,
+                                                const unsigned char* udp_data_ptr,
+                                                const PseudoIpv4HeaderType& pseudo_ipv4_header)
 {
     // check if buffer_ptr points to somewhere (hopefully) to 8 byte udp header
     if (NULL == buffer_ptr)
@@ -269,10 +268,10 @@ bool UdpHeaderType::UpdateChecksumWriteToBuffer(unsigned char* buffer_ptr, const
     dummy_udp_header.checksum = htons(0);
 
     // write whole bunch
-    *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
+    *(reinterpret_cast<UdpHeaderType*>(buffer_ptr)) = dummy_udp_header;
 
     // calculate checksum
-    sum  += OnesComplementShortSummation(buffer_ptr, udp_header_size);
+    sum += OnesComplementShortSummation(buffer_ptr, udp_header_size);
     checksum = ~(((sum >> 16) + (sum & 0x0000ffff)));
 
     // write it also into buffer_ptr
@@ -295,12 +294,12 @@ bool UdpHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_udp_header.checksum = htons(checksum);
 
     // write whole bunch
-    *((UdpHeaderType*)buffer_ptr) = dummy_udp_header;
+    *(reinterpret_cast<UdpHeaderType*>(buffer_ptr)) = dummy_udp_header;
 
     return true;
 }
 
-bool UdpHeaderType::operator ==(const UdpHeaderType& rhs) const
+bool UdpHeaderType::operator==(const UdpHeaderType& rhs) const
 {
     if (0 == std::memcmp(this, &rhs, sizeof(UdpHeaderType)))
         return true;
@@ -328,7 +327,7 @@ bool CheckUdpChecksum(const unsigned char* line_udp_packet_ptr, const PseudoIpv4
 
     unsigned int sum = OnesComplementShortSummation(line_pseudo_ipv4_ptr, pseudo_ipv4_header_size);
 
-    sum += OnesComplementShortSummation(line_udp_packet_ptr,  ntohs(*((unsigned short int*)(line_udp_packet_ptr + 4))));
+    sum += OnesComplementShortSummation(line_udp_packet_ptr, ntohs(*((unsigned short int*)(line_udp_packet_ptr + 4))));
 
     return ((unsigned short int)((sum >> 16) + (sum & 0x0000ffff)) == 0xffff);
 }
@@ -342,7 +341,7 @@ bool EthHeaderType::ReadFromBuffer(const unsigned char* buffer_ptr)
         return false;
 
     // read whole bunch
-    *this = *((const EthHeaderType*)buffer_ptr);
+    *this = *(reinterpret_cast<const EthHeaderType*>(buffer_ptr));
 
     // correct ether type to host byte order
     eth_type = ntohs(eth_type);
@@ -361,7 +360,7 @@ bool EthHeaderType::WriteToBuffer(unsigned char* buffer_ptr)
     dummy_eth_header.eth_type = htons(eth_type);
 
     // write whole bunch
-    *((EthHeaderType*)buffer_ptr) = dummy_eth_header;
+    *(reinterpret_cast<EthHeaderType*>(buffer_ptr)) = dummy_eth_header;
 
     return true;
 }
@@ -370,9 +369,11 @@ void EthHeaderType::Display() const
 {
     std::cout << "------------------ Ethernet Header ---------------------" << std::endl;
     std::cout << std::hex;
-    std::cout << "Source mac         : " << (unsigned int)src_mac[0] << ":" << (unsigned int)src_mac[1] << ":" << (unsigned int)src_mac[2] << ":" << (unsigned int)src_mac[3] << ":" << (unsigned int)src_mac[4] << ":" << (unsigned int)src_mac[5] << std::endl;
-    std::cout << "Destination max    : " << (unsigned int)dst_mac[0] << ":" << (unsigned int)dst_mac[1] << ":" << (unsigned int)dst_mac[2] << ":" << (unsigned int)dst_mac[3] << ":" << (unsigned int)dst_mac[4] << ":" << (unsigned int)dst_mac[5] << std::endl;
+    std::cout << "Source mac         : " << (unsigned int)src_mac[0] << ":" << (unsigned int)src_mac[1] << ":" << (unsigned int)src_mac[2] << ":"
+              << (unsigned int)src_mac[3] << ":" << (unsigned int)src_mac[4] << ":" << (unsigned int)src_mac[5] << std::endl;
+    std::cout << "Destination max    : " << (unsigned int)dst_mac[0] << ":" << (unsigned int)dst_mac[1] << ":" << (unsigned int)dst_mac[2] << ":"
+              << (unsigned int)dst_mac[3] << ":" << (unsigned int)dst_mac[4] << ":" << (unsigned int)dst_mac[5] << std::endl;
     std::cout << "Protocol           : " << eth_type << std::endl;
     std::cout << std::dec;
 }
-}
+} // namespace ddgen

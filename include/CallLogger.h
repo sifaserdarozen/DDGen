@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined DBASE  &&  DBASE == DynamoDB
+#if defined DBASE && DBASE == DynamoDB
 #include <aws/core/Aws.h>
 #else
 
@@ -13,48 +13,47 @@
 #include <vector>
 
 namespace Aws {
-namespace DynamoDB
-{
-    using DynamoDBClientPtr = std::unique_ptr<class DynamoDBClient>;
+namespace DynamoDB {
+using DynamoDBClientPtr = std::unique_ptr<class DynamoDBClient>;
 }
-}
+} // namespace Aws
 
-namespace ddgen
-{
+namespace ddgen {
 
 class ICallLogger
 {
 public:
-
 public:
-   virtual ~ICallLogger() = default;
-   virtual void LogCall(const CallParameters& parameters) = 0;
+    virtual ~ICallLogger() = default;
+    virtual void LogCall(const CallParameters& parameters) = 0;
 };
 
 class NullCallLogger : public ICallLogger
 {
 public:
-   NullCallLogger() = default;
-   virtual ~NullCallLogger() = default;
-   void LogCall(const CallParameters& parameters) override {};
+    NullCallLogger() = default;
+    virtual ~NullCallLogger() = default;
+    void LogCall(const CallParameters& parameters) override{};
 };
 
-#if defined DBASE  &&  DBASE == DynamoDB
+#if defined DBASE && DBASE == DynamoDB
 class DynamoDBCallLogger : public ICallLogger
 {
 public:
-    struct Keys {
+    struct Keys
+    {
         const std::string table;
         const std::string name;
         const std::string duration;
-        Keys(const std::string& stackName) : table(stackName + "-calls"), name("Name"), duration("DurationInMs") {}
-            
+        Keys(const std::string& stackName) : table(stackName + "-calls"), name("Name"), duration("DurationInMs")
+        {
+        }
     };
 
- public:
-   DynamoDBCallLogger(const std::string& dbPath, const std::string& stackName);
-   virtual ~DynamoDBCallLogger();
-   void LogCall(const CallParameters& parameters) override;
+public:
+    DynamoDBCallLogger(const std::string& dbPath, const std::string& stackName);
+    virtual ~DynamoDBCallLogger();
+    void LogCall(const CallParameters& parameters) override;
 
 private:
     void _checkTable();
@@ -68,4 +67,4 @@ private:
     Aws::SDKOptions _options;
 };
 #endif
-}
+} // namespace ddgen

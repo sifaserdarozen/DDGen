@@ -1,9 +1,9 @@
 FROM alpine:3.11 AS build
-RUN apk update && apk add gcc g++ make cmake git zlib-dev openssl-dev curl-dev
+RUN apk update && apk add --no-cache gcc g++ make cmake git zlib-dev openssl-dev curl-dev
 WORKDIR /src/
 COPY . /src
 RUN ["chmod", "+x", "configure.sh"]
-RUN ["./configure.sh", "--use-dynamodb", "--use-s3"]
+RUN ["./configure.sh"]
 RUN ["make"]
 
 FROM alpine:3.11
@@ -16,7 +16,7 @@ COPY ./docker/certificate /ddgen/.
 #ENTRYPOINT ["/bin/ddgen_utests"]
 #ENTRYPOINT ["/bin/ddgen --nc 10 --dc 6 --socket 10.228.210.40 28008 --mirror"]
 
-ADD docker/start.sh /ddgen/
-ADD docker/cert-generate.sh /ddgen/
+COPY docker/start.sh /ddgen/
+COPY docker/cert-generate.sh /ddgen/
 
 ENTRYPOINT ["tini", "--", "./start.sh"]
